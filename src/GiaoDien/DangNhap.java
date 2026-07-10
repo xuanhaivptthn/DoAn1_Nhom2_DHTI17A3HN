@@ -13,7 +13,7 @@ public class DangNhap extends javax.swing.JFrame {
      */
     public DangNhap() {
         initComponents();
-        setupLogic();
+        setupLogic();;
     }
 
     private void setupLogic() {
