@@ -14,7 +14,7 @@ public class DoAn1_Nhom2_DHTI17A3HN {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        Interface.DangNhap.main(args);
+        GiaoDien.DangNhap.main(args);
     }
     
 }
