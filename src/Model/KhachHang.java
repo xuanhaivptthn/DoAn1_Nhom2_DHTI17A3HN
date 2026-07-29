@@ -18,13 +18,17 @@ public class KhachHang {
     }
 
     public KhachHang(int id, String hoTen, String soDienThoai, String email, String ghiChu) {
+        this(id, hoTen, soDienThoai, email, ghiChu, 1);
+    }
+
+    public KhachHang(int id, String hoTen, String soDienThoai, String email, String ghiChu, int soLanDatSan) {
         this.id = id;
         this.maKhachHang = String.format("KH%03d", id);
         this.hoTen = hoTen;
         this.soDienThoai = soDienThoai;
         this.email = email;
         this.ghiChu = ghiChu;
-        this.soLanDatSan = 1;
+        this.soLanDatSan = soLanDatSan;
     }
 
     public int getId() { return id; }

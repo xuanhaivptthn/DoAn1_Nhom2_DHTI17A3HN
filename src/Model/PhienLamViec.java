@@ -4,6 +4,7 @@ package Model;
  * Phiên làm việc (session) sau khi đăng nhập.
  */
 public class PhienLamViec {
+    private int id;
     private String sessionId;
     private String tenDangNhap;
     private String hoTen;
@@ -19,6 +20,12 @@ public class PhienLamViec {
 
     public PhienLamViec(String sessionId, String tenDangNhap, String hoTen, String vaiTro,
                         String thoiGianDangNhap, String thoiGianDangXuat,
+                        String trangThai) {
+        this(sessionId, tenDangNhap, hoTen, vaiTro, thoiGianDangNhap, thoiGianDangXuat, trangThai, "127.0.0.1", "Desktop App (Java Swing)");
+    }
+
+    public PhienLamViec(String sessionId, String tenDangNhap, String hoTen, String vaiTro,
+                        String thoiGianDangNhap, String thoiGianDangXuat,
                         String trangThai, String diaChiIp, String thietBi) {
         this.sessionId = sessionId;
         this.tenDangNhap = tenDangNhap;
@@ -30,6 +37,9 @@ public class PhienLamViec {
         this.diaChiIp = diaChiIp;
         this.thietBi = thietBi;
     }
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
 
     public String getSessionId() { return sessionId; }
     public void setSessionId(String sessionId) { this.sessionId = sessionId; }

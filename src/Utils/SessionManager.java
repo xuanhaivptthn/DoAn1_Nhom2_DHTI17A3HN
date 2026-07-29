@@ -34,6 +34,33 @@ public final class SessionManager {
             return Optional.of("Vui lòng nhập mật khẩu.");
         }
 
+        if (DataStore.isUseDatabase()) {
+            if (!DAO.DBConnect.testConnection()) {
+                return Optional.of("Lỗi kết nối CSDL MySQL! Vui lòng bật MySQL trên XAMPP hoặc chọn 'Dữ liệu mẫu'.");
+            }
+            try {
+                TaiKhoan dbUser = new DAO.TaiKhoanDAO().findByUsernameAndPassword(username.trim(), password);
+                if (dbUser != null) {
+                    if (!dbUser.isHoatDong()) {
+                        return Optional.of("Tài khoản của bạn hiện đang bị khóa.");
+                    }
+                    this.currentUser = dbUser;
+                    int nextId = DataStore.get().getPhienHistory().size() + 1;
+                    String sid = String.format("SES-%04d", nextId);
+                    String now = LocalDateTime.now().format(FMT);
+                    this.currentSession = new PhienLamViec(sid, dbUser.getTenDangNhap(), dbUser.getHoTen(), dbUser.getVaiTro(),
+                            now, null, "DangHoatDong", "127.0.0.1", "Desktop App (Java Swing)");
+                    DataStore.get().getPhienHistory().add(0, currentSession);
+                    try { new DAO.PhienLamViecDAO().insert(currentSession); } catch (Exception ignored) {}
+                    return Optional.empty();
+                } else {
+                    return Optional.of("Tên đăng nhập hoặc mật khẩu không đúng.");
+                }
+            } catch (Exception ex) {
+                return Optional.of("Lỗi kết nối CSDL MySQL: " + ex.getMessage());
+            }
+        }
+
         List<TaiKhoan> list = DataStore.get().getTaiKhoans();
         Optional<TaiKhoan> opt = list.stream()
                 .filter(u -> u.getTenDangNhap().equalsIgnoreCase(username.trim()) && u.getMatKhau().equals(password))

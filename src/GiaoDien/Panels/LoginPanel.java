@@ -32,6 +32,7 @@ public class LoginPanel extends javax.swing.JPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnLogin;
+    private javax.swing.JComboBox<String> cboDataSource;
     private javax.swing.JLabel lblError;
     private javax.swing.JLabel lblFooter;
     private javax.swing.JLabel lblHint;
@@ -101,15 +102,15 @@ public class LoginPanel extends javax.swing.JPanel {
         pnlCenter.setLayout(new java.awt.GridBagLayout());
 
         pnlCard.setOpaque(false);
-        pnlCard.setPreferredSize(new java.awt.Dimension(420, 480));
-        pnlCard.setBorder(BorderFactory.createEmptyBorder(28, 32, 28, 32));
+        pnlCard.setPreferredSize(new java.awt.Dimension(440, 540));
+        pnlCard.setBorder(BorderFactory.createEmptyBorder(20, 28, 20, 28));
         pnlCard.setLayout(new java.awt.BorderLayout());
 
         pnlTop.setOpaque(false);
-        pnlTop.setLayout(new java.awt.BorderLayout(0, 8));
+        pnlTop.setLayout(new java.awt.BorderLayout(0, 6));
 
         lblIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        javax.swing.ImageIcon ballIcon = Utils.IconUtils.getBallBlackIcon(48);
+        javax.swing.ImageIcon ballIcon = Utils.IconUtils.getBallBlackIcon(44);
         if (ballIcon != null) {
             lblIcon.setIcon(ballIcon);
             lblIcon.setText("");
@@ -120,7 +121,7 @@ public class LoginPanel extends javax.swing.JPanel {
         pnlTop.add(lblIcon, java.awt.BorderLayout.NORTH);
 
         pnlTitles.setOpaque(false);
-        pnlTitles.setLayout(new java.awt.BorderLayout(0, 4));
+        pnlTitles.setLayout(new java.awt.BorderLayout(0, 2));
 
         lblTitle.setFont(UIConstants.FONT_TITLE);
         lblTitle.setForeground(UIConstants.PRIMARY);
@@ -139,7 +140,7 @@ public class LoginPanel extends javax.swing.JPanel {
         pnlCard.add(pnlTop, java.awt.BorderLayout.NORTH);
 
         pnlForm.setOpaque(false);
-        pnlForm.setBorder(BorderFactory.createEmptyBorder(20, 0, 12, 0));
+        pnlForm.setBorder(BorderFactory.createEmptyBorder(10, 0, 8, 0));
         pnlForm.setLayout(new java.awt.GridBagLayout());
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -147,10 +148,10 @@ public class LoginPanel extends javax.swing.JPanel {
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(6, 0, 4, 0);
+        gridBagConstraints.insets = new java.awt.Insets(4, 0, 2, 0);
         pnlForm.add(lblUserLabel, gridBagConstraints);
 
-        txtUser.setPreferredSize(new java.awt.Dimension(0, 40));
+        txtUser.setPreferredSize(new java.awt.Dimension(0, 36));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
@@ -163,37 +164,61 @@ public class LoginPanel extends javax.swing.JPanel {
         gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(14, 0, 4, 0);
+        gridBagConstraints.insets = new java.awt.Insets(8, 0, 2, 0);
         pnlForm.add(lblPassLabel, gridBagConstraints);
 
-        txtPass.setPreferredSize(new java.awt.Dimension(0, 40));
+        txtPass.setPreferredSize(new java.awt.Dimension(0, 36));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(6, 0, 4, 0);
+        gridBagConstraints.insets = new java.awt.Insets(4, 0, 2, 0);
         pnlForm.add(txtPass, gridBagConstraints);
+
+        JLabel lblModeLabel = new JLabel("Nguồn dữ liệu kết nối:");
+        lblModeLabel.setFont(UIConstants.FONT_SMALL);
+        lblModeLabel.setForeground(UIConstants.TEXT_SECONDARY);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(8, 0, 2, 0);
+        pnlForm.add(lblModeLabel, gridBagConstraints);
+
+        cboDataSource = new javax.swing.JComboBox<>(new String[]{
+                "🗄️ CSDL MySQL (DAO / XAMPP)",
+                "📦 Dữ liệu mẫu (DataStore / In-Memory)"
+        });
+        cboDataSource.setFont(UIConstants.FONT_SMALL);
+        cboDataSource.setPreferredSize(new java.awt.Dimension(0, 34));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        pnlForm.add(cboDataSource, gridBagConstraints);
 
         lblError.setFont(UIConstants.FONT_SMALL);
         lblError.setForeground(UIConstants.DANGER);
         lblError.setText(" ");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 6;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(8, 0, 4, 0);
+        gridBagConstraints.insets = new java.awt.Insets(4, 0, 2, 0);
         pnlForm.add(lblError, gridBagConstraints);
 
-        btnLogin.setPreferredSize(new java.awt.Dimension(0, 42));
+        btnLogin.setPreferredSize(new java.awt.Dimension(0, 40));
         btnLogin.addActionListener(e -> doLogin());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridy = 7;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(16, 0, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(8, 0, 0, 0);
         pnlForm.add(btnLogin, gridBagConstraints);
 
         pnlCard.add(pnlForm, java.awt.BorderLayout.CENTER);
@@ -228,6 +253,9 @@ public class LoginPanel extends javax.swing.JPanel {
     }
 
     private void doLogin() {
+        boolean useDb = cboDataSource != null && cboDataSource.getSelectedIndex() == 0;
+        Utils.DataStore.setUseDatabase(useDb);
+
         Optional<String> error = SessionManager.get().login(txtUser.getText(), new String(txtPass.getPassword()));
         if (error.isPresent()) {
             lblError.setText("[!] " + error.get());

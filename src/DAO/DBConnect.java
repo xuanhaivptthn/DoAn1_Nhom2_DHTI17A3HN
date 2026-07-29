@@ -18,9 +18,17 @@ public class DBConnect {
             Class.forName("com.mysql.cj.jdbc.Driver");
             return DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
         } catch (ClassNotFoundException | SQLException ex) {
-            System.getLogger(DBConnect.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            System.err.println("Lỗi kết nối DBConnect: " + ex.getMessage());
         }
         return null;
+    }
+
+    public static boolean testConnection() {
+        try (Connection conn = getConnection()) {
+            return conn != null && !conn.isClosed();
+        } catch (Exception ex) {
+            return false;
+        }
     }
 }
 
