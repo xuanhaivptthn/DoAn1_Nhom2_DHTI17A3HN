@@ -164,7 +164,9 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
 
         gbc.gridx = 0;
         gbc.gridy = 0;
-        pnlToolbar.add(new javax.swing.JLabel("Tìm kiếm:"), gbc);
+        JLabel lblSearch = new javax.swing.JLabel("Tìm kiếm:");
+        lblSearch.setIcon(Utils.IconUtils.getSearchIcon(16));
+        pnlToolbar.add(lblSearch, gbc);
 
         gbc.gridx = 1;
         gbc.weightx = 1;
@@ -204,17 +206,20 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         actions.setOpaque(false);
 
-        JButton btnAdd = new javax.swing.JButton("+ Thêm mới");
+        JButton btnAdd = new javax.swing.JButton(" Thêm mới");
+        btnAdd.setIcon(Utils.IconUtils.getAddIcon(16));
         PageUI.stylePrimaryButton(btnAdd);
         btnAdd.setPreferredSize(new Dimension(130, 36));
         btnAdd.addActionListener(e -> onAdd());
 
-        JButton btnEdit = new javax.swing.JButton("✎ Sửa");
+        JButton btnEdit = new javax.swing.JButton(" Sửa");
+        btnEdit.setIcon(Utils.IconUtils.getEditIcon(16));
         PageUI.styleSecondaryButton(btnEdit);
         btnEdit.setPreferredSize(new Dimension(100, 36));
         btnEdit.addActionListener(e -> onEdit());
 
-        JButton btnDelete = new javax.swing.JButton("✖ Xóa");
+        JButton btnDelete = new javax.swing.JButton(" Xóa");
+        btnDelete.setIcon(Utils.IconUtils.getDeleteIcon(16));
         PageUI.styleDangerButton(btnDelete);
         btnDelete.setPreferredSize(new Dimension(100, 36));
         btnDelete.addActionListener(e -> onDelete());
@@ -224,7 +229,8 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
         btnLock.setPreferredSize(new Dimension(130, 36));
         btnLock.addActionListener(e -> onToggleLock());
 
-        JButton btnRefresh = new javax.swing.JButton("↻ Làm mới");
+        JButton btnRefresh = new javax.swing.JButton(" Làm mới");
+        btnRefresh.setIcon(Utils.IconUtils.getRefreshIcon(16));
         PageUI.styleSecondaryButton(btnRefresh);
         btnRefresh.setPreferredSize(new Dimension(120, 36));
         btnRefresh.addActionListener(e -> {

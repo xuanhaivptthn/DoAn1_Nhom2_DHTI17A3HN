@@ -476,27 +476,33 @@ public class DashboardPanel extends javax.swing.JPanel {
         JPanel pnlBtns = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 8));
 
         JButton btnBook = new javax.swing.JButton("Thêm lịch đặt mới");
+        btnBook.setIcon(Utils.IconUtils.getAddIcon(16));
         btnBook.addActionListener(e -> onQuickBook());
         pnlBtns.add(btnBook);
 
         JButton btnSell = new javax.swing.JButton("Bán dịch vụ");
+        btnSell.setIcon(Utils.IconUtils.getOpenIcon(16));
         btnSell.addActionListener(e -> onQuickSell());
         pnlBtns.add(btnSell);
 
         JButton btnCheck = new javax.swing.JButton("Kiểm tra sân trống");
+        btnCheck.setIcon(Utils.IconUtils.getCheckIcon(16));
         btnCheck.addActionListener(e -> onCheckSan());
         pnlBtns.add(btnCheck);
 
         JButton btnMaint = new javax.swing.JButton("Thêm lịch bảo trì");
+        btnMaint.setIcon(Utils.IconUtils.getAddIcon(16));
         btnMaint.addActionListener(e -> onQuickMaint());
         pnlBtns.add(btnMaint);
 
         if (pageNavigator != null) {
             JButton btnNavDatLich = new javax.swing.JButton("Xem lịch đặt sân");
+            btnNavDatLich.setIcon(Utils.IconUtils.getOpenIcon(16));
             btnNavDatLich.addActionListener(e -> pageNavigator.accept("datlich"));
             pnlBtns.add(btnNavDatLich);
 
             JButton btnNavDichVu = new javax.swing.JButton("Kho dịch vụ");
+            btnNavDichVu.setIcon(Utils.IconUtils.getOpenIcon(16));
             btnNavDichVu.addActionListener(e -> pageNavigator.accept("dichvu"));
             pnlBtns.add(btnNavDichVu);
         }

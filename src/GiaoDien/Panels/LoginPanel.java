@@ -112,9 +112,15 @@ public class LoginPanel extends javax.swing.JPanel {
         pnlTop.setOpaque(false);
         pnlTop.setLayout(new java.awt.BorderLayout(0, 8));
 
-        lblIcon.setFont(new java.awt.Font("Segoe UI", 1, 24));
         lblIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lblIcon.setText("SAN BONG MANAGER");
+        javax.swing.ImageIcon ballIcon = Utils.IconUtils.getBallBlackIcon(48);
+        if (ballIcon != null) {
+            lblIcon.setIcon(ballIcon);
+            lblIcon.setText("");
+        } else {
+            lblIcon.setFont(new java.awt.Font("Segoe UI", 1, 24));
+            lblIcon.setText("SAN BONG MANAGER");
+        }
         pnlTop.add(lblIcon, java.awt.BorderLayout.NORTH);
 
         pnlTitles.setOpaque(false);

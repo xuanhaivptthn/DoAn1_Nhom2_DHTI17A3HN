@@ -91,7 +91,8 @@ public class MainFrame extends JFrame {
 
         lblLogo.setFont(new java.awt.Font("Segoe UI", 1, 14));
         lblLogo.setForeground(java.awt.Color.WHITE);
-        lblLogo.setText("Cho thuê sân bóng");
+        lblLogo.setText(" Cho thuê sân bóng");
+        lblLogo.setIcon(Utils.IconUtils.getBallWhiteIcon(24));
         pnlBrand.add(lblLogo, java.awt.BorderLayout.NORTH);
 
         lblTag.setFont(UIConstants.FONT_SMALL);

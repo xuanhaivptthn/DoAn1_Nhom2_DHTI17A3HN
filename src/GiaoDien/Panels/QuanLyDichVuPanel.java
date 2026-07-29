@@ -106,27 +106,33 @@ public class QuanLyDichVuPanel extends javax.swing.JPanel {
     }
 
     private void buildToolbar() {
-        JButton btnBanVatPham = new javax.swing.JButton("[+] Bán / Cho thuê vật phẩm");
+        JButton btnBanVatPham = new javax.swing.JButton(" Bán / Cho thuê vật phẩm");
+        btnBanVatPham.setIcon(Utils.IconUtils.getOpenIcon(16));
         PageUI.styleSuccessButton(btnBanVatPham);
         btnBanVatPham.addActionListener(e -> onBanVatPham());
 
-        JButton btnAdd = new javax.swing.JButton("+ Thêm DV");
+        JButton btnAdd = new javax.swing.JButton(" Thêm DV");
+        btnAdd.setIcon(Utils.IconUtils.getAddIcon(16));
         PageUI.stylePrimaryButton(btnAdd);
         btnAdd.addActionListener(e -> onAdd());
 
-        JButton btnDetail = new javax.swing.JButton("[i] Xem chi tiết");
+        JButton btnDetail = new javax.swing.JButton(" Xem chi tiết");
+        btnDetail.setIcon(Utils.IconUtils.getOpenIcon(16));
         PageUI.styleSecondaryButton(btnDetail);
         btnDetail.addActionListener(e -> onViewInfo());
 
-        JButton btnEdit = new javax.swing.JButton("✎ Sửa");
+        JButton btnEdit = new javax.swing.JButton(" Sửa");
+        btnEdit.setIcon(Utils.IconUtils.getEditIcon(16));
         PageUI.styleSecondaryButton(btnEdit);
         btnEdit.addActionListener(e -> onEdit());
 
-        JButton btnDel = new javax.swing.JButton("✖ Xóa");
+        JButton btnDel = new javax.swing.JButton(" Xóa");
+        btnDel.setIcon(Utils.IconUtils.getDeleteIcon(16));
         PageUI.styleDangerButton(btnDel);
         btnDel.addActionListener(e -> onDelete());
 
-        JButton btnRefresh = new javax.swing.JButton("↻ Làm mới dữ liệu");
+        JButton btnRefresh = new javax.swing.JButton(" Làm mới dữ liệu");
+        btnRefresh.setIcon(Utils.IconUtils.getRefreshIcon(16));
         PageUI.styleSecondaryButton(btnRefresh);
         btnRefresh.addActionListener(e -> {
             reload();

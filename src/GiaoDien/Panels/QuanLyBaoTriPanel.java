@@ -140,19 +140,23 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
         cboFilter.setPreferredSize(new Dimension(120, 32));
         pnlTopRow.add(cboFilter);
 
-        JButton btnNew = new javax.swing.JButton("+ Lập phiếu BT");
+        JButton btnNew = new javax.swing.JButton(" Lập phiếu BT");
+        btnNew.setIcon(Utils.IconUtils.getAddIcon(16));
         PageUI.stylePrimaryButton(btnNew);
         btnNew.addActionListener(e -> onCreate());
 
-        JButton btnUpdate = new javax.swing.JButton("✎ Cập nhật TT");
+        JButton btnUpdate = new javax.swing.JButton(" Cập nhật TT");
+        btnUpdate.setIcon(Utils.IconUtils.getEditIcon(16));
         PageUI.styleSecondaryButton(btnUpdate);
         btnUpdate.addActionListener(e -> onUpdate());
 
-        JButton btnView = new javax.swing.JButton("📋 Xem phiếu BT");
+        JButton btnView = new javax.swing.JButton(" Xem phiếu BT");
+        btnView.setIcon(Utils.IconUtils.getOpenIcon(16));
         PageUI.styleSecondaryButton(btnView);
         btnView.addActionListener(e -> viewTicket());
 
-        JButton btnRefreshData = new javax.swing.JButton("↻ Làm mới dữ liệu");
+        JButton btnRefreshData = new javax.swing.JButton(" Làm mới dữ liệu");
+        btnRefreshData.setIcon(Utils.IconUtils.getRefreshIcon(16));
         PageUI.styleSecondaryButton(btnRefreshData);
         btnRefreshData.addActionListener(e -> {
             reload();

@@ -109,24 +109,28 @@ public class QuanLyKhoPanel extends javax.swing.JPanel {
         JPanel pnlLeft = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         pnlLeft.setOpaque(false);
 
-        JButton btnAddMoi = new javax.swing.JButton("+ Thêm mới mặt hàng");
-        PageUI.stylePrimaryButton(btnAddMoi);
-        btnAddMoi.addActionListener(e -> onAddMoi());
+        JButton btnNhap = new javax.swing.JButton(" Nhập kho");
+        btnNhap.setIcon(Utils.IconUtils.getAddIcon(16));
+        PageUI.stylePrimaryButton(btnNhap);
+        btnNhap.addActionListener(e -> onAddMoi());
 
-        JButton btnAddDaCo = new javax.swing.JButton("+ Thêm mặt hàng đã có");
-        PageUI.styleSecondaryButton(btnAddDaCo);
-        btnAddDaCo.addActionListener(e -> onAddDaCo());
+        JButton btnKiemTra = new javax.swing.JButton(" Kiểm tra tồn kho");
+        btnKiemTra.setIcon(Utils.IconUtils.getCheckIcon(16));
+        PageUI.styleSecondaryButton(btnKiemTra);
+        btnKiemTra.addActionListener(e -> onKiemTraTon());
 
-        JButton btnEdit = new javax.swing.JButton("✎ Sửa");
+        JButton btnEdit = new javax.swing.JButton(" Sửa");
+        btnEdit.setIcon(Utils.IconUtils.getEditIcon(16));
         PageUI.styleSecondaryButton(btnEdit);
         btnEdit.addActionListener(e -> onEdit());
 
-        JButton btnDel = new javax.swing.JButton("✖ Xóa");
+        JButton btnDel = new javax.swing.JButton(" Xóa");
+        btnDel.setIcon(Utils.IconUtils.getDeleteIcon(16));
         PageUI.styleDangerButton(btnDel);
         btnDel.addActionListener(e -> onDelete());
 
-        pnlLeft.add(btnAddMoi);
-        pnlLeft.add(btnAddDaCo);
+        pnlLeft.add(btnNhap);
+        pnlLeft.add(btnKiemTra);
         pnlLeft.add(btnEdit);
         pnlLeft.add(btnDel);
 
@@ -134,11 +138,13 @@ public class QuanLyKhoPanel extends javax.swing.JPanel {
         JPanel pnlRight = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         pnlRight.setOpaque(false);
 
-        JButton btnXuat = new javax.swing.JButton("⬆ Xuất kho");
+        JButton btnXuat = new javax.swing.JButton(" Xuất kho");
+        btnXuat.setIcon(Utils.IconUtils.getExportIcon(16));
         PageUI.styleSecondaryButton(btnXuat);
         btnXuat.addActionListener(e -> onXuatKho());
 
-        JButton btnRefresh = new javax.swing.JButton("↻ Làm mới dữ liệu");
+        JButton btnRefresh = new javax.swing.JButton(" Làm mới dữ liệu");
+        btnRefresh.setIcon(Utils.IconUtils.getRefreshIcon(16));
         PageUI.styleSecondaryButton(btnRefresh);
         btnRefresh.addActionListener(e -> {
             reload();
