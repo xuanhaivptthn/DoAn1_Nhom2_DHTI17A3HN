@@ -105,7 +105,7 @@ public class QuanLyKinhDoanhPanel extends javax.swing.JPanel {
         pnlBody.add(pnlTop, java.awt.BorderLayout.NORTH);
 
         pnlMid.setOpaque(false);
-        pnlMid.setLayout(new java.awt.GridLayout(1, 2, 14, 0));
+        pnlMid.setLayout(new java.awt.GridLayout(2, 1, 0, 14));
         pnlBody.add(pnlMid, java.awt.BorderLayout.CENTER);
 
         add(pnlBody, java.awt.BorderLayout.CENTER);
@@ -137,16 +137,26 @@ public class QuanLyKinhDoanhPanel extends javax.swing.JPanel {
                 "Theo Ngày (" + todayStr + ")",
                 "Theo Tháng (" + currentMonthStr + ")",
                 "Theo Năm (" + currentYearStr + ")",
-                "Chọn Ngày cụ thể..."
+                "Chọn Ngày cụ thể...",
+                "Chọn Khoảng thời gian cụ thể..."
         });
         cboTimeRange.setSelectedIndex(0);
         cboTimeRange.addActionListener(e -> {
-            if (cboTimeRange.getSelectedIndex() == 4) {
+            int sel = cboTimeRange.getSelectedIndex();
+            if (sel == 4) {
                 javax.swing.JFrame parent = (javax.swing.JFrame) javax.swing.SwingUtilities.getWindowAncestor(this);
                 GiaoDien.Dialogs.ChonNgayDialog dialog = new GiaoDien.Dialogs.ChonNgayDialog(parent, selectedDateFilter);
                 dialog.setVisible(true);
                 if (dialog.isConfirmed() && dialog.getSelectedDate() != null) {
                     selectedDateFilter = dialog.getSelectedDate();
+                }
+            } else if (sel == 5) {
+                javax.swing.JFrame parent = (javax.swing.JFrame) javax.swing.SwingUtilities.getWindowAncestor(this);
+                GiaoDien.Dialogs.ChonKhoangNgayDialog dialog = new GiaoDien.Dialogs.ChonKhoangNgayDialog(parent, fromDateFilter, toDateFilter);
+                dialog.setVisible(true);
+                if (dialog.isConfirmed() && dialog.getFromDate() != null && dialog.getToDate() != null) {
+                    fromDateFilter = dialog.getFromDate();
+                    toDateFilter = dialog.getToDate();
                 }
             }
             refresh();
@@ -244,6 +254,8 @@ public class QuanLyKinhDoanhPanel extends javax.swing.JPanel {
     }
 
     private LocalDate selectedDateFilter = LocalDate.now();
+    private LocalDate fromDateFilter = LocalDate.now().minusDays(7);
+    private LocalDate toDateFilter = LocalDate.now();
 
     private String getTimePeriodLabel() {
         int timeMode = cboTimeRange == null ? 0 : cboTimeRange.getSelectedIndex();
@@ -253,6 +265,7 @@ public class QuanLyKinhDoanhPanel extends javax.swing.JPanel {
             case 2 -> "Theo Tháng (" + String.format("%02d/%04d", now.getMonthValue(), now.getYear()) + ")";
             case 3 -> "Theo Năm (" + now.getYear() + ")";
             case 4 -> "Theo Ngày chọn (" + selectedDateFilter.toString() + ")";
+            case 5 -> "Từ " + fromDateFilter.toString() + " đến " + toDateFilter.toString();
             default -> "Tất cả thời gian";
         };
     }
@@ -298,6 +311,14 @@ public class QuanLyKinhDoanhPanel extends javax.swing.JPanel {
                 if (timeMode == 2 && !dNgay.startsWith(monthPrefix)) return false;
                 if (timeMode == 3 && !dNgay.startsWith(yearPrefix)) return false;
                 if (timeMode == 4 && !selectedDateFilter.toString().equalsIgnoreCase(dNgay)) return false;
+                if (timeMode == 5) {
+                    try {
+                        LocalDate dDate = LocalDate.parse(dNgay);
+                        if (dDate.isBefore(fromDateFilter) || dDate.isAfter(toDateFilter)) return false;
+                    } catch (Exception e) {
+                        return false;
+                    }
+                }
 
                 if (mode == 1) return "HoanThanh".equals(d.getTrangThai());
                 if (mode == 2) return "HoanThanh".equals(d.getTrangThai()) || "DaXacNhan".equals(d.getTrangThai());
@@ -388,6 +409,14 @@ public class QuanLyKinhDoanhPanel extends javax.swing.JPanel {
             if (timeMode == 2 && !dNgay.startsWith(monthPrefix)) return false;
             if (timeMode == 3 && !dNgay.startsWith(yearPrefix)) return false;
             if (timeMode == 4 && !selectedDateFilter.toString().equalsIgnoreCase(dNgay)) return false;
+            if (timeMode == 5) {
+                try {
+                    LocalDate dDate = LocalDate.parse(dNgay);
+                    if (dDate.isBefore(fromDateFilter) || dDate.isAfter(toDateFilter)) return false;
+                } catch (Exception e) {
+                    return false;
+                }
+            }
 
             if (mode == 1) return "HoanThanh".equals(d.getTrangThai());
             if (mode == 2) return "HoanThanh".equals(d.getTrangThai()) || "DaXacNhan".equals(d.getTrangThai());

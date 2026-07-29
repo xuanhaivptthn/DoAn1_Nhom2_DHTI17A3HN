@@ -259,7 +259,7 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
     }
 
     private void buildScheduleGrid() {
-        courtList = DataStore.get().getKhuVucsKhongBaoTri();
+        courtList = DataStore.get().getKhuVucs();
         List<String> headers = new ArrayList<>();
         headers.add("Giờ");
         for (KhuVucSan k : courtList) {
@@ -473,7 +473,7 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
     }
 
     public void reloadSchedule() {
-        courtList = DataStore.get().getKhuVucsKhongBaoTri();
+        courtList = DataStore.get().getKhuVucs();
         modelSchedule.setRowCount(0);
 
         String curDateStr = selectedDate.toString();
@@ -494,10 +494,10 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
             for (int col = 0; col < courtList.size(); col++) {
                 KhuVucSan court = courtList.get(col);
 
-                // Check maintenance first for this specific court on selected date
+                // Check maintenance status for court
                 BaoTri maint = dayMaints.stream().filter(b -> b.getKhuVucId() == court.getId()).findFirst().orElse(null);
-                if (maint != null) {
-                    rowData[col + 1] = "🔧 Bảo trì - " + maint.getNoiDung();
+                if (maint != null || DataStore.get().isSanBaoTri(court)) {
+                    rowData[col + 1] = maint != null ? "🔧 Bảo trì - " + maint.getNoiDung() : "🔧 Đang bảo trì";
                     continue;
                 }
 

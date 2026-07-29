@@ -248,7 +248,7 @@ public class DashboardPanel extends javax.swing.JPanel {
         buildQuickActions();
 
         // Stat Cards Calculations
-        List<KhuVucSan> sans = DataStore.get().getKhuVucsKhongBaoTri();
+        List<KhuVucSan> sans = DataStore.get().getKhuVucs();
         long sanReady = sans.stream().filter(k -> "SanSang".equals(k.getTrangThai())).count();
         long sanRenting = sans.stream().filter(k -> "DangThue".equals(k.getTrangThai())).count();
 
@@ -327,9 +327,9 @@ public class DashboardPanel extends javax.swing.JPanel {
                     if (found == null) {
                         row[t + 1] = "✓ Trống";
                     } else if ("ChoXacNhan".equalsIgnoreCase(found.getTrangThai())) {
-                        row[t + 1] = "🟡 " + found.getTenKhach();
+                        row[t + 1] = "🟡 " + found.getTenKhach() + " (" + found.getGioBatDau() + " - " + found.getGioKetThuc() + ")";
                     } else {
-                        row[t + 1] = "🔴 " + found.getTenKhach();
+                        row[t + 1] = "🔴 " + found.getTenKhach() + " (" + found.getGioBatDau() + " - " + found.getGioKetThuc() + ")";
                     }
                 }
             }
@@ -528,6 +528,9 @@ public class DashboardPanel extends javax.swing.JPanel {
 
             String str = value != null ? value.toString() : "";
             c.setFont(UIConstants.FONT_SMALL);
+            if (c instanceof javax.swing.JComponent jc) {
+                jc.setToolTipText(str);
+            }
 
             if (str.startsWith("🔴")) {
                 c.setBackground(new Color(255, 235, 235));

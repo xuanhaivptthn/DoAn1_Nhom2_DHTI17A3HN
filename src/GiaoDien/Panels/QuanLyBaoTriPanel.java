@@ -82,7 +82,7 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
         pnlBody.add(pnlToolbar, java.awt.BorderLayout.NORTH);
 
         pnlMid.setOpaque(false);
-        pnlMid.setLayout(new java.awt.GridLayout(1, 2, 12, 0));
+        pnlMid.setLayout(new java.awt.GridLayout(2, 1, 0, 12));
         pnlBody.add(pnlMid, java.awt.BorderLayout.CENTER);
 
         add(pnlBody, java.awt.BorderLayout.CENTER);

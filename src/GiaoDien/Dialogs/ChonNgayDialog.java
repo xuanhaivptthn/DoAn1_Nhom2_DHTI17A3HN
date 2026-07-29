@@ -279,7 +279,7 @@ public class ChonNgayDialog extends JDialog {
             dispose();
         });
 
-        JButton btnConfirm = new javax.swing.JButton("Đồng ý / Chuyển lịch");
+        JButton btnConfirm = new javax.swing.JButton("Đồng ý");
         btnConfirm.addActionListener(e -> {
             confirmed = true;
             dispose();

@@ -102,7 +102,7 @@ public class LoginPanel extends javax.swing.JPanel {
         pnlCenter.setLayout(new java.awt.GridBagLayout());
 
         pnlCard.setOpaque(false);
-        pnlCard.setPreferredSize(new java.awt.Dimension(440, 540));
+        pnlCard.setPreferredSize(new java.awt.Dimension(450, 560));
         pnlCard.setBorder(BorderFactory.createEmptyBorder(20, 28, 20, 28));
         pnlCard.setLayout(new java.awt.BorderLayout());
 
@@ -258,7 +258,7 @@ public class LoginPanel extends javax.swing.JPanel {
 
         Optional<String> error = SessionManager.get().login(txtUser.getText(), new String(txtPass.getPassword()));
         if (error.isPresent()) {
-            lblError.setText("[!] " + error.get());
+            lblError.setText("<html><div style='width: 360px; color: #dc2626;'>[!] " + error.get() + "</div></html>");
             return;
         }
         lblError.setText(" ");
