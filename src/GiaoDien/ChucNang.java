@@ -1,18 +1,7 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
- */
 package GiaoDien;
 
-/**
- *
- * @author NGUYEN CUC
- */
 public class ChucNang extends javax.swing.JPanel {
 
-    /**
-     * Creates new form ChucNang
-     */
     public ChucNang() {
         initComponents();
     }

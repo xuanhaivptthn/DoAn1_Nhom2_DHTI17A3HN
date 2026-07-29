@@ -1,18 +1,7 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
- */
 package GiaoDien;
 
-/**
- *
- * @author gmtfarcb
- */
 public class MenuChinh extends javax.swing.JPanel {
 
-    /**
-     * Creates new form MenuChinh
-     */
     public MenuChinh() {
         initComponents();
     }

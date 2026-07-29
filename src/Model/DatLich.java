@@ -1,8 +1,6 @@
 package Model;
 
-/**
- * Model DatLich (LichDatSan) thuộc tính chuẩn theo Biểu đồ lớp lĩnh vực (llv.png).
- */
+
 public class DatLich {
     private int id;
     private String maLichDat;
@@ -56,7 +54,6 @@ public class DatLich {
         this.datCoc = 0;
     }
 
-    // GETTERS & SETTERS THEO SƠ ĐỒ LLV.PNG
     public String getMaLichDat() { return maLichDat != null ? maLichDat : maPhieu; }
     public void setMaLichDat(String maLichDat) { this.maLichDat = maLichDat; this.maPhieu = maLichDat; }
 

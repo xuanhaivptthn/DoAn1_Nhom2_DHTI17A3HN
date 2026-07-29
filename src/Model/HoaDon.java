@@ -1,8 +1,5 @@
 package Model;
 
-/**
- * Model HoaDon thuộc tính chuẩn theo Biểu đồ lớp lĩnh vực (llv.png).
- */
 public class HoaDon {
     private String maHoaDon;
     private String ngayThanhToan;

@@ -1,19 +1,15 @@
 package GiaoDien;
 
 /**
- *
- * @author gmtfarcb
+ * Giao diện đăng nhập kết nối CSDL MySQL.
  */
 public class DangNhap extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(DangNhap.class.getName());
 
-    /**
-     * Creates new form DangNhap
-     */
     public DangNhap() {
         initComponents();
-        setupLogic();;
+        setupLogic();
     }
 
     private void setupLogic() {

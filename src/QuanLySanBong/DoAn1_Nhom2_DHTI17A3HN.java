@@ -1,6 +1,5 @@
 package QuanLySanBong;
 
-import GiaoDien.Panels.LoginPanel;
 import GiaoDien.MainFrame;
 import GiaoDien.Panels.LoginPanel;
 import Utils.UIConstants;
@@ -11,13 +10,12 @@ import javax.swing.UIManager;
 import java.awt.Dimension;
 
 /**
- * Điểm khởi chạy — HỆ THỐNG QUẢN LÝ HOẠT ĐỘNG CHO THUÊ SÂN BÓNG.
- * Sử dụng 100% linh kiện Java Swing tiêu chuẩn đi kèm NetBeans.
+ * Điểm khởi chạy chính — Hệ thống Quản lý Hoạt động Cho thuê Sân bóng.
  */
 public class DoAn1_Nhom2_DHTI17A3HN {
 
     public static void main(String[] args) {
-        // Thiết lập Look and Feel tiêu chuẩn của Java Swing (Nimbus)
+        // Cấu hình giao diện Nimbus mặc định của Java Swing
         try {
             for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
@@ -29,7 +27,7 @@ public class DoAn1_Nhom2_DHTI17A3HN {
             try {
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             } catch (Exception ignored) {
-                // Fallback default Swing L&F
+                // Fallback nếu không hỗ trợ System Look & Feel
             }
         }
 

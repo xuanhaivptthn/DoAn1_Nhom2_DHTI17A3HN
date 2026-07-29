@@ -1,8 +1,5 @@
 package Model;
 
-/**
- * Model DichVu thuộc tính chuẩn theo Biểu đồ lớp lĩnh vực (llv.png).
- */
 public class DichVu {
     private int id;
     private String maDichVu;
@@ -66,7 +63,6 @@ public class DichVu {
         this.tonToiThieu = tonToiThieu;
     }
 
-    // GETTERS & SETTERS THEO SƠ ĐỒ LLV.PNG
     public String getMaDichVu() { return maDichVu != null ? maDichVu : "DV" + id; }
     public void setMaDichVu(String maDichVu) { this.maDichVu = maDichVu; }
 

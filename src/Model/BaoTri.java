@@ -1,8 +1,6 @@
 package Model;
 
-/**
- * Model BaoTri thuộc tính chuẩn theo Biểu đồ lớp lĩnh vực (llv.png).
- */
+
 public class BaoTri {
     private int id;
     private String maBaoTri;

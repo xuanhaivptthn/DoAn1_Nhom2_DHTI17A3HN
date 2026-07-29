@@ -1,8 +1,5 @@
 package Model;
 
-/**
- * Model KhuVucSan (SanBong) thuộc tính chuẩn theo Biểu đồ lớp lĩnh vực (llv.png).
- */
 public class KhuVucSan {
     private int id;
     private String maSan;

@@ -3,7 +3,6 @@ package GiaoDien;
 import Model.TaiKhoan;
 import Utils.SessionManager;
 import GiaoDien.Panels.*;
-import GiaoDien.Dialogs.*;
 import Utils.UIConstants;
 
 import javax.swing.BorderFactory;
@@ -22,9 +21,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Khung chính — HỆ THỐNG QUẢN LÝ HOẠT ĐỘNG CHO THUÊ SÂN BÓNG
- * Giao diện sạch sẽ, chuyên nghiệp & Tự động làm mới khi chuyển Tab.
- * Tương thích Apache NetBeans GUI Builder Drag & Drop.
+ * Khung giao diện chính — Hệ thống Quản lý Hoạt động Cho thuê Sân bóng.
  */
 public class MainFrame extends JFrame {
 

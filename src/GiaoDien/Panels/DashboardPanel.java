@@ -38,7 +38,6 @@ import java.util.function.Consumer;
 /**
  * Trang Dashboard thông tin chung, Lịch đặt sân sắp tới trong ngày & Hành động nhanh hệ thống.
  * Hỗ trợ bấm vào ô khung giờ trống trên ma trận lịch để tạo nhanh phiếu đặt sân.
- * Tương thích Apache NetBeans GUI Builder Drag & Drop.
  */
 public class DashboardPanel extends javax.swing.JPanel {
 

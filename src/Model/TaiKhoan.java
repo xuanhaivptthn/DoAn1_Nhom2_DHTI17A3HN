@@ -1,8 +1,5 @@
 package Model;
 
-/**
- * Model Tài khoản thuộc tính chuẩn theo Biểu đồ lớp lĩnh vực (llv.png).
- */
 public class TaiKhoan {
     private int id;
     private String maTaiKhoan;
@@ -55,7 +52,6 @@ public class TaiKhoan {
         }
     }
 
-    // GETTERS & SETTERS THEO SƠ ĐỒ LLV.PNG
     public String getMaTaiKhoan() { return maTaiKhoan != null ? maTaiKhoan : "TK" + id; }
     public void setMaTaiKhoan(String maTaiKhoan) { this.maTaiKhoan = maTaiKhoan; }
 

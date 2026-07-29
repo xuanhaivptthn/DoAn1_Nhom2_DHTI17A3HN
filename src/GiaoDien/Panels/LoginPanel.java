@@ -1,8 +1,5 @@
 package GiaoDien.Panels;
 
-import GiaoDien.Dialogs.*;
-import GiaoDien.TaiKhoanTableModel;
-
 import Utils.SessionManager;
 import Utils.UIConstants;
 
@@ -27,8 +24,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
- * Màn hình đăng nhập — bắt đầu phiên làm việc.
- * Tương thích Apache NetBeans GUI Builder Drag & Drop.
+ * Màn hình đăng nhập phiên làm việc hệ thống.
  */
 public class LoginPanel extends javax.swing.JPanel {
 
