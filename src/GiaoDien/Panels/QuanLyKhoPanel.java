@@ -105,13 +105,17 @@ public class QuanLyKhoPanel extends javax.swing.JPanel {
         pnlToolbar.setLayout(new BorderLayout());
         pnlToolbar.setOpaque(false);
 
-        // Bên TRÁI: Thêm / Sửa / Xóa mặt hàng
+        // Bên TRÁI: Thêm mới mặt hàng / Thêm mặt hàng đã có / Sửa / Xóa
         JPanel pnlLeft = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         pnlLeft.setOpaque(false);
 
-        JButton btnAdd = new javax.swing.JButton("+ Thêm mặt hàng");
-        PageUI.stylePrimaryButton(btnAdd);
-        btnAdd.addActionListener(e -> onAdd());
+        JButton btnAddMoi = new javax.swing.JButton("+ Thêm mới mặt hàng");
+        PageUI.stylePrimaryButton(btnAddMoi);
+        btnAddMoi.addActionListener(e -> onAddMoi());
+
+        JButton btnAddDaCo = new javax.swing.JButton("+ Thêm mặt hàng đã có");
+        PageUI.styleSecondaryButton(btnAddDaCo);
+        btnAddDaCo.addActionListener(e -> onAddDaCo());
 
         JButton btnEdit = new javax.swing.JButton("✎ Sửa");
         PageUI.styleSecondaryButton(btnEdit);
@@ -121,17 +125,14 @@ public class QuanLyKhoPanel extends javax.swing.JPanel {
         PageUI.styleDangerButton(btnDel);
         btnDel.addActionListener(e -> onDelete());
 
-        pnlLeft.add(btnAdd);
+        pnlLeft.add(btnAddMoi);
+        pnlLeft.add(btnAddDaCo);
         pnlLeft.add(btnEdit);
         pnlLeft.add(btnDel);
 
-        // Bên PHẢI: Nhập kho | Xuất kho | Làm mới
+        // Bên PHẢI: Xuất kho | Làm mới dữ liệu
         JPanel pnlRight = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         pnlRight.setOpaque(false);
-
-        JButton btnNhap = new javax.swing.JButton("⬇ Nhập kho");
-        PageUI.stylePrimaryButton(btnNhap);
-        btnNhap.addActionListener(e -> onAdd()); // Nối vào luồng Thêm mặt hàng
 
         JButton btnXuat = new javax.swing.JButton("⬆ Xuất kho");
         PageUI.styleSecondaryButton(btnXuat);
@@ -144,7 +145,6 @@ public class QuanLyKhoPanel extends javax.swing.JPanel {
             JOptionPane.showMessageDialog(this, "Đã làm mới dữ liệu kho hàng từ CSDL!", "Làm mới dữ liệu", JOptionPane.INFORMATION_MESSAGE);
         });
 
-        pnlRight.add(btnNhap);
         pnlRight.add(btnXuat);
         pnlRight.add(btnRefresh);
 
@@ -275,7 +275,7 @@ public class QuanLyKhoPanel extends javax.swing.JPanel {
         JOptionPane.showMessageDialog(this, sb.toString(), "Kiểm tra tồn kho", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    private void onAdd() {
+    private void onAddMoi() {
         JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
         KhoFormDialog dialog = new KhoFormDialog(parent, null);
         dialog.setVisible(true);
@@ -288,10 +288,51 @@ public class QuanLyKhoPanel extends javax.swing.JPanel {
         reload();
 
         JOptionPane.showMessageDialog(this,
-                "THÊM MẶT HÀNG KHO — LƯU THÔNG TIN THÀNH CÔNG\n"
+                "THÊM MẶT HÀNG MỚI THÀNH CÔNG\n"
                         + "• " + form.getTenDichVu() + "\n"
                         + "• Giá: " + String.format("%,.0f VNĐ", (double) form.getDonGia()) + "\n"
                         + "• Số lượng: " + form.getSoLuongTon(),
+                "Kết quả cập nhật kho", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void onAddDaCo() {
+        List<DichVu> list = DataStore.get().getKhoItems();
+        if (list.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Kho hiện tại chưa có mặt hàng nào. Vui lòng sử dụng 'Thêm mới mặt hàng'.");
+            return;
+        }
+
+        DichVu sel = selected();
+        if (sel == null) {
+            sel = (DichVu) JOptionPane.showInputDialog(this,
+                    "Chọn mặt hàng đã có để thêm số lượng:",
+                    "Thêm mặt hàng đã có", JOptionPane.QUESTION_MESSAGE,
+                    null, list.toArray(), list.get(0));
+        }
+        if (sel == null) return;
+
+        String input = JOptionPane.showInputDialog(this,
+                "Mặt hàng: " + sel.getTenDichVu()
+                        + "\nSố lượng hiện tại: " + sel.getSoLuongTon() + " " + sel.getDonVi()
+                        + "\nNhập số lượng muốn thêm vào kho:",
+                "Thêm số lượng — " + sel.getTenDichVu(), JOptionPane.QUESTION_MESSAGE);
+        if (input == null || input.isBlank()) return;
+
+        int sl;
+        try {
+            sl = Integer.parseInt(input.trim());
+            if (sl <= 0) throw new NumberFormatException();
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Số lượng không hợp lệ.");
+            return;
+        }
+
+        sel.nhapKho(sl);
+        reload();
+        JOptionPane.showMessageDialog(this,
+                "CẬP NHẬT THÀNH CÔNG\n• " + sel.getTenDichVu()
+                        + "\n• Đã cộng thêm: +" + sl + " " + sel.getDonVi()
+                        + "\n• Tổng số lượng hiện tại: " + sel.getSoLuongTon() + " " + sel.getDonVi(),
                 "Kết quả cập nhật kho", JOptionPane.INFORMATION_MESSAGE);
     }
 
