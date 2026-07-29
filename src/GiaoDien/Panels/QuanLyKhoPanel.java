@@ -83,7 +83,7 @@ public class QuanLyKhoPanel extends javax.swing.JPanel {
                 "Quản lý vật phẩm: Nước suối, lưới bóng, găng tay, bóng thi đấu, trang thiết bị..."), BorderLayout.CENTER);
 
         model = new DefaultTableModel(
-                new String[]{"Mã HH", "Tên hàng hóa", "Số lượng tồn", "Đơn giá", "Nhà cung cấp"}, 0) {
+                new String[]{"Mã HH", "Tên hàng hóa", "Số lượng", "Đơn giá", "Nhà cung cấp"}, 0) {
             @Override
             public boolean isCellEditable(int r, int c) { return false; }
         };
@@ -105,32 +105,9 @@ public class QuanLyKhoPanel extends javax.swing.JPanel {
         pnlToolbar.setLayout(new BorderLayout());
         pnlToolbar.setOpaque(false);
 
-        // Bên TRÁI: 2 nút Nhập kho / Xuất kho (nhiệm vụ tăng/giảm số lượng tồn)
+        // Bên TRÁI: Thêm / Sửa / Xóa mặt hàng
         JPanel pnlLeft = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         pnlLeft.setOpaque(false);
-
-        JButton btnNhap = new javax.swing.JButton("⬇ Nhập kho");
-        PageUI.stylePrimaryButton(btnNhap);
-        btnNhap.addActionListener(e -> onNhapXuat(true));
-
-        JButton btnXuat = new javax.swing.JButton("⬆ Xuất kho");
-        PageUI.styleSecondaryButton(btnXuat);
-        btnXuat.addActionListener(e -> onNhapXuat(false));
-
-        JButton btnRefresh = new javax.swing.JButton("↻ Làm mới dữ liệu");
-        PageUI.styleSecondaryButton(btnRefresh);
-        btnRefresh.addActionListener(e -> {
-            reload();
-            JOptionPane.showMessageDialog(this, "Đã làm mới dữ liệu kho hàng từ CSDL!", "Làm mới dữ liệu", JOptionPane.INFORMATION_MESSAGE);
-        });
-
-        pnlLeft.add(btnNhap);
-        pnlLeft.add(btnXuat);
-        pnlLeft.add(btnRefresh);
-
-        // Bên PHẢI: 3 nút Thêm / Sửa / Xóa mặt hàng (Thêm/Sửa chi tiết và Xóa)
-        JPanel pnlRight = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
-        pnlRight.setOpaque(false);
 
         JButton btnAdd = new javax.swing.JButton("+ Thêm mặt hàng");
         PageUI.stylePrimaryButton(btnAdd);
@@ -144,9 +121,32 @@ public class QuanLyKhoPanel extends javax.swing.JPanel {
         PageUI.styleDangerButton(btnDel);
         btnDel.addActionListener(e -> onDelete());
 
-        pnlRight.add(btnAdd);
-        pnlRight.add(btnEdit);
-        pnlRight.add(btnDel);
+        pnlLeft.add(btnAdd);
+        pnlLeft.add(btnEdit);
+        pnlLeft.add(btnDel);
+
+        // Bên PHẢI: Nhập kho | Xuất kho | Làm mới
+        JPanel pnlRight = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+        pnlRight.setOpaque(false);
+
+        JButton btnNhap = new javax.swing.JButton("⬇ Nhập kho");
+        PageUI.stylePrimaryButton(btnNhap);
+        btnNhap.addActionListener(e -> onAdd()); // Nối vào luồng Thêm mặt hàng
+
+        JButton btnXuat = new javax.swing.JButton("⬆ Xuất kho");
+        PageUI.styleSecondaryButton(btnXuat);
+        btnXuat.addActionListener(e -> onXuatKho());
+
+        JButton btnRefresh = new javax.swing.JButton("↻ Làm mới dữ liệu");
+        PageUI.styleSecondaryButton(btnRefresh);
+        btnRefresh.addActionListener(e -> {
+            reload();
+            JOptionPane.showMessageDialog(this, "Đã làm mới dữ liệu kho hàng từ CSDL!", "Làm mới dữ liệu", JOptionPane.INFORMATION_MESSAGE);
+        });
+
+        pnlRight.add(btnNhap);
+        pnlRight.add(btnXuat);
+        pnlRight.add(btnRefresh);
 
         pnlToolbar.add(pnlLeft, BorderLayout.WEST);
         pnlToolbar.add(pnlRight, BorderLayout.EAST);
@@ -209,24 +209,25 @@ public class QuanLyKhoPanel extends javax.swing.JPanel {
         String info = "======== THÔNG TIN MẶT HÀNG KHO ========\n"
                 + "• Mã hàng hóa  : HH" + sel.getMaHangHoa() + "\n"
                 + "• Tên hàng hóa : " + sel.getTenHangHoa() + "\n"
-                + "• Số lượng tồn : " + sel.getSoLuongTon() + "\n"
+                + "• Số lượng : " + sel.getSoLuongTon() + "\n"
                 + "• Đơn giá      : " + String.format("%,.0f VNĐ", sel.getDonGia()) + "\n"
                 + "• Nhà cung cấp : " + sel.getNhaCungCap() + "\n"
                 + "======================================";
         JOptionPane.showMessageDialog(this, info, "Thông tin mặt hàng kho", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    private void onNhapXuat(boolean nhap) {
+
+    private void onXuatKho() {
         DichVu sel = selected();
         if (sel == null) {
-            JOptionPane.showMessageDialog(this, "Chọn mặt hàng trong kho.");
+            JOptionPane.showMessageDialog(this, "Chọn mặt hàng cần xuất kho.");
             return;
         }
-        String title = nhap ? "Nhập kho — " + sel.getTenDichVu() : "Xuất kho — " + sel.getTenDichVu();
         String input = JOptionPane.showInputDialog(this,
-                "Tồn hiện tại: " + sel.getSoLuongTon() + " " + sel.getDonVi()
-                        + "\nNhập số lượng " + (nhap ? "nhập kho:" : "xuất kho:"),
-                title, JOptionPane.QUESTION_MESSAGE);
+                "Mặt hàng: " + sel.getTenDichVu()
+                        + "\nTồn hiện tại: " + sel.getSoLuongTon() + " " + sel.getDonVi()
+                        + "\nNhập số lượng xuất kho:",
+                "Xuất kho — " + sel.getTenDichVu(), JOptionPane.QUESTION_MESSAGE);
         if (input == null || input.isBlank()) return;
         int sl;
         try {
@@ -236,33 +237,24 @@ public class QuanLyKhoPanel extends javax.swing.JPanel {
             JOptionPane.showMessageDialog(this, "Số lượng không hợp lệ.");
             return;
         }
-        if (nhap) {
-            sel.nhapKho(sl);
-            reload();
+        if (sl > sel.getSoLuongTon()) {
             JOptionPane.showMessageDialog(this,
-                    "NHẬP KHO THÀNH CÔNG\n• " + sel.getTenDichVu()
-                            + "\n• +" + sl + " → tồn " + sel.getSoLuongTon()
-                            + "\n• Đã lưu thông tin kho.",
-                    "Kết quả cập nhật kho", JOptionPane.INFORMATION_MESSAGE);
-        } else {
-            if (sl > sel.getSoLuongTon()) {
-                JOptionPane.showMessageDialog(this,
-                        "KIỂM TRA TỒN KHO — TỪ CHỐI XUẤT\n"
-                                + "• Yêu cầu: " + sl + "\n"
-                                + "• Tồn: " + sel.getSoLuongTon() + "\n"
-                                + "Không đủ hàng trong kho.",
-                        "Kiểm tra tồn kho", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            sel.xuatKho(sl);
-            reload();
-            JOptionPane.showMessageDialog(this,
-                    "XUẤT KHO THÀNH CÔNG\n• " + sel.getTenDichVu()
-                            + "\n• −" + sl + " → tồn " + sel.getSoLuongTon()
-                            + (sel.isSapHet() ? "\n⚠ Cảnh báo: tồn dưới mức tối thiểu!" : ""),
-                    "Kết quả cập nhật kho", JOptionPane.INFORMATION_MESSAGE);
+                    "KIỂM TRA TỒN KHO — TỪ CHỐI XUẤT\n"
+                            + "• Yêu cầu: " + sl + "\n"
+                            + "• Tồn: " + sel.getSoLuongTon() + "\n"
+                            + "Không đủ hàng trong kho.",
+                    "Kiểm tra tồn kho", JOptionPane.ERROR_MESSAGE);
+            return;
         }
+        sel.xuatKho(sl);
+        reload();
+        JOptionPane.showMessageDialog(this,
+                "XUẤT KHO THÀNH CÔNG\n• " + sel.getTenDichVu()
+                        + "\n• −" + sl + " → tồn còn lại: " + sel.getSoLuongTon()
+                        + (sel.isSapHet() ? "\n⚠ Cảnh báo: tồn dưới mức tối thiểu!" : ""),
+                "Kết quả xuất kho", JOptionPane.INFORMATION_MESSAGE);
     }
+
 
     private void onKiemTraTon() {
         List<DichVu> low = DataStore.get().getKhoItems().stream()
@@ -294,11 +286,12 @@ public class QuanLyKhoPanel extends javax.swing.JPanel {
         form.setId(nextId);
         DataStore.get().getKhoItems().add(form);
         reload();
+
         JOptionPane.showMessageDialog(this,
                 "THÊM MẶT HÀNG KHO — LƯU THÔNG TIN THÀNH CÔNG\n"
                         + "• " + form.getTenDichVu() + "\n"
-                        + "• Giá: " + String.format("%,.0f VNĐ", (double) (form.getDonGia())) + "\n"
-                        + "• Tồn ban đầu: " + form.getSoLuongTon(),
+                        + "• Giá: " + String.format("%,.0f VNĐ", (double) form.getDonGia()) + "\n"
+                        + "• Số lượng: " + form.getSoLuongTon(),
                 "Kết quả cập nhật kho", JOptionPane.INFORMATION_MESSAGE);
     }
 
