@@ -1,0 +1,541 @@
+package GiaoDien.Panels;
+
+import GiaoDien.Dialogs.*;
+import GiaoDien.TaiKhoanTableModel;
+import Utils.PageUI;
+
+import Model.TaiKhoan;
+import Utils.DataStore;
+import Utils.UIConstants;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.JTableHeader;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.RenderingHints;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Panel giao diện quản lý tài khoản – dùng trong đồ án quản lý sân bóng.
+ * Tương thích Apache NetBeans GUI Builder Drag & Drop.
+ */
+public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
+
+    private TaiKhoanTableModel tableModel;
+    private JTable table;
+    private JTextField txtSearch;
+    private JComboBox<String> cboVaiTro;
+    private JComboBox<String> cboTrangThai;
+    private JLabel lblCount;
+    private boolean embedded;
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel pnlBody;
+    private javax.swing.JPanel pnlHeaderWrap;
+    private javax.swing.JPanel pnlTableCard;
+    private javax.swing.JPanel pnlToolbar;
+    // End of variables declaration//GEN-END:variables
+
+    public QuanLyTaiKhoanPanel() {
+        this(false);
+    }
+
+    public QuanLyTaiKhoanPanel(boolean embedded) {
+        this.embedded = embedded;
+        initComponents();
+        customInit();
+    }
+
+    /**
+     * NetBeans GUI Builder generated code initialization.
+     */
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        pnlHeaderWrap = new javax.swing.JPanel();
+        pnlBody = new javax.swing.JPanel();
+        pnlToolbar = new javax.swing.JPanel();
+        pnlTableCard = new javax.swing.JPanel();
+
+        setBackground(UIConstants.BG);
+        setLayout(new java.awt.BorderLayout());
+
+        pnlHeaderWrap.setOpaque(false);
+        pnlHeaderWrap.setLayout(new java.awt.BorderLayout());
+        add(pnlHeaderWrap, java.awt.BorderLayout.NORTH);
+
+        pnlBody.setBackground(UIConstants.BG);
+        pnlBody.setBorder(javax.swing.BorderFactory.createEmptyBorder(16, 20, 8, 20));
+        pnlBody.setLayout(new java.awt.BorderLayout(0, 12));
+
+        pnlToolbar.setLayout(new java.awt.GridBagLayout());
+        pnlBody.add(pnlToolbar, java.awt.BorderLayout.NORTH);
+
+        pnlTableCard.setLayout(new java.awt.BorderLayout(0, 8));
+        pnlBody.add(pnlTableCard, java.awt.BorderLayout.CENTER);
+
+        add(pnlBody, java.awt.BorderLayout.CENTER);
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void customInit() {
+        tableModel = new TaiKhoanTableModel();
+        table = createTable();
+        txtSearch = new javax.swing.JTextField(22);
+        cboVaiTro = new JComboBox<>(new String[]{"Tất cả", "Quản trị viên", "Nhân viên"});
+        cboTrangThai = new JComboBox<>(new String[]{"Tất cả", "Hoạt động", "Đã khóa"});
+        lblCount = new JLabel("0 tài khoản");
+
+        buildUI();
+        loadFromStore();
+        applyFilter();
+    }
+
+    private void buildUI() {
+        pnlHeaderWrap.removeAll();
+        pnlHeaderWrap.add(PageUI.createPageHeader("Quản lý tài khoản hệ thống",
+                "Phân quyền người dùng & quản lý danh sách tài khoản truy cập hệ thống sân bóng"), BorderLayout.CENTER);
+
+        buildToolbar();
+        buildTableCard();
+    }
+
+    private JPanel createHeader() {
+        JPanel header = new JPanel(new BorderLayout()) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(UIConstants.PRIMARY);
+                g2.fillRect(0, 0, getWidth(), getHeight());
+                g2.setColor(UIConstants.PRIMARY_LIGHT);
+                g2.fillRect(0, getHeight() - 4, getWidth(), 4);
+                g2.dispose();
+            }
+        };
+        header.setPreferredSize(new Dimension(0, 72));
+        header.setBorder(BorderFactory.createEmptyBorder(12, 24, 12, 24));
+
+        JPanel left = new JPanel(new BorderLayout(0, 2));
+        left.setOpaque(false);
+
+        JLabel title = new JLabel("Quản lý tài khoản");
+        title.setFont(UIConstants.FONT_TITLE);
+        title.setForeground(Color.WHITE);
+
+        JLabel subtitle = new JLabel("Hệ thống quản lý sân bóng — phân quyền người dùng");
+        subtitle.setFont(UIConstants.FONT_SMALL);
+        subtitle.setForeground(new Color(200, 230, 201));
+
+        left.add(title, BorderLayout.NORTH);
+        left.add(subtitle, BorderLayout.SOUTH);
+        header.add(left, BorderLayout.WEST);
+
+        return header;
+    }
+
+    private void buildToolbar() {
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(4, 6, 4, 6);
+        gbc.anchor = GridBagConstraints.WEST;
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        pnlToolbar.add(new javax.swing.JLabel("Tìm kiếm:"), gbc);
+
+        gbc.gridx = 1;
+        gbc.weightx = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        txtSearch.setPreferredSize(new Dimension(220, 34));
+        setPlaceholder(txtSearch, "Tên đăng nhập, họ tên, SĐT, email...");
+        txtSearch.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) { applyFilter(); }
+            @Override
+            public void removeUpdate(DocumentEvent e) { applyFilter(); }
+            @Override
+            public void changedUpdate(DocumentEvent e) { applyFilter(); }
+        });
+        pnlToolbar.add(txtSearch, gbc);
+
+        gbc.gridx = 2;
+        gbc.weightx = 0;
+        gbc.fill = GridBagConstraints.NONE;
+        pnlToolbar.add(new javax.swing.JLabel("Vai trò:"), gbc);
+
+        gbc.gridx = 3;
+        styleCombo(cboVaiTro);
+        cboVaiTro.setPreferredSize(new Dimension(140, 34));
+        cboVaiTro.addActionListener(e -> applyFilter());
+        pnlToolbar.add(cboVaiTro, gbc);
+
+        gbc.gridx = 4;
+        pnlToolbar.add(new javax.swing.JLabel("Trạng thái:"), gbc);
+
+        gbc.gridx = 5;
+        styleCombo(cboTrangThai);
+        cboTrangThai.setPreferredSize(new Dimension(120, 34));
+        cboTrangThai.addActionListener(e -> applyFilter());
+        pnlToolbar.add(cboTrangThai, gbc);
+
+        JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        actions.setOpaque(false);
+
+        JButton btnAdd = new javax.swing.JButton("+ Thêm mới");
+        PageUI.stylePrimaryButton(btnAdd);
+        btnAdd.setPreferredSize(new Dimension(130, 36));
+        btnAdd.addActionListener(e -> onAdd());
+
+        JButton btnEdit = new javax.swing.JButton("✎ Sửa");
+        PageUI.styleSecondaryButton(btnEdit);
+        btnEdit.setPreferredSize(new Dimension(100, 36));
+        btnEdit.addActionListener(e -> onEdit());
+
+        JButton btnDelete = new javax.swing.JButton("✖ Xóa");
+        PageUI.styleDangerButton(btnDelete);
+        btnDelete.setPreferredSize(new Dimension(100, 36));
+        btnDelete.addActionListener(e -> onDelete());
+
+        JButton btnLock = new javax.swing.JButton("Khóa / Mở");
+        PageUI.styleSuccessButton(btnLock);
+        btnLock.setPreferredSize(new Dimension(130, 36));
+        btnLock.addActionListener(e -> onToggleLock());
+
+        JButton btnRefresh = new javax.swing.JButton("↻ Làm mới");
+        PageUI.styleSecondaryButton(btnRefresh);
+        btnRefresh.setPreferredSize(new Dimension(120, 36));
+        btnRefresh.addActionListener(e -> {
+            txtSearch.setText("");
+            cboVaiTro.setSelectedIndex(0);
+            cboTrangThai.setSelectedIndex(0);
+            applyFilter();
+        });
+
+        actions.add(btnAdd);
+        actions.add(btnEdit);
+        actions.add(btnDelete);
+        actions.add(btnLock);
+        actions.add(btnRefresh);
+
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.gridwidth = 6;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(12, 6, 4, 6);
+        pnlToolbar.add(actions, gbc);
+    }
+
+    private void buildTableCard() {
+        JPanel top = new JPanel(new BorderLayout());
+        top.setOpaque(false);
+        JLabel lbl = new JLabel("Danh sách tài khoản");
+        lbl.setFont(UIConstants.FONT_SUBTITLE);
+        lbl.setForeground(UIConstants.PRIMARY);
+        lblCount.setFont(UIConstants.FONT_SMALL);
+        lblCount.setForeground(UIConstants.TEXT_SECONDARY);
+        top.add(lbl, BorderLayout.WEST);
+        top.add(lblCount, BorderLayout.EAST);
+        pnlTableCard.add(top, BorderLayout.NORTH);
+
+        JScrollPane scroll = new JScrollPane(table);
+        scroll.setBorder(BorderFactory.createLineBorder(UIConstants.BORDER, 1));
+        scroll.getViewport().setBackground(Color.WHITE);
+        scroll.setPreferredSize(new Dimension(0, 360));
+        pnlTableCard.add(scroll, BorderLayout.CENTER);
+
+        table.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    onEdit();
+                }
+            }
+        });
+    }
+
+    private JTable createTable() {
+        JTable t = new JTable(tableModel);
+        PageUI.styleTable(t);
+        t.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        t.setFillsViewportHeight(true);
+        t.setAutoCreateRowSorter(true);
+
+        t.getColumnModel().getColumn(0).setPreferredWidth(50);
+        t.getColumnModel().getColumn(0).setMaxWidth(60);
+        t.getColumnModel().getColumn(1).setPreferredWidth(120);
+        t.getColumnModel().getColumn(2).setPreferredWidth(160);
+        t.getColumnModel().getColumn(3).setPreferredWidth(110);
+        t.getColumnModel().getColumn(4).setPreferredWidth(180);
+        t.getColumnModel().getColumn(5).setPreferredWidth(110);
+        t.getColumnModel().getColumn(6).setPreferredWidth(100);
+
+        DefaultTableCellRenderer renderer = new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                                                           boolean isSelected, boolean hasFocus,
+                                                           int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+                setFont(UIConstants.FONT_TABLE);
+
+                if (!isSelected) {
+                    c.setBackground(row % 2 == 0 ? Color.WHITE : UIConstants.TABLE_ROW_ALT);
+                    c.setForeground(UIConstants.TEXT_PRIMARY);
+                }
+
+                if (column == 6 && value != null) {
+                    setFont(UIConstants.FONT_BOLD);
+                    if ("Hoạt động".equals(value.toString())) {
+                        if (!isSelected) setForeground(UIConstants.SUCCESS);
+                    } else if ("Đã khóa".equals(value.toString())) {
+                        if (!isSelected) setForeground(UIConstants.DANGER);
+                    }
+                }
+
+                if (column == 5 && value != null && !isSelected) {
+                    setFont(UIConstants.FONT_BOLD);
+                    String v = value.toString();
+                    if ("Quản trị viên".equals(v)) {
+                        setForeground(new Color(156, 39, 176));
+                    } else if ("Nhân viên".equals(v)) {
+                        setForeground(new Color(25, 118, 210));
+                    } else {
+                        setForeground(UIConstants.TEXT_SECONDARY);
+                    }
+                }
+
+                if (column == 0 || column == 5 || column == 6) {
+                    setHorizontalAlignment(CENTER);
+                } else {
+                    setHorizontalAlignment(LEFT);
+                }
+
+                return c;
+            }
+        };
+        for (int i = 0; i < t.getColumnCount(); i++) {
+            t.getColumnModel().getColumn(i).setCellRenderer(renderer);
+        }
+
+        return t;
+    }
+
+    private JPanel createFooter() {
+        JPanel footer = new JPanel(new BorderLayout());
+        footer.setBackground(UIConstants.PRIMARY_DARK);
+        footer.setBorder(BorderFactory.createEmptyBorder(8, 20, 8, 20));
+        footer.setPreferredSize(new Dimension(0, 36));
+
+        JLabel left = new JLabel("Đồ án Quản lý sân bóng  •  Module Tài khoản");
+        left.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        left.setForeground(new Color(200, 230, 201));
+
+        JLabel right = new JLabel("Double-click dòng để sửa  |  © 2026");
+        right.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        right.setForeground(new Color(165, 214, 167));
+
+        footer.add(left, BorderLayout.WEST);
+        footer.add(right, BorderLayout.EAST);
+        return footer;
+    }
+
+    private void onAdd() {
+        JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
+        TaiKhoanFormDialog dialog = new TaiKhoanFormDialog(
+                parent,
+                null,
+                username -> tableModel.existsUsername(username, -1)
+        );
+        dialog.setVisible(true);
+        if (dialog.isConfirmed()) {
+            TaiKhoan tk = dialog.getResult();
+            tk.setId(tableModel.nextId());
+            tableModel.addTaiKhoan(tk);
+            DataStore.get().getTaiKhoans().add(tk);
+            applyFilter();
+            JOptionPane.showMessageDialog(this,
+                    "Đã thêm tài khoản \"" + tk.getTenDangNhap() + "\" thành công!",
+                    "Thành công", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
+    private void onEdit() {
+        int viewRow = table.getSelectedRow();
+        if (viewRow < 0) {
+            JOptionPane.showMessageDialog(this,
+                    "Vui lòng chọn một tài khoản để sửa.",
+                    "Thông báo", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        int modelRow = table.convertRowIndexToModel(viewRow);
+        TaiKhoan selected = tableModel.getAt(modelRow);
+        if (selected == null) return;
+
+        JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
+        TaiKhoanFormDialog dialog = new TaiKhoanFormDialog(
+                parent,
+                selected,
+                username -> tableModel.existsUsername(username, selected.getId())
+        );
+        dialog.setVisible(true);
+        if (dialog.isConfirmed()) {
+            TaiKhoan updated = dialog.getResult();
+            tableModel.updateTaiKhoan(updated);
+            syncStoreFromModel();
+            applyFilter();
+            JOptionPane.showMessageDialog(this,
+                    "Đã cập nhật tài khoản \"" + updated.getTenDangNhap() + "\"!",
+                    "Thành công", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
+    private void onDelete() {
+        int viewRow = table.getSelectedRow();
+        if (viewRow < 0) {
+            JOptionPane.showMessageDialog(this,
+                    "Vui lòng chọn một tài khoản để xóa.",
+                    "Thông báo", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        int modelRow = table.convertRowIndexToModel(viewRow);
+        TaiKhoan selected = tableModel.getAt(modelRow);
+        if (selected == null) return;
+
+        if ("admin".equalsIgnoreCase(selected.getTenDangNhap())) {
+            JOptionPane.showMessageDialog(this,
+                    "Không thể xóa tài khoản quản trị viên mặc định!",
+                    "Cảnh báo", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "Bạn có chắc muốn xóa tài khoản:\n\n"
+                        + "  • Tên đăng nhập: " + selected.getTenDangNhap() + "\n"
+                        + "  • Họ tên: " + selected.getHoTen() + "\n\n"
+                        + "Thao tác này không thể hoàn tác.",
+                "Xác nhận xóa",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE);
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            tableModel.removeTaiKhoan(selected.getId());
+            DataStore.get().getTaiKhoans().removeIf(tk -> tk.getId() == selected.getId());
+            applyFilter();
+            JOptionPane.showMessageDialog(this,
+                    "Đã xóa tài khoản \"" + selected.getTenDangNhap() + "\".",
+                    "Thành công", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
+    private void onToggleLock() {
+        int viewRow = table.getSelectedRow();
+        if (viewRow < 0) {
+            JOptionPane.showMessageDialog(this,
+                    "Vui lòng chọn một tài khoản để khóa/mở khóa.",
+                    "Thông báo", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        int modelRow = table.convertRowIndexToModel(viewRow);
+        TaiKhoan selected = tableModel.getAt(modelRow);
+        if (selected == null) return;
+
+        if ("admin".equalsIgnoreCase(selected.getTenDangNhap())) {
+            JOptionPane.showMessageDialog(this,
+                    "Không thể khóa tài khoản quản trị viên mặc định!",
+                    "Cảnh báo", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        boolean isLocked = "Khoa".equals(selected.getTrangThai());
+        String action = isLocked ? "mở khóa" : "khóa";
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "Bạn có chắc muốn " + action + " tài khoản \"" + selected.getTenDangNhap() + "\"?",
+                "Xác nhận " + action,
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE);
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            selected.setTrangThai(isLocked ? "HoatDong" : "Khoa");
+            tableModel.updateTaiKhoan(selected);
+            syncStoreFromModel();
+            applyFilter();
+            if (viewRow < table.getRowCount()) {
+                table.setRowSelectionInterval(viewRow, viewRow);
+            }
+        }
+    }
+
+    private void applyFilter() {
+        String keyword = txtSearch.getText();
+        if ("Tên đăng nhập, họ tên, SĐT, email...".equals(keyword)) {
+            keyword = "";
+        }
+        String vaiTro = (String) cboVaiTro.getSelectedItem();
+        String trangThai = (String) cboTrangThai.getSelectedItem();
+        tableModel.filter(keyword, vaiTro, trangThai);
+        if (lblCount != null) {
+            lblCount.setText(tableModel.getRowCount() + " / " + tableModel.getAllData().size() + " tài khoản");
+        }
+    }
+
+    private void loadFromStore() {
+        tableModel.setData(new ArrayList<>(DataStore.get().getTaiKhoans()));
+    }
+
+    private void syncStoreFromModel() {
+        List<TaiKhoan> store = DataStore.get().getTaiKhoans();
+        store.clear();
+        store.addAll(tableModel.getAllData());
+    }
+
+    private void styleCombo(JComboBox<String> combo) {
+        combo.setFont(UIConstants.FONT_NORMAL);
+        combo.setBackground(Color.WHITE);
+        combo.setForeground(UIConstants.TEXT_PRIMARY);
+    }
+
+    private void setPlaceholder(JTextField field, String placeholder) {
+        field.setForeground(Color.GRAY);
+        field.setText(placeholder);
+        field.addFocusListener(new java.awt.event.FocusAdapter() {
+            @Override
+            public void focusGained(java.awt.event.FocusEvent e) {
+                if (field.getText().equals(placeholder)) {
+                    field.setText("");
+                    field.setForeground(UIConstants.TEXT_PRIMARY);
+                }
+            }
+
+            @Override
+            public void focusLost(java.awt.event.FocusEvent e) {
+                if (field.getText().isEmpty()) {
+                    field.setForeground(Color.GRAY);
+                    field.setText(placeholder);
+                }
+            }
+        });
+    }
+}
