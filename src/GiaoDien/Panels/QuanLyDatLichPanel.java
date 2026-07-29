@@ -259,7 +259,7 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
     }
 
     private void buildScheduleGrid() {
-        courtList = DataStore.get().getKhuVucs();
+        courtList = DataStore.get().getKhuVucsKhongBaoTri();
         List<String> headers = new ArrayList<>();
         headers.add("Giờ");
         for (KhuVucSan k : courtList) {
@@ -473,7 +473,7 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
     }
 
     public void reloadSchedule() {
-        courtList = DataStore.get().getKhuVucs();
+        courtList = DataStore.get().getKhuVucsKhongBaoTri();
         modelSchedule.setRowCount(0);
 
         String curDateStr = selectedDate.toString();

@@ -11,6 +11,7 @@ import Model.TaiKhoan;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * DataStore đóng vai trò CSDL lưu trữ bộ nhớ mẫu cho toàn bộ hệ thống sân bóng.
@@ -131,6 +132,24 @@ public final class DataStore {
 
     public List<TaiKhoan> getTaiKhoans() { return taiKhoans; }
     public List<KhuVucSan> getKhuVucs() { return khuVucs; }
+    public boolean isSanBaoTri(KhuVucSan k) {
+        if (k == null) return false;
+        if ("BaoTri".equalsIgnoreCase(k.getTrangThai()) || "Bảo trì".equalsIgnoreCase(k.getTrangThai())) {
+            return true;
+        }
+        return baoTris.stream().anyMatch(b ->
+            !"DaHuy".equalsIgnoreCase(b.getTrangThai()) &&
+            !"HoanThanh".equalsIgnoreCase(b.getTrangThai()) &&
+            (b.getKhuVucId() == k.getId() || (b.getTenSan() != null && b.getTenSan().equalsIgnoreCase(k.getTenSan())))
+        );
+    }
+
+    public List<KhuVucSan> getKhuVucsKhongBaoTri() {
+        return khuVucs.stream()
+                .filter(k -> !isSanBaoTri(k))
+                .collect(Collectors.toList());
+    }
+
     public List<DichVu> getDichVus() { return dichVus; }
     public List<DichVu> getKhoItems() { return khoItems; }
     public List<Kho> getKhos() { return khos; }

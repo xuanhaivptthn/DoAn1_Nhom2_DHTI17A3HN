@@ -248,7 +248,7 @@ public class DashboardPanel extends javax.swing.JPanel {
         buildQuickActions();
 
         // Stat Cards Calculations
-        List<KhuVucSan> sans = DataStore.get().getKhuVucs();
+        List<KhuVucSan> sans = DataStore.get().getKhuVucsKhongBaoTri();
         long sanReady = sans.stream().filter(k -> "SanSang".equals(k.getTrangThai())).count();
         long sanRenting = sans.stream().filter(k -> "DangThue".equals(k.getTrangThai())).count();
 

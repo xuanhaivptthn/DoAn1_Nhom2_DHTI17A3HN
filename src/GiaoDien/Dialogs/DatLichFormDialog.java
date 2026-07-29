@@ -154,7 +154,7 @@ public class DatLichFormDialog extends JDialog {
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        List<KhuVucSan> sans = DataStore.get().getKhuVucs();
+        List<KhuVucSan> sans = DataStore.get().getKhuVucsKhongBaoTri();
         cboSan = new JComboBox<>(sans.toArray(new KhuVucSan[0]));
         styleCombo(cboSan);
 
