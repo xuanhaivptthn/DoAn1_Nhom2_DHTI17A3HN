@@ -33,7 +33,7 @@ public class TestDBConnection {
     }
 
     public static void main(String[] args) {
-        System.out.println(testConnectionDetailed());
+        System.getLogger(TestDBConnection.class.getName()).log(System.Logger.Level.INFO, testConnectionDetailed());
     }
     
 }
