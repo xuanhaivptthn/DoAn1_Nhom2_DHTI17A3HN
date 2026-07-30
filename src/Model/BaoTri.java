@@ -1,76 +1,127 @@
 package Model;
 
-
+/**
+ * Bảng: bao_tri
+ * Lưu trữ phiếu bảo trì sân bóng.
+ * FK: maSan → san_bong(maSan)
+ */
 public class BaoTri {
-    private int id;
-    private String maBaoTri;
-    private String maPhieu;
-    private int khuVucId;
-    private String tenSan;
-    private String ngayBaoTri;
+    /** PK, NOT NULL, varchar(20) */
+    private String maPhieuBaoTri;
+    /** FK → san_bong.maSan, NOT NULL, varchar(20) */
+    private String maSan;
+    /** NOT NULL, TEXT - chi tiết sự cố/hạng mục hỏng */
     private String noiDung;
-    private String nguoiPhuTrach;
+    /** NOT NULL, DATETIME */
     private String ngayBatDau;
+    /** NULL, DATETIME - rỗng nếu chưa xong */
     private String ngayKetThuc;
-    private double chiPhi;
-    private String trangThai;   // ChoXuLy | DangXuLy | HoanThanh | Huy
+    /** NOT NULL, DEFAULT 'DANG_BAO_TRI' - DANG_BAO_TRI | HOAN_THANH | HUY */
+    private String trangThaiPhieu;
+
+    // ─── Trường UI bổ sung (không có trong DB, tính toán lúc runtime) ─────────
+    /** Tên sân hiển thị (denormalized từ join) */
+    private String tenSan;
 
     public BaoTri() {
+        this.trangThaiPhieu = "DANG_BAO_TRI";
     }
 
+    public BaoTri(String maPhieuBaoTri, String maSan, String noiDung,
+                  String ngayBatDau, String ngayKetThuc, String trangThaiPhieu) {
+        this.maPhieuBaoTri  = maPhieuBaoTri;
+        this.maSan          = maSan;
+        this.noiDung        = noiDung;
+        this.ngayBatDau     = ngayBatDau;
+        this.ngayKetThuc    = ngayKetThuc;
+        this.trangThaiPhieu = trangThaiPhieu;
+    }
+
+    /** Constructor tương thích seed dữ liệu mẫu cũ */
     public BaoTri(int id, String maPhieu, int khuVucId, String tenSan, String noiDung,
                   String nguoiPhuTrach, String ngayBatDau, String ngayKetThuc,
                   double chiPhi, String trangThai) {
-        this.id = id;
-        this.maPhieu = maPhieu;
-        this.maBaoTri = maPhieu;
-        this.khuVucId = khuVucId;
-        this.tenSan = tenSan;
-        this.noiDung = noiDung;
-        this.nguoiPhuTrach = nguoiPhuTrach;
-        this.ngayBatDau = ngayBatDau;
-        this.ngayBaoTri = ngayBatDau;
-        this.ngayKetThuc = ngayKetThuc;
-        this.chiPhi = chiPhi;
-        this.trangThai = trangThai;
+        this.maPhieuBaoTri  = maPhieu;
+        this.noiDung        = noiDung;
+        this.ngayBatDau     = ngayBatDau;
+        this.ngayKetThuc    = ngayKetThuc;
+        this.tenSan         = tenSan;
+        // Chuẩn hóa trạng thái về ENUM mới
+        this.trangThaiPhieu = switch (trangThai == null ? "" : trangThai) {
+            case "DangXuLy", "DANG_BAO_TRI" -> "DANG_BAO_TRI";
+            case "HoanThanh", "HOAN_THANH"  -> "HOAN_THANH";
+            case "Huy", "HUY"               -> "HUY";
+            default -> "DANG_BAO_TRI";
+        };
+        // nguoiPhuTrach, chiPhi không còn trong CSDL - bỏ qua
     }
 
-    // GETTERS & SETTERS THEO SƠ ĐỒ LLV.PNG
-    public String getMaBaoTri() { return maBaoTri != null ? maBaoTri : maPhieu; }
-    public void setMaBaoTri(String maBaoTri) { this.maBaoTri = maBaoTri; this.maPhieu = maBaoTri; }
+    public String getMaPhieuBaoTri() { return maPhieuBaoTri; }
+    public void setMaPhieuBaoTri(String maPhieuBaoTri) { this.maPhieuBaoTri = maPhieuBaoTri; }
 
-    public String getNgayBaoTri() { return ngayBaoTri != null ? ngayBaoTri : ngayBatDau; }
-    public void setNgayBaoTri(String ngayBaoTri) { this.ngayBaoTri = ngayBaoTri; this.ngayBatDau = ngayBaoTri; }
+    public String getMaSan() { return maSan; }
+    public void setMaSan(String maSan) { this.maSan = maSan; }
 
-    // GETTERS & SETTERS HIỆN CÓ
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
-    public String getMaPhieu() { return maPhieu; }
-    public void setMaPhieu(String maPhieu) { this.maPhieu = maPhieu; this.maBaoTri = maPhieu; }
-    public int getKhuVucId() { return khuVucId; }
-    public void setKhuVucId(int khuVucId) { this.khuVucId = khuVucId; }
-    public String getTenSan() { return tenSan; }
-    public void setTenSan(String tenSan) { this.tenSan = tenSan; }
     public String getNoiDung() { return noiDung; }
     public void setNoiDung(String noiDung) { this.noiDung = noiDung; }
-    public String getNguoiPhuTrach() { return nguoiPhuTrach; }
-    public void setNguoiPhuTrach(String nguoiPhuTrach) { this.nguoiPhuTrach = nguoiPhuTrach; }
+
     public String getNgayBatDau() { return ngayBatDau; }
-    public void setNgayBatDau(String ngayBatDau) { this.ngayBatDau = ngayBatDau; this.ngayBaoTri = ngayBatDau; }
+    public void setNgayBatDau(String ngayBatDau) { this.ngayBatDau = ngayBatDau; }
+
     public String getNgayKetThuc() { return ngayKetThuc; }
     public void setNgayKetThuc(String ngayKetThuc) { this.ngayKetThuc = ngayKetThuc; }
-    public double getChiPhi() { return chiPhi; }
-    public void setChiPhi(double chiPhi) { this.chiPhi = chiPhi; }
-    public String getTrangThai() { return trangThai; }
-    public void setTrangThai(String trangThai) { this.trangThai = trangThai; }
+
+    public String getTrangThaiPhieu() { return trangThaiPhieu; }
+    public void setTrangThaiPhieu(String trangThaiPhieu) { this.trangThaiPhieu = trangThaiPhieu; }
+
+    public String getTenSan() { return tenSan; }
+    public void setTenSan(String tenSan) { this.tenSan = tenSan; }
+
+    // ─── Alias backward-compat cho UI cũ ─────────────────────────────────────
+    /** @deprecated dùng getMaPhieuBaoTri() */
+    public String getMaBaoTri() { return maPhieuBaoTri; }
+    /** @deprecated dùng setMaPhieuBaoTri() */
+    public void setMaBaoTri(String ma) { this.maPhieuBaoTri = ma; }
+    /** @deprecated dùng getMaPhieuBaoTri() */
+    public String getMaPhieu() { return maPhieuBaoTri; }
+    /** @deprecated dùng setMaPhieuBaoTri() */
+    public void setMaPhieu(String ma) { this.maPhieuBaoTri = ma; }
+    /** @deprecated dùng getTrangThaiPhieu() */
+    public String getTrangThai() { return trangThaiPhieu; }
+    /** @deprecated dùng setTrangThaiPhieu() */
+    public void setTrangThai(String tt) { this.trangThaiPhieu = tt; }
+
+    // ─── Helper methods ────────────────────────────────────────────────────────
 
     public String getTrangThaiHienThi() {
-        return switch (trangThai == null ? "" : trangThai) {
-            case "ChoXuLy" -> "Chờ xử lý";
-            case "DangXuLy" -> "Đang xử lý";
-            case "HoanThanh" -> "Hoàn thành";
-            case "Huy" -> "Đã hủy";
-            default -> trangThai;
+        if (trangThaiPhieu == null) return "";
+        return switch (trangThaiPhieu.toUpperCase()) {
+            case "DANG_BAO_TRI" -> "Đang bảo trì";
+            case "HOAN_THANH"   -> "Hoàn thành";
+            case "HUY"          -> "Đã hủy";
+            default             -> trangThaiPhieu;
         };
     }
+
+    public boolean isDangBaoTri() {
+        return "DANG_BAO_TRI".equalsIgnoreCase(trangThaiPhieu);
+    }
+
+    // ─── Alias backward-compat cho UI/Panel cũ ────────────────────────────────
+    /** @deprecated Không còn trong CSDL */
+    public double getChiPhi() { return 0.0; }
+    /** @deprecated Không còn trong CSDL */
+    public void setChiPhi(double chiPhi) { /* no-op */ }
+    /** @deprecated Không còn trong CSDL */
+    public String getNguoiPhuTrach() { return ""; }
+    /** @deprecated Không còn trong CSDL */
+    public void setNguoiPhuTrach(String nguoiPhuTrach) { /* no-op */ }
+    /** @deprecated dùng getMaSan() */
+    public int getKhuVucId() { return 0; }
+    /** @deprecated dùng setMaSan() */
+    public void setKhuVucId(int khuVucId) { /* no-op */ }
+    /** @deprecated dùng getMaPhieuBaoTri() */
+    public int getId() { return maPhieuBaoTri != null ? maPhieuBaoTri.hashCode() & 0x7FFFFFFF : 0; }
+    /** @deprecated */
+    public void setId(int id) { /* no-op */ }
 }

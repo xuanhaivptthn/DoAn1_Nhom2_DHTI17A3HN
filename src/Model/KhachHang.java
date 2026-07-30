@@ -1,60 +1,50 @@
 package Model;
 
 /**
- * Model Khách hàng đặt sân bóng.
- * Hệ thống tự động lưu thông tin khách hàng khi tạo đơn đặt sân
- * để hỗ trợ gợi ý / điền nhanh cho các lần đặt sân tiếp theo.
+ * Bảng: khach_hang
+ * Lưu thông tin khách hàng đặt sân bóng.
  */
 public class KhachHang {
-    private int id;
+    /** PK, varchar(20) */
     private String maKhachHang;
-    private String hoTen;
+    /** NOT NULL, varchar(100) */
+    private String tenKhachHang;
+    /** NOT NULL, UNIQUE, varchar(15) */
     private String soDienThoai;
-    private String email;
-    private String ghiChu;
-    private int soLanDatSan;
 
     public KhachHang() {
     }
 
-    public KhachHang(int id, String hoTen, String soDienThoai, String email, String ghiChu) {
-        this(id, hoTen, soDienThoai, email, ghiChu, 1);
-    }
-
-    public KhachHang(int id, String hoTen, String soDienThoai, String email, String ghiChu, int soLanDatSan) {
-        this.id = id;
-        this.maKhachHang = String.format("KH%03d", id);
-        this.hoTen = hoTen;
+    public KhachHang(String maKhachHang, String tenKhachHang, String soDienThoai) {
+        this.maKhachHang = maKhachHang;
+        this.tenKhachHang = tenKhachHang;
         this.soDienThoai = soDienThoai;
-        this.email = email;
-        this.ghiChu = ghiChu;
-        this.soLanDatSan = soLanDatSan;
     }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    /** Constructor tương thích seed dữ liệu mẫu (id tự sinh mã) */
+    public KhachHang(int id, String tenKhachHang, String soDienThoai) {
+        this.maKhachHang = String.format("KH%03d", id);
+        this.tenKhachHang = tenKhachHang;
+        this.soDienThoai = soDienThoai;
+    }
 
-    public String getMaKhachHang() { return maKhachHang != null ? maKhachHang : String.format("KH%03d", id); }
+    public String getMaKhachHang() { return maKhachHang; }
     public void setMaKhachHang(String maKhachHang) { this.maKhachHang = maKhachHang; }
 
-    public String getHoTen() { return hoTen; }
-    public void setHoTen(String hoTen) { this.hoTen = hoTen; }
+    public String getTenKhachHang() { return tenKhachHang; }
+    public void setTenKhachHang(String tenKhachHang) { this.tenKhachHang = tenKhachHang; }
 
     public String getSoDienThoai() { return soDienThoai; }
     public void setSoDienThoai(String soDienThoai) { this.soDienThoai = soDienThoai; }
 
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
-
-    public String getGhiChu() { return ghiChu; }
-    public void setGhiChu(String ghiChu) { this.ghiChu = ghiChu; }
-
-    public int getSoLanDatSan() { return soLanDatSan; }
-    public void setSoLanDatSan(int soLanDatSan) { this.soLanDatSan = soLanDatSan; }
-    public void tangSoLanDat() { this.soLanDatSan++; }
+    // ─── Alias helpers để tương thích với UI code hiện tại ────────────────────
+    /** @deprecated dùng getTenKhachHang() */
+    public String getHoTen() { return tenKhachHang; }
+    /** @deprecated dùng setTenKhachHang() */
+    public void setHoTen(String hoTen) { this.tenKhachHang = hoTen; }
 
     @Override
     public String toString() {
-        return hoTen + " (" + soDienThoai + ")";
+        return tenKhachHang + " (" + soDienThoai + ")";
     }
 }

@@ -1,90 +1,54 @@
 package Model;
 
+/**
+ * Bảng: tai_khoan
+ * Lưu thông tin đăng nhập và phân quyền người dùng hệ thống.
+ */
 public class TaiKhoan {
-    private int id;
+    /** PK, AUTO_INCREMENT */
     private String maTaiKhoan;
+    /** NOT NULL, UNIQUE */
     private String tenDangNhap;
+    /** NOT NULL - mật khẩu (đã mã hóa) */
     private String matKhau;
-    private String quyenHan;   // Admin | NhanVien | KhachHang
-    private String trangThai;  // HoatDong | Khoa
-
-    // Thuộc tính bổ sung theo sơ đồ llv.png
-    private String maNhanVien;
-    private String hoTenNhanVien;
-    private String soDienThoaiNhanVien;
-    private String diaChi;
-    private String chucVu;
-    private String maChuSan;
-    private String hoTenChuSan;
-    private String soDienThoaiChuSan;
-
-    // Các thuộc tính kế thừa UI
-    private String hoTen;
-    private String soDienThoai;
-    private String email;
-    private String vaiTro;
+    /** ENUM: ADMIN | CHU_SAN | NHAN_VIEN | KHACH_HANG */
+    private String quyenHan;
+    /** varchar(20) - trạng thái tài khoản */
+    private String trangThai;
 
     public TaiKhoan() {
     }
 
-    public TaiKhoan(int id, String tenDangNhap, String matKhau, String hoTen,
-                    String soDienThoai, String email, String vaiTro, String trangThai) {
-        this.id = id;
-        this.maTaiKhoan = "TK" + id;
+    public TaiKhoan(String maTaiKhoan, String tenDangNhap, String matKhau, String quyenHan, String trangThai) {
+        this.maTaiKhoan = maTaiKhoan;
         this.tenDangNhap = tenDangNhap;
         this.matKhau = matKhau;
-        this.hoTen = hoTen;
-        this.soDienThoai = soDienThoai;
-        this.email = email;
-        this.vaiTro = vaiTro;
-        this.quyenHan = vaiTro;
+        this.quyenHan = quyenHan;
         this.trangThai = trangThai;
-
-        if ("Admin".equalsIgnoreCase(vaiTro)) {
-            this.maChuSan = "CS" + id;
-            this.hoTenChuSan = hoTen;
-            this.soDienThoaiChuSan = soDienThoai;
-        } else {
-            this.maNhanVien = "NV" + id;
-            this.hoTenNhanVien = hoTen;
-            this.soDienThoaiNhanVien = soDienThoai;
-            this.chucVu = "Nhân viên quản lý sân bóng";
-        }
     }
 
-    public String getMaTaiKhoan() { return maTaiKhoan != null ? maTaiKhoan : "TK" + id; }
+    /** Constructor 8-param tương thích TaiKhoanFormDialog cũ: (id, tenDangNhap, matKhau, hoTen, sdt, email, vaiTro, trangThai) */
+    public TaiKhoan(int id, String tenDangNhap, String matKhau, String hoTen,
+                    String soDienThoai, String email, String vaiTro, String trangThai) {
+        this.maTaiKhoan  = String.format("TK%03d", id);
+        this.tenDangNhap = tenDangNhap;
+        this.matKhau     = matKhau;
+        // Map vaiTro cũ sang quyenHan mới
+        this.quyenHan = switch (vaiTro == null ? "" : vaiTro) {
+            case "Admin"     -> "ADMIN";
+            case "NhanVien"  -> "NHAN_VIEN";
+            case "KhachHang" -> "KHACH_HANG";
+            default -> vaiTro.toUpperCase().replace(" ", "_");
+        };
+        this.trangThai = switch (trangThai == null ? "" : trangThai) {
+            case "HoatDong"  -> "HOAT_DONG";
+            case "Khoa"      -> "KHOA";
+            default -> trangThai.toUpperCase().replace(" ", "_");
+        };
+    }
+
+    public String getMaTaiKhoan() { return maTaiKhoan; }
     public void setMaTaiKhoan(String maTaiKhoan) { this.maTaiKhoan = maTaiKhoan; }
-
-    public String getQuyenHan() { return quyenHan != null ? quyenHan : vaiTro; }
-    public void setQuyenHan(String quyenHan) { this.quyenHan = quyenHan; this.vaiTro = quyenHan; }
-
-    public String getMaNhanVien() { return maNhanVien; }
-    public void setMaNhanVien(String maNhanVien) { this.maNhanVien = maNhanVien; }
-
-    public String getHoTenNhanVien() { return hoTenNhanVien != null ? hoTenNhanVien : hoTen; }
-    public void setHoTenNhanVien(String hoTenNhanVien) { this.hoTenNhanVien = hoTenNhanVien; this.hoTen = hoTenNhanVien; }
-
-    public String getSoDienThoaiNhanVien() { return soDienThoaiNhanVien != null ? soDienThoaiNhanVien : soDienThoai; }
-    public void setSoDienThoaiNhanVien(String soDienThoaiNhanVien) { this.soDienThoaiNhanVien = soDienThoaiNhanVien; this.soDienThoai = soDienThoaiNhanVien; }
-
-    public String getDiaChi() { return diaChi; }
-    public void setDiaChi(String diaChi) { this.diaChi = diaChi; }
-
-    public String getChucVu() { return chucVu; }
-    public void setChucVu(String chucVu) { this.chucVu = chucVu; }
-
-    public String getMaChuSan() { return maChuSan; }
-    public void setMaChuSan(String maChuSan) { this.maChuSan = maChuSan; }
-
-    public String getHoTenChuSan() { return hoTenChuSan; }
-    public void setHoTenChuSan(String hoTenChuSan) { this.hoTenChuSan = hoTenChuSan; }
-
-    public String getSoDienThoaiChuSan() { return soDienThoaiChuSan; }
-    public void setSoDienThoaiChuSan(String soDienThoaiChuSan) { this.soDienThoaiChuSan = soDienThoaiChuSan; }
-
-    // GETTERS & SETTERS HIỆN CÓ
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
 
     public String getTenDangNhap() { return tenDangNhap; }
     public void setTenDangNhap(String tenDangNhap) { this.tenDangNhap = tenDangNhap; }
@@ -92,52 +56,80 @@ public class TaiKhoan {
     public String getMatKhau() { return matKhau; }
     public void setMatKhau(String matKhau) { this.matKhau = matKhau; }
 
-    public String getHoTen() { return hoTen; }
-    public void setHoTen(String hoTen) { this.hoTen = hoTen; this.hoTenNhanVien = hoTen; }
-
-    public String getSoDienThoai() { return soDienThoai; }
-    public void setSoDienThoai(String soDienThoai) { this.soDienThoai = soDienThoai; this.soDienThoaiNhanVien = soDienThoai; }
-
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
-
-    public String getVaiTro() { return vaiTro; }
-    public void setVaiTro(String vaiTro) { this.vaiTro = vaiTro; this.quyenHan = vaiTro; }
+    public String getQuyenHan() { return quyenHan; }
+    public void setQuyenHan(String quyenHan) { this.quyenHan = quyenHan; }
 
     public String getTrangThai() { return trangThai; }
     public void setTrangThai(String trangThai) { this.trangThai = trangThai; }
 
-    public String getVaiTroHienThi() {
-        if (vaiTro == null) return "";
-        return switch (vaiTro) {
-            case "Admin" -> "Quản trị viên";
-            case "NhanVien" -> "Nhân viên";
-            default -> vaiTro;
+    // ─── Helper methods ────────────────────────────────────────────────────────
+
+    public boolean isAdmin() {
+        return "ADMIN".equalsIgnoreCase(quyenHan);
+    }
+
+    public boolean isChuSan() {
+        return "CHU_SAN".equalsIgnoreCase(quyenHan);
+    }
+
+    public boolean isNhanVien() {
+        return "NHAN_VIEN".equalsIgnoreCase(quyenHan);
+    }
+
+    public boolean isKhachHang() {
+        return "KHACH_HANG".equalsIgnoreCase(quyenHan);
+    }
+
+    public boolean isHoatDong() {
+        return "HOAT_DONG".equalsIgnoreCase(trangThai);
+    }
+
+    public String getQuyenHanHienThi() {
+        if (quyenHan == null) return "";
+        return switch (quyenHan.toUpperCase()) {
+            case "ADMIN"      -> "Quản trị viên";
+            case "CHU_SAN"    -> "Chủ sân";
+            case "NHAN_VIEN"  -> "Nhân viên";
+            case "KHACH_HANG" -> "Khách hàng";
+            default           -> quyenHan;
         };
     }
 
     public String getTrangThaiHienThi() {
         if (trangThai == null) return "";
-        return switch (trangThai) {
-            case "HoatDong" -> "Hoạt động";
-            case "Khoa" -> "Đã khóa";
-            default -> trangThai;
+        return switch (trangThai.toUpperCase()) {
+            case "HOAT_DONG" -> "Hoạt động";
+            case "KHOA"      -> "Đã khóa";
+            default          -> trangThai;
         };
     }
 
-    public boolean isHoatDong() {
-        return "HoatDong".equals(trangThai);
+    @Override
+    public String toString() {
+        return tenDangNhap + " [" + getQuyenHanHienThi() + "]";
     }
 
-    public boolean isAdmin() {
-        return "Admin".equals(vaiTro);
-    }
-
-    public boolean isNhanVien() {
-        return "NhanVien".equals(vaiTro) || "Admin".equals(vaiTro);
-    }
-
-    public boolean isNhanVienOnly() {
-        return "NhanVien".equals(vaiTro);
-    }
+    // ─── Alias backward-compat cho UI/Panel cũ ────────────────────────────────
+    /** @deprecated Không còn trong CSDL. Dùng getTenDangNhap() */
+    public String getHoTen() { return tenDangNhap; }
+    /** @deprecated Không còn trong CSDL. Dùng setTenDangNhap() */
+    public void setHoTen(String hoTen) { /* no-op */ }
+    /** @deprecated Không còn trong CSDL */
+    public String getSoDienThoai() { return ""; }
+    /** @deprecated Không còn trong CSDL */
+    public void setSoDienThoai(String sdt) { /* no-op */ }
+    /** @deprecated Không còn trong CSDL */
+    public String getEmail() { return ""; }
+    /** @deprecated Không còn trong CSDL */
+    public void setEmail(String email) { /* no-op */ }
+    /** @deprecated dùng getQuyenHan() */
+    public String getVaiTro() { return quyenHan; }
+    /** @deprecated dùng setQuyenHan() */
+    public void setVaiTro(String vaiTro) { this.quyenHan = vaiTro; }
+    /** @deprecated dùng getQuyenHanHienThi() */
+    public String getVaiTroHienThi() { return getQuyenHanHienThi(); }
+    /** @deprecated id nội bộ, dùng getMaTaiKhoan() */
+    public int getId() { return maTaiKhoan != null ? maTaiKhoan.hashCode() & 0x7FFFFFFF : 0; }
+    /** @deprecated */
+    public void setId(int id) { /* no-op */ }
 }

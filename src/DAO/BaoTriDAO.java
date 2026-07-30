@@ -14,7 +14,7 @@ public class BaoTriDAO {
 
     public List<BaoTri> getAll() {
         List<BaoTri> list = new ArrayList<>();
-        String sql = "SELECT * FROM BaoTri ORDER BY id DESC";
+        String sql = "SELECT * FROM bao_tri ORDER BY ngayBatDau DESC";
         try (Connection conn = DBConnect.getConnection()) {
             if (conn == null) return list;
             try (Statement stmt = conn.createStatement();
@@ -30,28 +30,17 @@ public class BaoTriDAO {
     }
 
     public boolean insert(BaoTri b) {
-        String sql = "INSERT INTO BaoTri (maBaoTri, khuVucId, tenSan, noiDung, nguoiPhuTrach, ngayBatDau, ngayKetThuc, chiPhi, trangThai) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO bao_tri (maPhieuBaoTri, maSan, noiDung, ngayBatDau, ngayKetThuc, trangThaiPhieu) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBConnect.getConnection()) {
             if (conn == null) return false;
-            try (PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-                pstmt.setString(1, b.getMaBaoTri());
-                pstmt.setInt(2, b.getKhuVucId());
-                pstmt.setString(3, b.getTenSan());
-                pstmt.setString(4, b.getNoiDung());
-                pstmt.setString(5, b.getNguoiPhuTrach());
-                pstmt.setString(6, b.getNgayBatDau());
-                pstmt.setString(7, b.getNgayKetThuc());
-                pstmt.setDouble(8, b.getChiPhi());
-                pstmt.setString(9, b.getTrangThai());
-                int rows = pstmt.executeUpdate();
-                if (rows > 0) {
-                    try (ResultSet keys = pstmt.getGeneratedKeys()) {
-                        if (keys.next()) {
-                            b.setId(keys.getInt(1));
-                        }
-                    }
-                    return true;
-                }
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setString(1, b.getMaPhieuBaoTri());
+                pstmt.setString(2, b.getMaSan());
+                pstmt.setString(3, b.getNoiDung());
+                pstmt.setString(4, b.getNgayBatDau());
+                pstmt.setString(5, b.getNgayKetThuc());
+                pstmt.setString(6, b.getTrangThaiPhieu());
+                return pstmt.executeUpdate() > 0;
             }
         } catch (SQLException ex) {
             System.err.println("Lỗi BaoTriDAO.insert(): " + ex.getMessage());
@@ -60,20 +49,16 @@ public class BaoTriDAO {
     }
 
     public boolean update(BaoTri b) {
-        String sql = "UPDATE BaoTri SET maBaoTri = ?, khuVucId = ?, tenSan = ?, noiDung = ?, nguoiPhuTrach = ?, ngayBatDau = ?, ngayKetThuc = ?, chiPhi = ?, trangThai = ? WHERE id = ?";
+        String sql = "UPDATE bao_tri SET maSan = ?, noiDung = ?, ngayBatDau = ?, ngayKetThuc = ?, trangThaiPhieu = ? WHERE maPhieuBaoTri = ?";
         try (Connection conn = DBConnect.getConnection()) {
             if (conn == null) return false;
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                pstmt.setString(1, b.getMaBaoTri());
-                pstmt.setInt(2, b.getKhuVucId());
-                pstmt.setString(3, b.getTenSan());
-                pstmt.setString(4, b.getNoiDung());
-                pstmt.setString(5, b.getNguoiPhuTrach());
-                pstmt.setString(6, b.getNgayBatDau());
-                pstmt.setString(7, b.getNgayKetThuc());
-                pstmt.setDouble(8, b.getChiPhi());
-                pstmt.setString(9, b.getTrangThai());
-                pstmt.setInt(10, b.getId());
+                pstmt.setString(1, b.getMaSan());
+                pstmt.setString(2, b.getNoiDung());
+                pstmt.setString(3, b.getNgayBatDau());
+                pstmt.setString(4, b.getNgayKetThuc());
+                pstmt.setString(5, b.getTrangThaiPhieu());
+                pstmt.setString(6, b.getMaPhieuBaoTri());
                 return pstmt.executeUpdate() > 0;
             }
         } catch (SQLException ex) {
@@ -82,12 +67,12 @@ public class BaoTriDAO {
         return false;
     }
 
-    public boolean delete(int id) {
-        String sql = "DELETE FROM BaoTri WHERE id = ?";
+    public boolean delete(String maPhieuBaoTri) {
+        String sql = "DELETE FROM bao_tri WHERE maPhieuBaoTri = ?";
         try (Connection conn = DBConnect.getConnection()) {
             if (conn == null) return false;
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                pstmt.setInt(1, id);
+                pstmt.setString(1, maPhieuBaoTri);
                 return pstmt.executeUpdate() > 0;
             }
         } catch (SQLException ex) {
@@ -97,17 +82,14 @@ public class BaoTriDAO {
     }
 
     private BaoTri mapResultSet(ResultSet rs) throws SQLException {
-        return new BaoTri(
-                rs.getInt("id"),
-                rs.getString("maBaoTri"),
-                rs.getInt("khuVucId"),
-                rs.getString("tenSan"),
+        BaoTri b = new BaoTri(
+                rs.getString("maPhieuBaoTri"),
+                rs.getString("maSan"),
                 rs.getString("noiDung"),
-                rs.getString("nguoiPhuTrach"),
                 rs.getString("ngayBatDau"),
                 rs.getString("ngayKetThuc"),
-                rs.getDouble("chiPhi"),
-                rs.getString("trangThai")
+                rs.getString("trangThaiPhieu")
         );
+        return b;
     }
 }

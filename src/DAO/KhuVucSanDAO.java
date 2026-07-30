@@ -14,7 +14,7 @@ public class KhuVucSanDAO {
 
     public List<KhuVucSan> getAll() {
         List<KhuVucSan> list = new ArrayList<>();
-        String sql = "SELECT * FROM KhuVucSan ORDER BY id ASC";
+        String sql = "SELECT * FROM san_bong ORDER BY maSan ASC";
         try (Connection conn = DBConnect.getConnection()) {
             if (conn == null) return list;
             try (Statement stmt = conn.createStatement();
@@ -30,25 +30,17 @@ public class KhuVucSanDAO {
     }
 
     public boolean insert(KhuVucSan k) {
-        String sql = "INSERT INTO KhuVucSan (maSan, tenSan, loaiSan, giaTheoGio, moTa, trangThai) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO san_bong (maSan, maChuSan, tenSan, loaiSan, giaThueTheoGio, trangThai) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBConnect.getConnection()) {
             if (conn == null) return false;
-            try (PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setString(1, k.getMaSan());
-                pstmt.setString(2, k.getTenSan());
-                pstmt.setString(3, k.getLoaiSan());
-                pstmt.setDouble(4, k.getGiaTheoGio());
-                pstmt.setString(5, k.getMoTa());
+                pstmt.setString(2, k.getMaChuSan());
+                pstmt.setString(3, k.getTenSan());
+                pstmt.setString(4, k.getLoaiSan());
+                pstmt.setDouble(5, k.getGiaThueTheoGio());
                 pstmt.setString(6, k.getTrangThai());
-                int rows = pstmt.executeUpdate();
-                if (rows > 0) {
-                    try (ResultSet keys = pstmt.getGeneratedKeys()) {
-                        if (keys.next()) {
-                            k.setId(keys.getInt(1));
-                        }
-                    }
-                    return true;
-                }
+                return pstmt.executeUpdate() > 0;
             }
         } catch (SQLException ex) {
             System.err.println("Lỗi KhuVucSanDAO.insert(): " + ex.getMessage());
@@ -57,17 +49,16 @@ public class KhuVucSanDAO {
     }
 
     public boolean update(KhuVucSan k) {
-        String sql = "UPDATE KhuVucSan SET maSan = ?, tenSan = ?, loaiSan = ?, giaTheoGio = ?, moTa = ?, trangThai = ? WHERE id = ?";
+        String sql = "UPDATE san_bong SET maChuSan = ?, tenSan = ?, loaiSan = ?, giaThueTheoGio = ?, trangThai = ? WHERE maSan = ?";
         try (Connection conn = DBConnect.getConnection()) {
             if (conn == null) return false;
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                pstmt.setString(1, k.getMaSan());
+                pstmt.setString(1, k.getMaChuSan());
                 pstmt.setString(2, k.getTenSan());
                 pstmt.setString(3, k.getLoaiSan());
-                pstmt.setDouble(4, k.getGiaTheoGio());
-                pstmt.setString(5, k.getMoTa());
-                pstmt.setString(6, k.getTrangThai());
-                pstmt.setInt(7, k.getId());
+                pstmt.setDouble(4, k.getGiaThueTheoGio());
+                pstmt.setString(5, k.getTrangThai());
+                pstmt.setString(6, k.getMaSan());
                 return pstmt.executeUpdate() > 0;
             }
         } catch (SQLException ex) {
@@ -76,12 +67,12 @@ public class KhuVucSanDAO {
         return false;
     }
 
-    public boolean delete(int id) {
-        String sql = "DELETE FROM KhuVucSan WHERE id = ?";
+    public boolean delete(String maSan) {
+        String sql = "DELETE FROM san_bong WHERE maSan = ?";
         try (Connection conn = DBConnect.getConnection()) {
             if (conn == null) return false;
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                pstmt.setInt(1, id);
+                pstmt.setString(1, maSan);
                 return pstmt.executeUpdate() > 0;
             }
         } catch (SQLException ex) {
@@ -92,12 +83,11 @@ public class KhuVucSanDAO {
 
     private KhuVucSan mapResultSet(ResultSet rs) throws SQLException {
         return new KhuVucSan(
-                rs.getInt("id"),
                 rs.getString("maSan"),
+                rs.getString("maChuSan"),
                 rs.getString("tenSan"),
                 rs.getString("loaiSan"),
-                rs.getDouble("giaTheoGio"),
-                rs.getString("moTa"),
+                rs.getDouble("giaThueTheoGio"),
                 rs.getString("trangThai")
         );
     }

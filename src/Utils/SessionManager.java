@@ -48,7 +48,7 @@ public final class SessionManager {
                     int nextId = DataStore.get().getPhienHistory().size() + 1;
                     String sid = String.format("SES-%04d", nextId);
                     String now = LocalDateTime.now().format(FMT);
-                    this.currentSession = new PhienLamViec(sid, dbUser.getTenDangNhap(), dbUser.getHoTen(), dbUser.getVaiTro(),
+                    this.currentSession = new PhienLamViec(sid, dbUser.getTenDangNhap(), dbUser.getTenDangNhap(), dbUser.getQuyenHan(),
                             now, null, "DangHoatDong", "127.0.0.1", "Desktop App (Java Swing)");
                     DataStore.get().getPhienHistory().add(0, currentSession);
                     try { new DAO.PhienLamViecDAO().insert(currentSession); } catch (Exception ignored) {}
@@ -81,7 +81,7 @@ public final class SessionManager {
         String sid = String.format("SES-%04d", nextId);
         String now = LocalDateTime.now().format(FMT);
 
-        this.currentSession = new PhienLamViec(sid, u.getTenDangNhap(), u.getHoTen(), u.getVaiTro(),
+        this.currentSession = new PhienLamViec(sid, u.getTenDangNhap(), u.getTenDangNhap(), u.getQuyenHan(),
                 now, null, "DangHoatDong", "127.0.0.1", "Desktop App (Java Swing)");
 
         DataStore.get().getPhienHistory().add(0, currentSession);
@@ -126,7 +126,7 @@ public final class SessionManager {
     }
 
     public boolean isNhanVienOnly() {
-        return currentUser != null && currentUser.isNhanVienOnly();
+        return currentUser != null && currentUser.isNhanVien();
     }
 
     public boolean isNhanVien() {

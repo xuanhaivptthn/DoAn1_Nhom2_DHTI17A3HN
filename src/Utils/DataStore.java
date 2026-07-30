@@ -125,20 +125,16 @@ public final class DataStore {
     }
 
     private void seedDefaultTaiKhoans() {
-        taiKhoans.add(new TaiKhoan(1, "admin", "admin123", "Chủ Sân Quản Lý",
-                "0988111222", "admin@sanbong.vn", "Admin", "HoatDong"));
-        taiKhoans.add(new TaiKhoan(2, "nhanvien01", "nv123456", "Nguyễn Văn Nhân",
-                "0977222333", "nv01@sanbong.vn", "NhanVien", "HoatDong"));
-        taiKhoans.add(new TaiKhoan(3, "nhanvien02", "nv123456", "Trần Thị Thu",
-                "0966333444", "nv02@sanbong.vn", "NhanVien", "HoatDong"));
-        taiKhoans.add(new TaiKhoan(4, "nhanvien03", "nv123456", "Lê Hoàng Nam",
-                "0955444555", "nv03@sanbong.vn", "NhanVien", "Khoa"));
+        taiKhoans.add(new TaiKhoan("TK001", "admin",      "admin123", "ADMIN",    "HOAT_DONG"));
+        taiKhoans.add(new TaiKhoan("TK002", "nhanvien01", "nv123456", "NHAN_VIEN", "HOAT_DONG"));
+        taiKhoans.add(new TaiKhoan("TK003", "nhanvien02", "nv123456", "NHAN_VIEN", "HOAT_DONG"));
+        taiKhoans.add(new TaiKhoan("TK004", "nhanvien03", "nv123456", "NHAN_VIEN", "KHOA"));
     }
 
     private void seedDefaultKhachHangs() {
-        khachHangs.add(new KhachHang(1, "Anh Đức (FC Anh Em)", "0912345678", "duc.fc@gmail.com", "Khách quen đặt cố định thứ 3 & thứ 5", 8));
-        khachHangs.add(new KhachHang(2, "Anh Tuấn (FC Thể Công)", "0987654321", "tuan.tc@gmail.com", "Khách hay đá khung 19h - 20h30", 5));
-        khachHangs.add(new KhachHang(3, "Chị Mai (Công ty FPT)", "0905123456", "mai.fpt@gmail.com", "Đặt sân cố định cuối tuần cho công ty", 12));
+        khachHangs.add(new KhachHang(1, "Anh Đức (FC Anh Em)", "0912345678"));
+        khachHangs.add(new KhachHang(2, "Anh Tuấn (FC Thể Công)", "0987654321"));
+        khachHangs.add(new KhachHang(3, "Chị Mai (Công ty FPT)", "0905123456"));
     }
 
     private void seedDefaultDichVus() {
@@ -226,7 +222,7 @@ public final class DataStore {
     public List<PhienLamViec> getPhienHistory() { return phienHistory; }
     public List<KhachHang> getKhachHangs() { return khachHangs; }
 
-    public synchronized KhachHang saveOrUpdateKhachHang(String hoTen, String sdt, String email, String ghiChu) {
+    public synchronized KhachHang saveOrUpdateKhachHang(String tenKhachHang, String sdt) {
         if (sdt == null || sdt.isBlank()) return null;
         String cleanSdt = sdt.trim();
         KhachHang existing = khachHangs.stream()
@@ -234,15 +230,14 @@ public final class DataStore {
                 .findFirst().orElse(null);
 
         if (existing != null) {
-            if (hoTen != null && !hoTen.isBlank()) existing.setHoTen(hoTen.trim());
-            if (email != null && !email.isBlank()) existing.setEmail(email.trim());
-            if (ghiChu != null && !ghiChu.isBlank()) existing.setGhiChu(ghiChu.trim());
-            existing.tangSoLanDat();
+            if (tenKhachHang != null && !tenKhachHang.isBlank())
+                existing.setTenKhachHang(tenKhachHang.trim());
             new DAO.KhachHangDAO().update(existing);
             return existing;
         } else {
-            int nextId = khachHangs.stream().mapToInt(KhachHang::getId).max().orElse(0) + 1;
-            KhachHang newKh = new KhachHang(nextId, hoTen != null ? hoTen.trim() : "", cleanSdt, email, ghiChu);
+            int nextId = khachHangs.size() + 1;
+            KhachHang newKh = new KhachHang(nextId,
+                    tenKhachHang != null ? tenKhachHang.trim() : "", cleanSdt);
             khachHangs.add(newKh);
             new DAO.KhachHangDAO().insert(newKh);
             return newKh;

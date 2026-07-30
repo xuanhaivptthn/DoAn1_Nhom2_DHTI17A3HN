@@ -14,7 +14,7 @@ public class DichVuDAO {
 
     public List<DichVu> getAll() {
         List<DichVu> list = new ArrayList<>();
-        String sql = "SELECT * FROM DichVu ORDER BY id ASC";
+        String sql = "SELECT * FROM dich_vu ORDER BY maDichVu ASC";
         try (Connection conn = DBConnect.getConnection()) {
             if (conn == null) return list;
             try (Statement stmt = conn.createStatement();
@@ -30,28 +30,16 @@ public class DichVuDAO {
     }
 
     public boolean insert(DichVu d) {
-        String sql = "INSERT INTO DichVu (maDichVu, tenDichVu, loaiDichVu, donGia, donVi, trangThai, soLuongTon, tonToiThieu, moTa) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO dich_vu (maDichVu, tenDichVu, loaiDichVu, gia, moTa) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = DBConnect.getConnection()) {
             if (conn == null) return false;
-            try (PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setString(1, d.getMaDichVu());
                 pstmt.setString(2, d.getTenDichVu());
                 pstmt.setString(3, d.getLoaiDichVu());
-                pstmt.setDouble(4, d.getDonGia());
-                pstmt.setString(5, d.getDonVi());
-                pstmt.setString(6, d.getTrangThai());
-                pstmt.setInt(7, d.getSoLuongTon());
-                pstmt.setInt(8, d.getTonToiThieu());
-                pstmt.setString(9, d.getMoTa());
-                int rows = pstmt.executeUpdate();
-                if (rows > 0) {
-                    try (ResultSet keys = pstmt.getGeneratedKeys()) {
-                        if (keys.next()) {
-                            d.setId(keys.getInt(1));
-                        }
-                    }
-                    return true;
-                }
+                pstmt.setDouble(4, d.getGia());
+                pstmt.setString(5, d.getMoTa());
+                return pstmt.executeUpdate() > 0;
             }
         } catch (SQLException ex) {
             System.err.println("Lỗi DichVuDAO.insert(): " + ex.getMessage());
@@ -60,20 +48,15 @@ public class DichVuDAO {
     }
 
     public boolean update(DichVu d) {
-        String sql = "UPDATE DichVu SET maDichVu = ?, tenDichVu = ?, loaiDichVu = ?, donGia = ?, donVi = ?, trangThai = ?, soLuongTon = ?, tonToiThieu = ?, moTa = ? WHERE id = ?";
+        String sql = "UPDATE dich_vu SET tenDichVu = ?, loaiDichVu = ?, gia = ?, moTa = ? WHERE maDichVu = ?";
         try (Connection conn = DBConnect.getConnection()) {
             if (conn == null) return false;
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                pstmt.setString(1, d.getMaDichVu());
-                pstmt.setString(2, d.getTenDichVu());
-                pstmt.setString(3, d.getLoaiDichVu());
-                pstmt.setDouble(4, d.getDonGia());
-                pstmt.setString(5, d.getDonVi());
-                pstmt.setString(6, d.getTrangThai());
-                pstmt.setInt(7, d.getSoLuongTon());
-                pstmt.setInt(8, d.getTonToiThieu());
-                pstmt.setString(9, d.getMoTa());
-                pstmt.setInt(10, d.getId());
+                pstmt.setString(1, d.getTenDichVu());
+                pstmt.setString(2, d.getLoaiDichVu());
+                pstmt.setDouble(3, d.getGia());
+                pstmt.setString(4, d.getMoTa());
+                pstmt.setString(5, d.getMaDichVu());
                 return pstmt.executeUpdate() > 0;
             }
         } catch (SQLException ex) {
@@ -82,12 +65,12 @@ public class DichVuDAO {
         return false;
     }
 
-    public boolean delete(int id) {
-        String sql = "DELETE FROM DichVu WHERE id = ?";
+    public boolean delete(String maDichVu) {
+        String sql = "DELETE FROM dich_vu WHERE maDichVu = ?";
         try (Connection conn = DBConnect.getConnection()) {
             if (conn == null) return false;
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                pstmt.setInt(1, id);
+                pstmt.setString(1, maDichVu);
                 return pstmt.executeUpdate() > 0;
             }
         } catch (SQLException ex) {
@@ -98,14 +81,11 @@ public class DichVuDAO {
 
     private DichVu mapResultSet(ResultSet rs) throws SQLException {
         return new DichVu(
-                rs.getInt("id"),
+                rs.getString("maDichVu"),
                 rs.getString("tenDichVu"),
-                rs.getString("moTa"),
-                rs.getDouble("donGia"),
-                rs.getString("donVi"),
-                rs.getString("trangThai"),
-                rs.getInt("soLuongTon"),
-                rs.getInt("tonToiThieu")
+                rs.getString("loaiDichVu"),
+                rs.getDouble("gia"),
+                rs.getString("moTa")
         );
     }
 }

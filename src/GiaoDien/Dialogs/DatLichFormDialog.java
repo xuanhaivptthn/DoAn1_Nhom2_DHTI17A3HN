@@ -555,7 +555,7 @@ public class DatLichFormDialog extends JDialog {
 
         if (summaryDialog.isConfirmed()) {
             // LƯU/CẬP NHẬT THÔNG TIN KHÁCH HÀNG VÀO CSDL (Không lưu ghi chú lần đặt vào hồ sơ khách hàng)
-            DataStore.get().saveOrUpdateKhachHang(tk, sdt, "", "");
+            DataStore.get().saveOrUpdateKhachHang(tk, sdt);
 
             this.result = candidate;
             this.confirmed = true;

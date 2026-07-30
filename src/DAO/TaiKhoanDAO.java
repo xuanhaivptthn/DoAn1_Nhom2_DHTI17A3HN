@@ -14,7 +14,7 @@ public class TaiKhoanDAO {
 
     public List<TaiKhoan> getAll() {
         List<TaiKhoan> list = new ArrayList<>();
-        String sql = "SELECT * FROM TaiKhoan ORDER BY id ASC";
+        String sql = "SELECT * FROM tai_khoan ORDER BY maTaiKhoan ASC";
         try (Connection conn = DBConnect.getConnection()) {
             if (conn == null) return list;
             try (Statement stmt = conn.createStatement();
@@ -30,7 +30,7 @@ public class TaiKhoanDAO {
     }
 
     public TaiKhoan findByUsernameAndPassword(String username, String password) {
-        String sql = "SELECT * FROM TaiKhoan WHERE tenDangNhap = ? AND matKhau = ?";
+        String sql = "SELECT * FROM tai_khoan WHERE tenDangNhap = ? AND matKhau = ?";
         try (Connection conn = DBConnect.getConnection()) {
             if (conn == null) return null;
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -49,26 +49,16 @@ public class TaiKhoanDAO {
     }
 
     public boolean insert(TaiKhoan tk) {
-        String sql = "INSERT INTO TaiKhoan (tenDangNhap, matKhau, hoTen, soDienThoai, email, vaiTro, trangThai) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO tai_khoan (maTaiKhoan, tenDangNhap, matKhau, quyenHan, trangThai) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = DBConnect.getConnection()) {
             if (conn == null) return false;
-            try (PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-                pstmt.setString(1, tk.getTenDangNhap());
-                pstmt.setString(2, tk.getMatKhau());
-                pstmt.setString(3, tk.getHoTen());
-                pstmt.setString(4, tk.getSoDienThoai());
-                pstmt.setString(5, tk.getEmail());
-                pstmt.setString(6, tk.getVaiTro());
-                pstmt.setString(7, tk.getTrangThai());
-                int rows = pstmt.executeUpdate();
-                if (rows > 0) {
-                    try (ResultSet keys = pstmt.getGeneratedKeys()) {
-                        if (keys.next()) {
-                            tk.setId(keys.getInt(1));
-                        }
-                    }
-                    return true;
-                }
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setString(1, tk.getMaTaiKhoan());
+                pstmt.setString(2, tk.getTenDangNhap());
+                pstmt.setString(3, tk.getMatKhau());
+                pstmt.setString(4, tk.getQuyenHan());
+                pstmt.setString(5, tk.getTrangThai());
+                return pstmt.executeUpdate() > 0;
             }
         } catch (SQLException ex) {
             System.err.println("Lỗi TaiKhoanDAO.insert(): " + ex.getMessage());
@@ -77,18 +67,15 @@ public class TaiKhoanDAO {
     }
 
     public boolean update(TaiKhoan tk) {
-        String sql = "UPDATE TaiKhoan SET tenDangNhap = ?, matKhau = ?, hoTen = ?, soDienThoai = ?, email = ?, vaiTro = ?, trangThai = ? WHERE id = ?";
+        String sql = "UPDATE tai_khoan SET tenDangNhap = ?, matKhau = ?, quyenHan = ?, trangThai = ? WHERE maTaiKhoan = ?";
         try (Connection conn = DBConnect.getConnection()) {
             if (conn == null) return false;
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setString(1, tk.getTenDangNhap());
                 pstmt.setString(2, tk.getMatKhau());
-                pstmt.setString(3, tk.getHoTen());
-                pstmt.setString(4, tk.getSoDienThoai());
-                pstmt.setString(5, tk.getEmail());
-                pstmt.setString(6, tk.getVaiTro());
-                pstmt.setString(7, tk.getTrangThai());
-                pstmt.setInt(8, tk.getId());
+                pstmt.setString(3, tk.getQuyenHan());
+                pstmt.setString(4, tk.getTrangThai());
+                pstmt.setString(5, tk.getMaTaiKhoan());
                 return pstmt.executeUpdate() > 0;
             }
         } catch (SQLException ex) {
@@ -97,12 +84,12 @@ public class TaiKhoanDAO {
         return false;
     }
 
-    public boolean delete(int id) {
-        String sql = "DELETE FROM TaiKhoan WHERE id = ?";
+    public boolean delete(String maTaiKhoan) {
+        String sql = "DELETE FROM tai_khoan WHERE maTaiKhoan = ?";
         try (Connection conn = DBConnect.getConnection()) {
             if (conn == null) return false;
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                pstmt.setInt(1, id);
+                pstmt.setString(1, maTaiKhoan);
                 return pstmt.executeUpdate() > 0;
             }
         } catch (SQLException ex) {
@@ -113,13 +100,10 @@ public class TaiKhoanDAO {
 
     private TaiKhoan mapResultSet(ResultSet rs) throws SQLException {
         return new TaiKhoan(
-                rs.getInt("id"),
+                rs.getString("maTaiKhoan"),
                 rs.getString("tenDangNhap"),
                 rs.getString("matKhau"),
-                rs.getString("hoTen"),
-                rs.getString("soDienThoai"),
-                rs.getString("email"),
-                rs.getString("vaiTro"),
+                rs.getString("quyenHan"),
                 rs.getString("trangThai")
         );
     }

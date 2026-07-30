@@ -1,69 +1,116 @@
 package Model;
 
+/**
+ * Bảng: san_bong
+ * Lưu trữ thông tin danh mục các sân bóng thuộc cụm sân.
+ * FK: maChuSan → chu_san(maChuSan)
+ */
 public class KhuVucSan {
-    private int id;
+    /** PK, AUTO_INCREMENT, varchar(20) */
     private String maSan;
+    /** FK → chu_san.maChuSan, NOT NULL, UNIQUE */
+    private String maChuSan;
+    /** NOT NULL - tên hiển thị sân (VD: Sân 5A, Sân 7B) */
     private String tenSan;
-    private String loaiSan;         // San5 | San7 | San11
-    private double giaTheoGio;
-    private float giaThueTheoGio;   // float giaThueTheoGio theo llv.png
-    private String moTa;
-    private String trangThai;       // SanSang | DangThue | BaoTri
+    /** NOT NULL - Sân 5 người | Sân 7 người | ... */
+    private String loaiSan;
+    /** NOT NULL, DECIMAL(12,2) - giá thuê cố định theo khung giờ (/giờ) */
+    private double giaThueTheoGio;
+    /** ENUM: HOAT_DONG | BAO_TRI | NGUNG_HOAT_DONG  — DEFAULT 'HOAT_DONG' */
+    private String trangThai;
 
     public KhuVucSan() {
     }
 
-    public KhuVucSan(int id, String maSan, String tenSan, String loaiSan,
-                     double giaTheoGio, String moTa, String trangThai) {
-        this.id = id;
+    public KhuVucSan(String maSan, String maChuSan, String tenSan, String loaiSan,
+                     double giaThueTheoGio, String trangThai) {
         this.maSan = maSan;
+        this.maChuSan = maChuSan;
         this.tenSan = tenSan;
         this.loaiSan = loaiSan;
-        this.giaTheoGio = giaTheoGio;
-        this.giaThueTheoGio = (float) giaTheoGio;
-        this.moTa = moTa;
+        this.giaThueTheoGio = giaThueTheoGio;
         this.trangThai = trangThai;
     }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    /** Constructor tương thích seed dữ liệu mẫu (id tự sinh mã) */
+    public KhuVucSan(int id, String maSan, String tenSan, String loaiSan,
+                     double giaThueTheoGio, String moTa, String trangThai) {
+        this.maSan = maSan;
+        this.tenSan = tenSan;
+        this.loaiSan = loaiSan;
+        this.giaThueTheoGio = giaThueTheoGio;
+        this.trangThai = trangThai;
+        // moTa không còn trong CSDL - bỏ qua
+    }
+
     public String getMaSan() { return maSan; }
     public void setMaSan(String maSan) { this.maSan = maSan; }
+
+    public String getMaChuSan() { return maChuSan; }
+    public void setMaChuSan(String maChuSan) { this.maChuSan = maChuSan; }
+
     public String getTenSan() { return tenSan; }
     public void setTenSan(String tenSan) { this.tenSan = tenSan; }
+
     public String getLoaiSan() { return loaiSan; }
     public void setLoaiSan(String loaiSan) { this.loaiSan = loaiSan; }
-    public double getGiaTheoGio() { return giaTheoGio; }
-    public void setGiaTheoGio(double giaTheoGio) { this.giaTheoGio = giaTheoGio; this.giaThueTheoGio = (float) giaTheoGio; }
 
-    public float getGiaThueTheoGio() { return giaThueTheoGio > 0 ? giaThueTheoGio : (float) giaTheoGio; }
-    public void setGiaThueTheoGio(float giaThueTheoGio) { this.giaThueTheoGio = giaThueTheoGio; this.giaTheoGio = giaThueTheoGio; }
+    public double getGiaThueTheoGio() { return giaThueTheoGio; }
+    public void setGiaThueTheoGio(double giaThueTheoGio) { this.giaThueTheoGio = giaThueTheoGio; }
 
-    public String getMoTa() { return moTa; }
-    public void setMoTa(String moTa) { this.moTa = moTa; }
     public String getTrangThai() { return trangThai; }
     public void setTrangThai(String trangThai) { this.trangThai = trangThai; }
 
+    // ─── Alias helpers tương thích UI code hiện tại ───────────────────────────
+    /** @deprecated dùng getGiaThueTheoGio() */
+    public double getGiaTheoGio() { return giaThueTheoGio; }
+    /** @deprecated dùng setGiaThueTheoGio() */
+    public void setGiaTheoGio(double gia) { this.giaThueTheoGio = gia; }
+    /** id nội bộ cho UI (dùng hashCode của maSan) */
+    public int getId() { return maSan != null ? maSan.hashCode() & 0x7FFFFFFF : 0; }
+
+    // ─── Helper methods ────────────────────────────────────────────────────────
+
     public String getLoaiSanHienThi() {
-        return switch (loaiSan == null ? "" : loaiSan) {
-            case "San5" -> "Sân 5 người";
-            case "San7" -> "Sân 7 người";
+        if (loaiSan == null) return "";
+        return switch (loaiSan) {
+            case "San5"  -> "Sân 5 người";
+            case "San7"  -> "Sân 7 người";
             case "San11" -> "Sân 11 người";
-            default -> loaiSan;
+            default      -> loaiSan;
         };
     }
 
     public String getTrangThaiHienThi() {
-        return switch (trangThai == null ? "" : trangThai) {
-            case "SanSang" -> "Sẵn sàng";
-            case "DangThue" -> "Đang thuê";
-            case "BaoTri" -> "Bảo trì";
+        if (trangThai == null) return "";
+        return switch (trangThai.toUpperCase()) {
+            case "HOAT_DONG"       -> "Hoạt động";
+            case "BAO_TRI"         -> "Bảo trì";
+            case "NGUNG_HOAT_DONG" -> "Ngừng hoạt động";
+            // Backward-compat với seed data cũ
+            case "SANSAN", "SANSANG" -> "Sẵn sàng";
+            case "DANGTHUE"          -> "Đang thuê";
+            case "BAOTRI"            -> "Bảo trì";
             default -> trangThai;
         };
+    }
+
+    public boolean isHoatDong() {
+        return trangThai != null && (
+            "HOAT_DONG".equalsIgnoreCase(trangThai) || "SanSang".equalsIgnoreCase(trangThai)
+        );
     }
 
     @Override
     public String toString() {
         return maSan + " - " + tenSan;
     }
+
+    // ─── Alias backward-compat cho UI cũ ─────────────────────────────────
+    /** @deprecated Không còn trong CSDL */
+    public String getMoTa() { return ""; }
+    /** @deprecated Không còn trong CSDL */
+    public void setMoTa(String moTa) { /* no-op */ }
+    /** @deprecated id nội bộ - dùng getMaSan() */
+    public void setId(int id) { /* no-op */ }
 }
