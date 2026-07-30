@@ -1,7 +1,5 @@
 package GiaoDien.Dialogs;
 
-import GiaoDien.Panels.*;
-
 import Model.DatLich;
 import Model.KhuVucSan;
 import Utils.DataStore;
@@ -14,8 +12,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
@@ -39,15 +35,15 @@ public class DatLichFormDialog extends JDialog {
     private JTextField txtTenKhach;
     private JTextField txtSoDienThoai;
     private JTextField txtNgayDat;
-    private JButton btnPickDate;
-    private JTextField txtGioBatDau;
-    private JTextField txtGioKetThuc;
+    private JComboBox<String> cboGioBatDau;
+    private JComboBox<String> cboGioKetThuc;
     private JTextField txtGhiChu;
 
-    // Config Dịch vụ / Đồ ăn kèm
-    private JButton btnConfigDichVuDoAn;
-    private JTextArea txtSummaryDichVuDoAn;
-    private final List<ChonDichVuDoAnDialog.SelectedItem> configuredAddons = new ArrayList<>();
+    // Config Dịch vụ / Đồ ăn kèm tách biệt
+    private JLabel lblStatusDichVu;
+    private JLabel lblStatusDoAn;
+
+    private final List<ChonDichVuDialog.SelectedItem> configuredAddons = new ArrayList<>();
     private double addonTotalCost = 0;
 
     private boolean isEdit;
@@ -91,10 +87,10 @@ public class DatLichFormDialog extends JDialog {
             txtNgayDat.setText(dateStr);
         }
         if (startTimeStr != null && !startTimeStr.isBlank()) {
-            txtGioBatDau.setText(startTimeStr);
+            setComboTime(cboGioBatDau, startTimeStr);
         }
         if (endTimeStr != null && !endTimeStr.isBlank()) {
-            txtGioKetThuc.setText(endTimeStr);
+            setComboTime(cboGioKetThuc, endTimeStr);
         }
     }
 
@@ -144,7 +140,7 @@ public class DatLichFormDialog extends JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void customInit(JFrame parent) {
-        setSize(560, 680);
+        setSize(560, 660);
         if (parent != null) setLocationRelativeTo(parent);
 
         lblHeaderTitle.setText(isEdit ? "Cập nhật phiếu đặt lịch" : "[+] Tạo mới phiếu đặt lịch");
@@ -161,64 +157,85 @@ public class DatLichFormDialog extends JDialog {
         int row = 0;
         row = addField(pnlFormCard, gbc, row, "Khu vực sân *", cboSan);
 
-        txtTenKhach = new javax.swing.JTextField(18);
+        txtTenKhach = new javax.swing.JTextField();
+        styleTextField(txtTenKhach);
         row = addField(pnlFormCard, gbc, row, "Tên khách hàng *", txtTenKhach);
 
-        txtSoDienThoai = new javax.swing.JTextField(11);
-        JButton btnQuickCustomer = new JButton("🔍 Khách quen");
-        btnQuickCustomer.setPreferredSize(new Dimension(105, 34));
-        btnQuickCustomer.addActionListener(e -> onPickQuickCustomer());
-
-        JPanel pnlPhoneWrapper = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
-        pnlPhoneWrapper.setOpaque(false);
-        txtSoDienThoai.setPreferredSize(new Dimension(130, 34));
-        pnlPhoneWrapper.add(txtSoDienThoai);
-        pnlPhoneWrapper.add(btnQuickCustomer);
-
+        txtSoDienThoai = new javax.swing.JTextField();
+        styleTextField(txtSoDienThoai);
         txtSoDienThoai.getDocument().addDocumentListener(new Utils.SimpleDocListener(this::onPhoneAutoLookup));
 
-        row = addField(pnlFormCard, gbc, row, "Số điện thoại", pnlPhoneWrapper);
+        JButton btnQuickCustomer = new JButton("🔍 Khách quen");
+        btnQuickCustomer.setFont(UIConstants.FONT_BUTTON);
+        btnQuickCustomer.setPreferredSize(new Dimension(115, 34));
+        btnQuickCustomer.addActionListener(e -> onPickQuickCustomer());
+
+        JPanel pnlPhoneWrapper = new JPanel(new BorderLayout(6, 0));
+        pnlPhoneWrapper.setOpaque(false);
+        pnlPhoneWrapper.add(txtSoDienThoai, BorderLayout.CENTER);
+        pnlPhoneWrapper.add(btnQuickCustomer, BorderLayout.EAST);
+
+        row = addField(pnlFormCard, gbc, row, "Số điện thoại *", pnlPhoneWrapper);
 
         // DATE PICKER COMPONENT
-        txtNgayDat = new javax.swing.JTextField(11);
-        btnPickDate = new JButton("Chọn ngày");
+        txtNgayDat = new javax.swing.JTextField();
+        styleTextField(txtNgayDat);
+
+        JButton btnPickDate = new JButton("Chọn ngày");
+        btnPickDate.setFont(UIConstants.FONT_BUTTON);
+        btnPickDate.setPreferredSize(new Dimension(115, 34));
         btnPickDate.addActionListener(e -> onOpenDatePicker());
 
-        JPanel pnlDateChooser = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
+        JPanel pnlDateChooser = new JPanel(new BorderLayout(6, 0));
         pnlDateChooser.setOpaque(false);
-        txtNgayDat.setPreferredSize(new Dimension(130, 34));
-        btnPickDate.setPreferredSize(new Dimension(105, 34));
-        pnlDateChooser.add(txtNgayDat);
-        pnlDateChooser.add(btnPickDate);
+        pnlDateChooser.add(txtNgayDat, BorderLayout.CENTER);
+        pnlDateChooser.add(btnPickDate, BorderLayout.EAST);
 
         row = addField(pnlFormCard, gbc, row, "Ngày đặt sân *", pnlDateChooser);
 
-        txtGioBatDau = new javax.swing.JTextField(18);
-        row = addField(pnlFormCard, gbc, row, "Giờ bắt đầu (HH:mm) *", txtGioBatDau);
+        // DROPDOWN CHO GIỜ BẮT ĐẦU & GIỜ KẾT THÚC
+        cboGioBatDau = createTimeComboBox();
+        row = addField(pnlFormCard, gbc, row, "Giờ bắt đầu *", cboGioBatDau);
 
-        txtGioKetThuc = new javax.swing.JTextField(18);
-        row = addField(pnlFormCard, gbc, row, "Giờ kết thúc (HH:mm) *", txtGioKetThuc);
+        cboGioKetThuc = createTimeComboBox();
+        row = addField(pnlFormCard, gbc, row, "Giờ kết thúc *", cboGioKetThuc);
 
-        txtGhiChu = new javax.swing.JTextField(18);
+        txtGhiChu = new javax.swing.JTextField();
+        styleTextField(txtGhiChu);
         row = addField(pnlFormCard, gbc, row, "Ghi chú", txtGhiChu);
 
-        // CONFIG BUTTON & SUMMARY DISPLAY
-        btnConfigDichVuDoAn = new JButton("Thêm Dịch vụ & Đồ ăn");
-        btnConfigDichVuDoAn.setFont(UIConstants.FONT_BOLD);
-        btnConfigDichVuDoAn.setPreferredSize(new Dimension(240, 36));
-        btnConfigDichVuDoAn.addActionListener(e -> onOpenConfigDialog());
+        // TÁCH NÚT THÊM DỊCH VỤ VÀ NÚT THÊM ĐỒ ĂN THÀNH 2 MỤC RIÊNG
+        JButton btnChonDichVu = new JButton("+ Chọn Dịch vụ");
+        btnChonDichVu.setFont(UIConstants.FONT_BOLD);
+        btnChonDichVu.setPreferredSize(new Dimension(135, 34));
+        btnChonDichVu.addActionListener(e -> onOpenConfigDialog(0));
 
-        row = addField(pnlFormCard, gbc, row, "Thêm Dịch vụ & Đồ ăn", btnConfigDichVuDoAn);
+        lblStatusDichVu = new JLabel("Chưa chọn dịch vụ");
+        lblStatusDichVu.setFont(UIConstants.FONT_SMALL);
+        lblStatusDichVu.setForeground(UIConstants.TEXT_SECONDARY);
 
-        txtSummaryDichVuDoAn = new JTextArea(4, 20);
-        txtSummaryDichVuDoAn.setEditable(false);
-        txtSummaryDichVuDoAn.setLineWrap(true);
-        txtSummaryDichVuDoAn.setFont(UIConstants.FONT_SMALL);
-        txtSummaryDichVuDoAn.setText("Bấm nút [+ Thêm Dịch vụ & Đồ ăn] ở trên để chọn Dịch vụ & Đồ ăn.");
-        JScrollPane spSummary = new JScrollPane(txtSummaryDichVuDoAn);
-        spSummary.setPreferredSize(new Dimension(240, 80));
+        JPanel pnlDVWrapper = new JPanel(new BorderLayout(8, 0));
+        pnlDVWrapper.setOpaque(false);
+        pnlDVWrapper.add(btnChonDichVu, BorderLayout.WEST);
+        pnlDVWrapper.add(lblStatusDichVu, BorderLayout.CENTER);
 
-        addField(pnlFormCard, gbc, row, "Tổng hợp", spSummary);
+        row = addField(pnlFormCard, gbc, row, "Thêm Dịch vụ", pnlDVWrapper);
+
+        JButton btnChonDoAn = new JButton("+ Chọn Đồ ăn");
+        btnChonDoAn.setFont(UIConstants.FONT_BOLD);
+        btnChonDoAn.setPreferredSize(new Dimension(135, 34));
+        btnChonDoAn.addActionListener(e -> onOpenConfigDialog(1));
+
+        lblStatusDoAn = new JLabel("Chưa chọn đồ ăn");
+        lblStatusDoAn.setFont(UIConstants.FONT_SMALL);
+        lblStatusDoAn.setForeground(UIConstants.TEXT_SECONDARY);
+
+        JPanel pnlDoAnWrapper = new JPanel(new BorderLayout(8, 0));
+        pnlDoAnWrapper.setOpaque(false);
+        pnlDoAnWrapper.add(btnChonDoAn, BorderLayout.WEST);
+        pnlDoAnWrapper.add(lblStatusDoAn, BorderLayout.CENTER);
+
+        row = addField(pnlFormCard, gbc, row, "Thêm Đồ ăn / Hàng kho", pnlDoAnWrapper);
 
         JButton btnCancel = new javax.swing.JButton("Hủy");
         btnCancel.addActionListener(e -> {
@@ -227,6 +244,9 @@ public class DatLichFormDialog extends JDialog {
         });
 
         JButton btnSave = new javax.swing.JButton(isEdit ? "Cập nhật" : "Lưu phiếu");
+        btnSave.setFont(UIConstants.FONT_BUTTON);
+        btnSave.setBackground(UIConstants.PRIMARY);
+        btnSave.setForeground(Color.WHITE);
         btnSave.addActionListener(e -> onSave());
 
         pnlFooter.add(btnCancel);
@@ -236,11 +256,37 @@ public class DatLichFormDialog extends JDialog {
             fillForm(original);
         } else {
             txtNgayDat.setText(LocalDate.now().toString());
-            txtGioBatDau.setText("18:00");
-            txtGioKetThuc.setText("19:00");
+            setComboTime(cboGioBatDau, "18:00");
+            setComboTime(cboGioKetThuc, "19:00");
         }
 
         getRootPane().setDefaultButton(btnSave);
+    }
+
+    private JComboBox<String> createTimeComboBox() {
+        List<String> times = new ArrayList<>();
+        for (int h = 5; h <= 23; h++) {
+            times.add(String.format("%02d:00", h));
+            if (h < 23) {
+                times.add(String.format("%02d:30", h));
+            }
+        }
+        JComboBox<String> combo = new JComboBox<>(times.toArray(new String[0]));
+        styleCombo(combo);
+        return combo;
+    }
+
+    private void setComboTime(JComboBox<String> combo, String timeStr) {
+        if (timeStr == null || timeStr.isBlank()) return;
+        timeStr = timeStr.trim();
+        for (int i = 0; i < combo.getItemCount(); i++) {
+            if (combo.getItemAt(i).equalsIgnoreCase(timeStr)) {
+                combo.setSelectedIndex(i);
+                return;
+            }
+        }
+        combo.addItem(timeStr);
+        combo.setSelectedItem(timeStr);
     }
 
     private void onOpenDatePicker() {
@@ -263,25 +309,64 @@ public class DatLichFormDialog extends JDialog {
     private final java.util.Map<Integer, Integer> currentDvMap = new java.util.HashMap<>();
     private final java.util.Map<Integer, Integer> currentDoAnMap = new java.util.HashMap<>();
 
-    private void onOpenConfigDialog() {
+    private void onOpenConfigDialog(int mode) {
         JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
-        ChonDichVuDoAnDialog dialog = new ChonDichVuDoAnDialog(parent);
-        dialog.setInitialQuantities(currentDvMap, currentDoAnMap);
-        dialog.setVisible(true);
+        if (mode == 0) {
+            ChonDichVuDialog dialog = new ChonDichVuDialog(parent);
+            dialog.setInitialQuantities(currentDvMap);
+            dialog.setVisible(true);
 
-        if (dialog.isConfirmed()) {
-            configuredAddons.clear();
-            configuredAddons.addAll(dialog.getSelectedServices());
-            configuredAddons.addAll(dialog.getSelectedFoodItems());
-            addonTotalCost = dialog.getTotalAddonCost();
+            if (dialog.isConfirmed()) {
+                currentDvMap.clear();
+                currentDvMap.putAll(dialog.getSelectedQtyMap());
+                rebuildConfiguredAddons();
+            }
+        } else {
+            ChonVatPhamKhoDialog dialog = new ChonVatPhamKhoDialog(parent);
+            dialog.setInitialQuantities(currentDoAnMap);
+            dialog.setVisible(true);
 
-            currentDvMap.clear();
-            currentDvMap.putAll(dialog.getSelectedQtyMapDichVu());
-            currentDoAnMap.clear();
-            currentDoAnMap.putAll(dialog.getSelectedQtyMapDoAn());
+            if (dialog.isConfirmed()) {
+                currentDoAnMap.clear();
+                currentDoAnMap.putAll(dialog.getSelectedQtyMap());
+                rebuildConfiguredAddons();
+            }
+        }
+    }
 
-            txtSummaryDichVuDoAn.setText(dialog.getSummaryText());
-            txtSummaryDichVuDoAn.setCaretPosition(0);
+    private void rebuildConfiguredAddons() {
+        configuredAddons.clear();
+        addonTotalCost = 0;
+
+        for (Model.DichVu dv : DataStore.get().getDichVus()) {
+            int qty = currentDvMap.getOrDefault(dv.getId(), 0);
+            if (qty > 0) {
+                ChonDichVuDialog.SelectedItem item = new ChonDichVuDialog.SelectedItem(dv, qty);
+                configuredAddons.add(item);
+                addonTotalCost += item.getThanhTien();
+            }
+        }
+
+        for (Model.DichVu khoItem : DataStore.get().getKhoItems()) {
+            int qty = currentDoAnMap.getOrDefault(khoItem.getId(), 0);
+            if (qty > 0) {
+                ChonDichVuDialog.SelectedItem item = new ChonDichVuDialog.SelectedItem(khoItem, qty);
+                configuredAddons.add(item);
+                addonTotalCost += item.getThanhTien();
+            }
+        }
+
+        updateAddonStatusLabels(currentDvMap.size(), currentDoAnMap.size());
+    }
+
+    private void updateAddonStatusLabels(int svcCount, int foodCount) {
+        if (lblStatusDichVu != null) {
+            lblStatusDichVu.setText(svcCount > 0 ? "✓ Đã chọn " + svcCount + " dịch vụ" : "Chưa chọn dịch vụ");
+            lblStatusDichVu.setForeground(svcCount > 0 ? UIConstants.PRIMARY : UIConstants.TEXT_SECONDARY);
+        }
+        if (lblStatusDoAn != null) {
+            lblStatusDoAn.setText(foodCount > 0 ? "✓ Đã chọn " + foodCount + " món/vật phẩm" : "Chưa chọn đồ/vật phẩm");
+            lblStatusDoAn.setForeground(foodCount > 0 ? UIConstants.PRIMARY : UIConstants.TEXT_SECONDARY);
         }
     }
 
@@ -290,15 +375,20 @@ public class DatLichFormDialog extends JDialog {
         gbc.gridy = row;
         gbc.weightx = 0.35;
         gbc.gridwidth = 1;
-        form.add(new javax.swing.JLabel(label), gbc);
+        JLabel lbl = new JLabel(label);
+        lbl.setFont(UIConstants.FONT_BOLD);
+        form.add(lbl, gbc);
 
         gbc.gridx = 1;
         gbc.weightx = 0.65;
-        if (!(field instanceof JPanel) && !(field instanceof JScrollPane)) {
-            field.setPreferredSize(new Dimension(240, 36));
-        }
+        field.setPreferredSize(new Dimension(250, 36));
         form.add(field, gbc);
         return row + 1;
+    }
+
+    private void styleTextField(JTextField txt) {
+        txt.setFont(UIConstants.FONT_NORMAL);
+        txt.setPreferredSize(new Dimension(250, 36));
     }
 
     private void styleCombo(JComboBox<?> combo) {
@@ -319,8 +409,8 @@ public class DatLichFormDialog extends JDialog {
         txtTenKhach.setText(d.getTenKhach());
         txtSoDienThoai.setText(d.getSoDienThoai());
         txtNgayDat.setText(d.getNgayDat());
-        txtGioBatDau.setText(d.getGioBatDau());
-        txtGioKetThuc.setText(d.getGioKetThuc());
+        setComboTime(cboGioBatDau, d.getGioBatDau());
+        setComboTime(cboGioKetThuc, d.getGioKetThuc());
         txtGhiChu.setText(d.getGhiChu());
 
         if (d.getSelectedDvMap() != null) {
@@ -330,9 +420,7 @@ public class DatLichFormDialog extends JDialog {
             currentDoAnMap.putAll(d.getSelectedDoAnMap());
         }
 
-        if (d.getDichVuKem() != null && !d.getDichVuKem().isBlank()) {
-            txtSummaryDichVuDoAn.setText("📋 DỊCH VỤ KÈM HIỆN CÓ:\n" + d.getDichVuKem());
-        }
+        rebuildConfiguredAddons();
     }
 
     private void onSave() {
@@ -340,30 +428,61 @@ public class DatLichFormDialog extends JDialog {
         String tk = txtTenKhach.getText().trim();
         String sdt = txtSoDienThoai.getText().trim();
         String ng = txtNgayDat.getText().trim();
-        String bd = txtGioBatDau.getText().trim();
-        String kt = txtGioKetThuc.getText().trim();
+        String bd = cboGioBatDau.getSelectedItem() != null ? cboGioBatDau.getSelectedItem().toString().trim() : "";
+        String kt = cboGioKetThuc.getSelectedItem() != null ? cboGioKetThuc.getSelectedItem().toString().trim() : "";
 
-        if (san == null || tk.isEmpty() || ng.isEmpty() || bd.isEmpty() || kt.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin bắt buộc.", "Thông báo", JOptionPane.WARNING_MESSAGE);
+        // BẮT BUỘC NHẬP SỐ ĐIỆN THOẠI VÀ THÔNG TIN BẮT BUỘC
+        if (san == null || tk.isEmpty() || sdt.isEmpty() || ng.isEmpty() || bd.isEmpty() || kt.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "Vui lòng nhập đầy đủ thông tin bắt buộc (Bao gồm Tên khách hàng và Số điện thoại).",
+                    "Thông báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
+
+        // KHÔNG CHO PHÉP ĐẶT LỊCH TRONG QUÁ KHỨ
+        try {
+            LocalDate bookingDate = LocalDate.parse(ng);
+            LocalDate today = LocalDate.now();
+            if (bookingDate.isBefore(today)) {
+                JOptionPane.showMessageDialog(this,
+                        "[!] KHÔNG THỂ ĐẶT LỊCH TRONG QUÁ KHỨ!\n\n"
+                                + "• Ngày đã chọn  : " + ng + "\n"
+                                + "• Ngày hiện tại  : " + today + "\n\n"
+                                + "Vui lòng chọn ngày hôm nay hoặc một ngày trong tương lai!",
+                        "Ngày đặt không hợp lệ", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            if (bookingDate.isEqual(today)) {
+                java.time.LocalTime bookingStart = java.time.LocalTime.parse(bd);
+                java.time.LocalTime nowTime = java.time.LocalTime.now();
+                if (bookingStart.isBefore(nowTime)) {
+                    JOptionPane.showMessageDialog(this,
+                            "[!] KHÔNG THỂ ĐẶT LỊCH KHUNG GIỜ TRONG QUÁ KHỨ!\n\n"
+                                    + "• Khung giờ chọn : " + bd + "\n"
+                                    + "• Giờ hiện tại   : " + nowTime.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm")) + "\n\n"
+                                    + "Vui lòng chọn khung giờ từ thời điểm hiện tại trở về sau!",
+                            "Khung giờ không hợp lệ", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+            }
+        } catch (Exception ignored) {}
 
         int bMin = toMinutes(bd);
         int kMin = toMinutes(kt);
         if (bMin >= kMin || bMin == 0 || kMin == 0) {
             JOptionPane.showMessageDialog(this,
-                    "Giờ bắt đầu và giờ kết thúc không hợp lệ (ví dụ đúng: 06:00 đến 07:30 hoặc 17:00 đến 18:30).",
+                    "Giờ bắt đầu và giờ kết thúc không hợp lệ (ví dụ: 06:00 đến 07:30 hoặc 17:00 đến 18:30).",
                     "Thông báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        int minAllowed = 5 * 60;        // 05:00 sáng
-        int maxAllowed = 23 * 60 + 30;  // 23:30 đêm
+        int minAllowed = 5 * 60;   // 05:00 sáng
+        int maxAllowed = 23 * 60;  // 23:00 đêm
         if (bMin < minAllowed || kMin > maxAllowed) {
             JOptionPane.showMessageDialog(this,
                     "[!] KHUNG GIỜ PHỤC VỤ SÂN BÓNG:\n"
                             + "Sân bóng mở cửa phục vụ đặt sân từ 05:00 sáng đến 23:00 đêm.\n"
-                            + "Vui lòng nhập khung giờ đặt trong khoảng 05:00 - 23:30!",
+                            + "Vui lòng chọn khung giờ đặt trong khoảng 05:00 - 23:00!",
                     "Khung giờ phục vụ", JOptionPane.WARNING_MESSAGE);
             return;
         }
@@ -415,9 +534,10 @@ public class DatLichFormDialog extends JDialog {
             return;
         }
 
-        double initialCourtPrice = isEdit ? original.getTienSan() : san.getGiaTheoGio();
+        double durationHours = (kMin - bMin) / 60.0;
+        double initialCourtPrice = isEdit ? original.getTienSan() : (san.getGiaTheoGio() * durationHours);
 
-        result = new DatLich(isEdit ? original.getId() : 0,
+        DatLich candidate = new DatLich(isEdit ? original.getId() : 0,
                 isEdit ? original.getMaPhieu() : "",
                 san.getId(), san.getTenSan(), tk, sdt, ng, bd, kt,
                 initialCourtPrice,
@@ -425,14 +545,22 @@ public class DatLichFormDialog extends JDialog {
                 isEdit ? original.getNhanVienLap() : "Hệ thống",
                 txtGhiChu.getText().trim());
 
-        result.setSelectedDvMap(currentDvMap);
-        result.setSelectedDoAnMap(currentDoAnMap);
+        candidate.setSelectedDvMap(currentDvMap);
+        candidate.setSelectedDoAnMap(currentDoAnMap);
 
-        // LƯU/CẬP NHẬT THÔNG TIN KHÁCH HÀNG VÀO CSDL ĐỂ TĂNG TỐC ĐẶT SÂN
-        DataStore.get().saveOrUpdateKhachHang(tk, sdt, "", txtGhiChu.getText().trim());
+        // HIỂN THỊ DIALOG TỔNG HỢP THÔNG TIN CHO NGƯỜI DÙNG KIỂM TRA & XÁC NHẬN / HỦY
+        JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
+        TongHopThongTinDialog summaryDialog = new TongHopThongTinDialog(parent, candidate, configuredAddons, addonTotalCost);
+        summaryDialog.setVisible(true);
 
-        confirmed = true;
-        dispose();
+        if (summaryDialog.isConfirmed()) {
+            // LƯU/CẬP NHẬT THÔNG TIN KHÁCH HÀNG VÀO CSDL (Không lưu ghi chú lần đặt vào hồ sơ khách hàng)
+            DataStore.get().saveOrUpdateKhachHang(tk, sdt, "", "");
+
+            this.result = candidate;
+            this.confirmed = true;
+            dispose();
+        }
     }
 
     private void onPhoneAutoLookup() {
@@ -446,28 +574,14 @@ public class DatLichFormDialog extends JDialog {
     }
 
     private void onPickQuickCustomer() {
-        List<Model.KhachHang> khs = DataStore.get().getKhachHangs();
-        if (khs.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Chưa có dữ liệu khách hàng cũ.", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-            return;
-        }
+        JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
+        ChonKhachHangDialog dialog = new ChonKhachHangDialog(parent);
+        dialog.setVisible(true);
 
-        Model.KhachHang selected = (Model.KhachHang) JOptionPane.showInputDialog(
-                this,
-                "Chọn khách hàng quen để điền nhanh thông tin:",
-                "Khách hàng đã lưu CSDL",
-                JOptionPane.QUESTION_MESSAGE,
-                null,
-                khs.toArray(),
-                null
-        );
-
-        if (selected != null) {
+        if (dialog.isConfirmed() && dialog.getSelectedCustomer() != null) {
+            Model.KhachHang selected = dialog.getSelectedCustomer();
             txtTenKhach.setText(selected.getHoTen());
             txtSoDienThoai.setText(selected.getSoDienThoai());
-            if (selected.getGhiChu() != null && !selected.getGhiChu().isBlank() && txtGhiChu.getText().isBlank()) {
-                txtGhiChu.setText(selected.getGhiChu());
-            }
         }
     }
 
