@@ -181,7 +181,8 @@ public class QuanLyKinhDoanhPanel extends javax.swing.JPanel {
         btnReport.addActionListener(e -> onTongHopBaoCao());
         pnlFilterBar.add(btnReport);
 
-        JButton btnRefresh = new javax.swing.JButton("↻ Làm mới dữ liệu");
+        JButton btnRefresh = new javax.swing.JButton(" Làm mới dữ liệu");
+        btnRefresh.setIcon(Utils.IconUtils.getRefreshIcon(16));
         PageUI.styleSecondaryButton(btnRefresh);
         btnRefresh.addActionListener(e -> {
             refresh();
@@ -189,7 +190,8 @@ public class QuanLyKinhDoanhPanel extends javax.swing.JPanel {
         });
         pnlFilterBar.add(btnRefresh);
 
-        JButton btnExport = new javax.swing.JButton("💾 Xuất Excel (CSV)");
+        JButton btnExport = new javax.swing.JButton(" Xuất Excel (CSV)");
+        btnExport.setIcon(Utils.IconUtils.getExportIcon(16));
         PageUI.styleSuccessButton(btnExport);
         btnExport.addActionListener(e -> onExportExcel());
         pnlFilterBar.add(btnExport);

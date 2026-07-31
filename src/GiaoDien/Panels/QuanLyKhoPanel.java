@@ -257,7 +257,7 @@ public class QuanLyKhoPanel extends javax.swing.JPanel {
         JOptionPane.showMessageDialog(this,
                 "XUẤT KHO THÀNH CÔNG\n• " + sel.getTenDichVu()
                         + "\n• −" + sl + " → tồn còn lại: " + sel.getSoLuongTon()
-                        + (sel.isSapHet() ? "\n⚠ Cảnh báo: tồn dưới mức tối thiểu!" : ""),
+                        + (sel.isSapHet() ? "\n[Cảnh báo] Tồn dưới mức tối thiểu!" : ""),
                 "Kết quả xuất kho", JOptionPane.INFORMATION_MESSAGE);
     }
 
@@ -269,11 +269,11 @@ public class QuanLyKhoPanel extends javax.swing.JPanel {
         sb.append(String.format("Tổng mặt hàng: %d\n", DataStore.get().getKhoItems().size()));
         sb.append(String.format("Sắp hết / dưới ngưỡng: %d\n\n", low.size()));
         if (low.isEmpty()) {
-            sb.append("✓ Tất cả mặt hàng đủ tồn kho.\n");
+            sb.append("[OK] Tất cả mặt hàng đủ tồn kho.\n");
         } else {
             sb.append("--- Cần nhập kho ---\n");
             for (DichVu d : low) {
-                sb.append(String.format("⚠ %s: tồn %d (tối thiểu %d) %s\n",
+                sb.append(String.format("[!] %s: tồn %d (tối thiểu %d) %s\n",
                         d.getTenDichVu(), d.getSoLuongTon(), d.getTonToiThieu(), d.getDonVi()));
             }
         }

@@ -74,7 +74,7 @@ public class ChonVatPhamKhoDialog extends JDialog {
 
         // Header Panel
         JPanel pnlHeader = PageUI.createPageHeader(
-                "📦 Chọn Đồ ăn & Cho thuê Vật phẩm Kho hàng",
+                "Chọn Đồ ăn & Cho thuê Vật phẩm Kho hàng",
                 "Chọn Đồ ăn/Nước giải khát hoặc Cho thuê vật phẩm kho (Áo lưới, Bóng đá, Giày thi đấu...)"
         );
         getContentPane().add(pnlHeader, BorderLayout.NORTH);
@@ -87,7 +87,8 @@ public class ChonVatPhamKhoDialog extends JDialog {
         JPanel pnlSearch = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         pnlSearch.setOpaque(false);
 
-        JLabel lblSearch = new JLabel("🔍 Tìm hàng kho / vật phẩm:");
+        JLabel lblSearch = new JLabel("Tìm hàng kho / vật phẩm:");
+        lblSearch.setIcon(Utils.IconUtils.getSearchIcon(16));
         lblSearch.setFont(UIConstants.FONT_BOLD);
         pnlSearch.add(lblSearch);
 
@@ -172,7 +173,8 @@ public class ChonVatPhamKhoDialog extends JDialog {
             dispose();
         });
 
-        JButton btnDone = new JButton("✓ Hoàn tất chọn");
+        JButton btnDone = new JButton(" Hoàn tất chọn");
+        btnDone.setIcon(Utils.IconUtils.getCheckIcon(16));
         btnDone.setFont(UIConstants.FONT_BUTTON);
         btnDone.setBackground(UIConstants.PRIMARY);
         btnDone.setForeground(Color.WHITE);
@@ -194,7 +196,7 @@ public class ChonVatPhamKhoDialog extends JDialog {
             boolean matchDesc = item.getMoTa() != null && item.getMoTa().toLowerCase().contains(kw);
             if (kw.isEmpty() || matchName || matchDesc) {
                 int currentQty = selectedQtyMap.getOrDefault(item.getId(), 0);
-                String hinhThuc = isRentalItem(item) ? "🏷️ Cho thuê" : "🥤 Bán giải khát";
+                String hinhThuc = isRentalItem(item) ? "Cho thuê" : "Bán giải khát";
                 modelKho.addRow(new Object[]{
                         item.getId(),
                         item.getTenDichVu(),

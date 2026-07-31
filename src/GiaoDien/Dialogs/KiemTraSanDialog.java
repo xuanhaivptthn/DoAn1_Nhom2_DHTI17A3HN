@@ -118,9 +118,10 @@ public class KiemTraSanDialog extends JDialog {
         int row = 0;
         row = addField(pnlFormCard, gbc, row, "Khu vực sân *", cboSan);
 
-        txtNgay = new javax.swing.JTextField(16);
+        txtNgay = new javax.swing.JTextField();
         txtNgay.setText(java.time.LocalDate.now().toString());
-        row = addField(pnlFormCard, gbc, row, "Ngày kiểm tra *", txtNgay);
+        JPanel pnlNgay = createDatePickerPanel(txtNgay, (JFrame) getOwner());
+        row = addField(pnlFormCard, gbc, row, "Ngày kiểm tra *", pnlNgay);
 
         txtGioBatDau = new javax.swing.JTextField(16);
         txtGioBatDau.setText("18:00");
@@ -185,4 +186,42 @@ public class KiemTraSanDialog extends JDialog {
     public String getNgay() { return ngay; }
     public String getGioBatDau() { return gioBatDau; }
     public String getGioKetThuc() { return gioKetThuc; }
+
+    private JPanel createDatePickerPanel(JTextField txtField, JFrame parent) {
+        JPanel pnl = new JPanel(new BorderLayout(4, 0));
+        pnl.setOpaque(false);
+        txtField.setPreferredSize(new Dimension(190, 36));
+        txtField.setFont(UIConstants.FONT_NORMAL);
+
+        JButton btnPicker = new JButton();
+        btnPicker.setIcon(Utils.IconUtils.getCalendarIcon(16));
+        btnPicker.setPreferredSize(new Dimension(44, 36));
+        btnPicker.addActionListener(e -> openDatePickerFor(txtField, parent));
+
+        txtField.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                openDatePickerFor(txtField, parent);
+            }
+        });
+
+        pnl.add(txtField, BorderLayout.CENTER);
+        pnl.add(btnPicker, BorderLayout.EAST);
+        return pnl;
+    }
+
+    private void openDatePickerFor(JTextField txtField, JFrame parent) {
+        java.time.LocalDate initDate = java.time.LocalDate.now();
+        try {
+            if (!txtField.getText().isBlank()) {
+                initDate = java.time.LocalDate.parse(txtField.getText().trim());
+            }
+        } catch (Exception ignored) {}
+
+        ChonNgayDialog dialog = new ChonNgayDialog(parent, initDate);
+        dialog.setVisible(true);
+        if (dialog.isConfirmed() && dialog.getSelectedDate() != null) {
+            txtField.setText(dialog.getSelectedDate().toString());
+        }
+    }
 }

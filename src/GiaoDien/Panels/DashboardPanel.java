@@ -154,7 +154,8 @@ public class DashboardPanel extends javax.swing.JPanel {
         titleRight.setFont(UIConstants.FONT_SUBTITLE);
         titleRight.setForeground(UIConstants.PRIMARY);
 
-        JButton btnGoDatLich = new JButton("Chi tiết ➔");
+        JButton btnGoDatLich = new JButton("Chi tiết ");
+        btnGoDatLich.setIcon(Utils.IconUtils.getArrowRightIcon(16));
         btnGoDatLich.setFont(UIConstants.FONT_SMALL);
         if (pageNavigator != null) {
             btnGoDatLich.addActionListener(e -> pageNavigator.accept("datlich"));
@@ -293,7 +294,7 @@ public class DashboardPanel extends javax.swing.JPanel {
 
         if (todayUpcomingList.isEmpty()) {
             todayUpcomingBookingsModel.addRow(new Object[]{
-                    "-", "✓ Hôm nay chưa có lịch đặt nào", "-", "-", "-", "-", "-"
+                    "-", "Hôm nay chưa có lịch đặt nào", "-", "-", "-", "-", "-"
             });
         }
 
@@ -313,7 +314,7 @@ public class DashboardPanel extends javax.swing.JPanel {
 
             if (maint != null || "BaoTri".equalsIgnoreCase(san.getTrangThai())) {
                 for (int t = 0; t < TIME_SLOTS.length; t++) {
-                    row[t + 1] = "🔧 Bảo trì";
+                    row[t + 1] = "Bảo trì";
                 }
             } else {
                 for (int t = 0; t < TIME_SLOTS.length; t++) {
@@ -335,11 +336,11 @@ public class DashboardPanel extends javax.swing.JPanel {
                     }
 
                     if (found == null) {
-                        row[t + 1] = "✓ Trống";
+                        row[t + 1] = "Trống";
                     } else if ("ChoXacNhan".equalsIgnoreCase(found.getTrangThai())) {
-                        row[t + 1] = "🟡 " + found.getTenKhach() + " (" + found.getGioBatDau() + " - " + found.getGioKetThuc() + ")";
+                        row[t + 1] = "[Đã đặt] " + found.getTenKhach() + " (" + found.getGioBatDau() + " - " + found.getGioKetThuc() + ")";
                     } else {
-                        row[t + 1] = "🔴 " + found.getTenKhach() + " (" + found.getGioBatDau() + " - " + found.getGioKetThuc() + ")";
+                        row[t + 1] = "[Đang đá] " + found.getTenKhach() + " (" + found.getGioBatDau() + " - " + found.getGioKetThuc() + ")";
                     }
                 }
             }
@@ -557,13 +558,13 @@ public class DashboardPanel extends javax.swing.JPanel {
                 jc.setToolTipText(str);
             }
 
-            if (str.startsWith("🔴")) {
+            if (str.startsWith("[Đang đá]")) {
                 c.setBackground(new Color(255, 235, 235));
                 c.setForeground(new Color(180, 40, 40));
-            } else if (str.startsWith("🟡")) {
+            } else if (str.startsWith("[Đã đặt]")) {
                 c.setBackground(new Color(255, 248, 220));
                 c.setForeground(new Color(180, 100, 0));
-            } else if (str.startsWith("🔧")) {
+            } else if (str.startsWith("Bảo trì")) {
                 c.setBackground(new Color(240, 240, 240));
                 c.setForeground(new Color(120, 120, 120));
             } else {

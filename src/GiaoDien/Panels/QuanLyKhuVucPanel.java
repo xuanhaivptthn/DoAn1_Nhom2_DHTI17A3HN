@@ -77,7 +77,7 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
 
     private void customInit() {
         pnlHeaderWrap.add(PageUI.createPageHeader("Quản lý khu vực sân bóng",
-                "Yêu cầu: Quản lý khu vực sân bóng  →  Phản hồi: Kết quả cập nhật khu vực"), BorderLayout.CENTER);
+                "Quản lý khu vực sân bóng - Kết quả cập nhật khu vực"), BorderLayout.CENTER);
 
         model = new DefaultTableModel(
                 new String[]{"Mã sân", "Tên sân", "Loại sân", "Giá/giờ", "Trạng thái"}, 0) {
@@ -129,11 +129,13 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
         lblQuickNote.setFont(UIConstants.FONT_SMALL);
         lblQuickNote.setForeground(UIConstants.TEXT_SECONDARY);
 
-        JButton btnQuickReady = new javax.swing.JButton("✓ Sẵn sàng");
+        JButton btnQuickReady = new javax.swing.JButton(" Sẵn sàng");
+        btnQuickReady.setIcon(Utils.IconUtils.getCheckIcon(16));
         PageUI.styleSuccessButton(btnQuickReady);
         btnQuickReady.addActionListener(e -> onQuickSetStatus("SanSang"));
 
-        JButton btnQuickMaint = new javax.swing.JButton("⚠ Bảo trì");
+        JButton btnQuickMaint = new javax.swing.JButton(" Bảo trì");
+        btnQuickMaint.setIcon(Utils.IconUtils.getWarningIcon(16));
         PageUI.styleDangerButton(btnQuickMaint);
         btnQuickMaint.addActionListener(e -> onQuickSetStatus("BaoTri"));
 

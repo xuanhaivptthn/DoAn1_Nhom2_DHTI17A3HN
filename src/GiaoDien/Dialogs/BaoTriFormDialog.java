@@ -82,7 +82,7 @@ public class BaoTriFormDialog extends JDialog {
 
         lblHeaderTitle.setFont(UIConstants.FONT_TITLE);
         lblHeaderTitle.setForeground(java.awt.Color.WHITE);
-        lblHeaderTitle.setText("🔧 Thông tin phiếu bảo trì");
+        lblHeaderTitle.setText("Thông tin phiếu bảo trì");
         pnlHeader.add(lblHeaderTitle, java.awt.BorderLayout.WEST);
 
         getContentPane().add(pnlHeader, java.awt.BorderLayout.NORTH);
@@ -126,11 +126,13 @@ public class BaoTriFormDialog extends JDialog {
         txtNoiDung = new javax.swing.JTextField(18);
         row = addField(pnlFormCard, gbc, row, "Nội dung bảo trì *", txtNoiDung);
 
-        txtNgayBatDau = new javax.swing.JTextField(18);
-        row = addField(pnlFormCard, gbc, row, "Ngày bắt đầu *", txtNgayBatDau);
+        txtNgayBatDau = new javax.swing.JTextField();
+        JPanel pnlNbd = createDatePickerPanel(txtNgayBatDau, parent);
+        row = addField(pnlFormCard, gbc, row, "Ngày bắt đầu *", pnlNbd);
 
-        txtNgayKetThuc = new javax.swing.JTextField(18);
-        row = addField(pnlFormCard, gbc, row, "Ngày kết thúc", txtNgayKetThuc);
+        txtNgayKetThuc = new javax.swing.JTextField();
+        JPanel pnlNkt = createDatePickerPanel(txtNgayKetThuc, parent);
+        row = addField(pnlFormCard, gbc, row, "Ngày kết thúc", pnlNkt);
 
         cboTrangThai = new JComboBox<>(new String[]{"Đang bảo trì", "Hoàn thành", "Đã hủy"});
         styleCombo(cboTrangThai);
@@ -218,7 +220,7 @@ public class BaoTriFormDialog extends JDialog {
             sb.append("Sân bóng     : ").append(san.getTenSan()).append("\n");
             sb.append("Thời gian BT : ").append(nbd);
             if (!nkt.isBlank()) {
-                sb.append(" ➔ ").append(nkt);
+                sb.append(" - ").append(nkt);
             }
             sb.append("\n\nDanh sách khách hàng cần liên hệ để dời/đổi lịch sân:\n\n");
 
@@ -231,7 +233,7 @@ public class BaoTriFormDialog extends JDialog {
                 sb.append("   • Trạng thái : ").append(d.getTrangThaiHienThi()).append("\n");
                 sb.append("   ------------------------------------\n");
             }
-            sb.append("\n📌 Vui lòng liên hệ trực tiếp với khách hàng theo SĐT trên để dời/đổi lịch!");
+            sb.append("\n[Lưu ý] Vui lòng liên hệ trực tiếp với khách hàng theo SĐT trên để dời/đổi lịch!");
 
             JOptionPane.showMessageDialog(this, sb.toString(), "Cảnh báo trùng lịch đặt sân", JOptionPane.WARNING_MESSAGE);
         }
@@ -285,6 +287,44 @@ public class BaoTriFormDialog extends JDialog {
                 cboSan.setSelectedIndex(i);
                 break;
             }
+        }
+    }
+
+    private JPanel createDatePickerPanel(JTextField txtField, JFrame parent) {
+        JPanel pnl = new JPanel(new BorderLayout(4, 0));
+        pnl.setOpaque(false);
+        txtField.setPreferredSize(new Dimension(190, 36));
+        txtField.setFont(UIConstants.FONT_NORMAL);
+
+        JButton btnPicker = new JButton();
+        btnPicker.setIcon(Utils.IconUtils.getCalendarIcon(16));
+        btnPicker.setPreferredSize(new Dimension(44, 36));
+        btnPicker.addActionListener(e -> openDatePickerFor(txtField, parent));
+
+        txtField.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                openDatePickerFor(txtField, parent);
+            }
+        });
+
+        pnl.add(txtField, BorderLayout.CENTER);
+        pnl.add(btnPicker, BorderLayout.EAST);
+        return pnl;
+    }
+
+    private void openDatePickerFor(JTextField txtField, JFrame parent) {
+        java.time.LocalDate initDate = java.time.LocalDate.now();
+        try {
+            if (!txtField.getText().isBlank()) {
+                initDate = java.time.LocalDate.parse(txtField.getText().trim());
+            }
+        } catch (Exception ignored) {}
+
+        ChonNgayDialog dialog = new ChonNgayDialog(parent, initDate);
+        dialog.setVisible(true);
+        if (dialog.isConfirmed() && dialog.getSelectedDate() != null) {
+            txtField.setText(dialog.getSelectedDate().toString());
         }
     }
 }

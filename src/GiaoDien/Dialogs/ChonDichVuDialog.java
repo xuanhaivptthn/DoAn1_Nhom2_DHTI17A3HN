@@ -74,7 +74,7 @@ public class ChonDichVuDialog extends JDialog {
 
         // Header Panel
         JPanel pnlHeader = PageUI.createPageHeader(
-                "⚽ Chọn Dịch vụ đi kèm đặt sân",
+                "Chọn Dịch vụ đi kèm đặt sân",
                 "Chọn các dịch vụ như Trọng tài, Huấn luyện viên, Đèn chiếu sáng, Quay phim..."
         );
         getContentPane().add(pnlHeader, BorderLayout.NORTH);
@@ -87,7 +87,8 @@ public class ChonDichVuDialog extends JDialog {
         JPanel pnlSearch = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         pnlSearch.setOpaque(false);
 
-        JLabel lblSearch = new JLabel("🔍 Tìm dịch vụ:");
+        JLabel lblSearch = new JLabel("Tìm dịch vụ:");
+        lblSearch.setIcon(Utils.IconUtils.getSearchIcon(16));
         lblSearch.setFont(UIConstants.FONT_BOLD);
         pnlSearch.add(lblSearch);
 
@@ -158,7 +159,8 @@ public class ChonDichVuDialog extends JDialog {
             dispose();
         });
 
-        JButton btnDone = new JButton("✓ Hoàn tất chọn");
+        JButton btnDone = new JButton(" Hoàn tất chọn");
+        btnDone.setIcon(Utils.IconUtils.getCheckIcon(16));
         btnDone.setFont(UIConstants.FONT_BUTTON);
         btnDone.setBackground(UIConstants.PRIMARY);
         btnDone.setForeground(Color.WHITE);

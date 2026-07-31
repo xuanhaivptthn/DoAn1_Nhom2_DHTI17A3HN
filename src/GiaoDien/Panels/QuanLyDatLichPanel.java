@@ -164,7 +164,8 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         JPanel left = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
         left.setOpaque(false);
 
-        JButton btnPrevDay = new javax.swing.JButton("◀");
+        JButton btnPrevDay = new javax.swing.JButton();
+        btnPrevDay.setIcon(Utils.IconUtils.getPrevIcon(16));
         btnPrevDay.setPreferredSize(new Dimension(45, 32));
         btnPrevDay.addActionListener(e -> {
             selectedDate = selectedDate.minusDays(1);
@@ -180,7 +181,8 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
             reloadSchedule();
         });
 
-        JButton btnNextDay = new javax.swing.JButton("▶");
+        JButton btnNextDay = new javax.swing.JButton();
+        btnNextDay.setIcon(Utils.IconUtils.getNextIcon(16));
         btnNextDay.setPreferredSize(new Dimension(45, 32));
         btnNextDay.addActionListener(e -> {
             selectedDate = selectedDate.plusDays(1);
@@ -219,7 +221,8 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         btnNewBooking.setPreferredSize(new Dimension(135, 34));
         btnNewBooking.addActionListener(e -> onBookNew());
 
-        JButton btnRefresh = new javax.swing.JButton("↻ Làm mới dữ liệu");
+        JButton btnRefresh = new javax.swing.JButton(" Làm mới dữ liệu");
+        btnRefresh.setIcon(Utils.IconUtils.getRefreshIcon(16));
         btnRefresh.setPreferredSize(new Dimension(145, 34));
         btnRefresh.addActionListener(e -> {
             reloadSchedule();
@@ -497,7 +500,7 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
                 // Check maintenance status for court
                 BaoTri maint = dayMaints.stream().filter(b -> court.getMaSan() != null && court.getMaSan().equals(b.getMaSan())).findFirst().orElse(null);
                 if (maint != null || DataStore.get().isSanBaoTri(court)) {
-                    rowData[col + 1] = maint != null ? "🔧 Bảo trì - " + maint.getNoiDung() : "🔧 Đang bảo trì";
+                    rowData[col + 1] = maint != null ? "Bảo trì - " + maint.getNoiDung() : "Đang bảo trì";
                     continue;
                 }
 

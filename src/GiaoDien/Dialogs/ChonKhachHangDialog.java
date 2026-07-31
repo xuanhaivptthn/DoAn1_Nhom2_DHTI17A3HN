@@ -49,7 +49,7 @@ public class ChonKhachHangDialog extends JDialog {
         if (parent != null) setLocationRelativeTo(parent);
 
         // Header Panel
-        JPanel pnlHeader = PageUI.createPageHeader("🔍 Chọn khách hàng quen", "Tìm kiếm theo Tên hoặc Số điện thoại để chọn nhanh");
+        JPanel pnlHeader = PageUI.createPageHeader("Chọn khách hàng quen", "Tìm kiếm theo Tên hoặc Số điện thoại để chọn nhanh");
         getContentPane().add(pnlHeader, BorderLayout.NORTH);
 
         // Main Center Panel
@@ -60,7 +60,8 @@ public class ChonKhachHangDialog extends JDialog {
         JPanel pnlSearch = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         pnlSearch.setOpaque(false);
 
-        JLabel lblSearch = new JLabel("🔍 Tìm kiếm:");
+        JLabel lblSearch = new JLabel("Tìm kiếm:");
+        lblSearch.setIcon(Utils.IconUtils.getSearchIcon(16));
         lblSearch.setFont(UIConstants.FONT_BOLD);
         pnlSearch.add(lblSearch);
 
@@ -113,7 +114,8 @@ public class ChonKhachHangDialog extends JDialog {
             dispose();
         });
 
-        JButton btnSelect = new JButton("✓ Chọn khách hàng");
+        JButton btnSelect = new JButton(" Chọn khách hàng");
+        btnSelect.setIcon(Utils.IconUtils.getCheckIcon(16));
         btnSelect.setFont(UIConstants.FONT_BUTTON);
         btnSelect.setBackground(UIConstants.PRIMARY);
         btnSelect.setForeground(java.awt.Color.WHITE);

@@ -70,7 +70,8 @@ public class ChonKhoangNgayDialog extends JDialog {
         gbc.gridx = 1; gbc.gridy = 0; gbc.weightx = 0.65;
         pnlCard.add(txtFromDate, gbc);
 
-        JButton btnPickFrom = new JButton("📅");
+        JButton btnPickFrom = new JButton();
+        btnPickFrom.setIcon(Utils.IconUtils.getCalendarIcon(16));
         btnPickFrom.setPreferredSize(new Dimension(45, 34));
         btnPickFrom.addActionListener(e -> {
             ChonNgayDialog dialog = new ChonNgayDialog((JFrame) getOwner(), fromDate);
@@ -83,6 +84,13 @@ public class ChonKhoangNgayDialog extends JDialog {
         gbc.gridx = 2; gbc.gridy = 0; gbc.weightx = 0.0;
         pnlCard.add(btnPickFrom, gbc);
 
+        txtFromDate.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                btnPickFrom.doClick();
+            }
+        });
+
         // Đến ngày
         gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 0.35;
         pnlCard.add(new JLabel("Đến ngày (yyyy-MM-dd) *"), gbc);
@@ -94,7 +102,8 @@ public class ChonKhoangNgayDialog extends JDialog {
         gbc.gridx = 1; gbc.gridy = 1; gbc.weightx = 0.65;
         pnlCard.add(txtToDate, gbc);
 
-        JButton btnPickTo = new JButton("📅");
+        JButton btnPickTo = new JButton();
+        btnPickTo.setIcon(Utils.IconUtils.getCalendarIcon(16));
         btnPickTo.setPreferredSize(new Dimension(45, 34));
         btnPickTo.addActionListener(e -> {
             ChonNgayDialog dialog = new ChonNgayDialog((JFrame) getOwner(), toDate);
@@ -106,6 +115,13 @@ public class ChonKhoangNgayDialog extends JDialog {
         });
         gbc.gridx = 2; gbc.gridy = 1; gbc.weightx = 0.0;
         pnlCard.add(btnPickTo, gbc);
+
+        txtToDate.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                btnPickTo.doClick();
+            }
+        });
 
         // Quick Buttons Panel
         JPanel pnlQuick = new JPanel(new FlowLayout(FlowLayout.CENTER, 6, 0));

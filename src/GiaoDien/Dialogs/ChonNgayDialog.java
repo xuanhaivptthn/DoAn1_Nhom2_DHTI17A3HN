@@ -119,14 +119,21 @@ public class ChonNgayDialog extends JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void customInit(JFrame parent) {
-        setSize(520, 560);
+        java.awt.Rectangle maxBounds = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
+        int targetWidth = 540;
+        int targetHeight = 580;
+        if (maxBounds.height < 650) {
+            targetHeight = (int) (maxBounds.height * 0.95);
+        }
+        setSize(targetWidth, targetHeight);
         if (parent != null) setLocationRelativeTo(parent);
 
         // Top Month Navigator Bar
         JPanel pnlMonthNav = new JPanel(new FlowLayout(FlowLayout.CENTER, 6, 4));
         pnlMonthNav.setOpaque(false);
 
-        JButton btnPrevYear = new javax.swing.JButton("◀◀");
+        JButton btnPrevYear = new javax.swing.JButton();
+        btnPrevYear.setIcon(Utils.IconUtils.getFirstIcon(16));
         btnPrevYear.setToolTipText("Năm trước");
         btnPrevYear.setPreferredSize(new Dimension(50, 32));
         btnPrevYear.addActionListener(e -> {
@@ -134,7 +141,8 @@ public class ChonNgayDialog extends JDialog {
             updateMonthGrid();
         });
 
-        JButton btnPrevMonth = new javax.swing.JButton("◀");
+        JButton btnPrevMonth = new javax.swing.JButton();
+        btnPrevMonth.setIcon(Utils.IconUtils.getPrevIcon(16));
         btnPrevMonth.setToolTipText("Tháng trước");
         btnPrevMonth.setPreferredSize(new Dimension(45, 32));
         btnPrevMonth.addActionListener(e -> {
@@ -174,7 +182,8 @@ public class ChonNgayDialog extends JDialog {
             }
         });
 
-        JButton btnNextMonth = new javax.swing.JButton("▶");
+        JButton btnNextMonth = new javax.swing.JButton();
+        btnNextMonth.setIcon(Utils.IconUtils.getNextIcon(16));
         btnNextMonth.setToolTipText("Tháng sau");
         btnNextMonth.setPreferredSize(new Dimension(45, 32));
         btnNextMonth.addActionListener(e -> {
@@ -182,7 +191,8 @@ public class ChonNgayDialog extends JDialog {
             updateMonthGrid();
         });
 
-        JButton btnNextYear = new javax.swing.JButton("▶▶");
+        JButton btnNextYear = new javax.swing.JButton();
+        btnNextYear.setIcon(Utils.IconUtils.getLastIcon(16));
         btnNextYear.setToolTipText("Năm sau");
         btnNextYear.setPreferredSize(new Dimension(50, 32));
         btnNextYear.addActionListener(e -> {
@@ -226,7 +236,7 @@ public class ChonNgayDialog extends JDialog {
 
         tableCalendar = new JTable(modelCalendar);
         tableCalendar.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        tableCalendar.setRowHeight(44);
+        tableCalendar.setRowHeight(38);
         tableCalendar.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         tableCalendar.setCellSelectionEnabled(true);
         tableCalendar.setShowGrid(true);
@@ -252,7 +262,10 @@ public class ChonNgayDialog extends JDialog {
             }
         });
 
-        pnlFormCard.add(new javax.swing.JScrollPane(tableCalendar), BorderLayout.CENTER);
+        javax.swing.JScrollPane spCalendar = new javax.swing.JScrollPane(tableCalendar);
+        spCalendar.setBorder(BorderFactory.createLineBorder(UIConstants.BORDER));
+        spCalendar.setVerticalScrollBarPolicy(javax.swing.JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        pnlFormCard.add(spCalendar, BorderLayout.CENTER);
 
         // Bottom Selected Preview Bar
         JPanel pnlBottomPreview = new JPanel(new BorderLayout());
@@ -263,7 +276,8 @@ public class ChonNgayDialog extends JDialog {
         lblSelectedPreview.setFont(new Font("Segoe UI", Font.BOLD, 15));
         lblSelectedPreview.setForeground(UIConstants.PRIMARY_DARK);
 
-        JLabel legendNote = new JLabel("🟢 Ngày có lịch đặt sân");
+        JLabel legendNote = new JLabel(" Ngày có lịch đặt sân");
+        legendNote.setIcon(Utils.IconUtils.getDotIcon(12));
         legendNote.setFont(UIConstants.FONT_SMALL);
         legendNote.setForeground(UIConstants.TEXT_SECONDARY);
 
@@ -314,7 +328,7 @@ public class ChonNgayDialog extends JDialog {
                     final String dStr = curr.toString();
 
                     boolean hasBooking = allBookings.stream().anyMatch(b -> dStr.equals(b.getNgayDat()) && !"DaHuy".equals(b.getTrangThai()));
-                    String cellText = String.valueOf(curr.getDayOfMonth()) + (hasBooking ? " 🟢" : "");
+                    String cellText = String.valueOf(curr.getDayOfMonth()) + (hasBooking ? " *" : "");
                     modelCalendar.setValueAt(cellText, r, c);
 
                     curr = curr.plusDays(1);

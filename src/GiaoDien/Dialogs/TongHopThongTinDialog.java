@@ -53,7 +53,7 @@ public class TongHopThongTinDialog extends JDialog {
 
         // Header
         JPanel pnlHeader = PageUI.createPageHeader(
-                "📋 BẢNG TỔNG HỢP THÔNG TIN PHIẾU ĐẶT LỊCH",
+                "BẢNG TỔNG HỢP THÔNG TIN PHIẾU ĐẶT LỊCH",
                 "Vui lòng kiểm tra lại thông tin phiếu đặt trước khi bấm Xác nhận lưu"
         );
         getContentPane().add(pnlHeader, BorderLayout.NORTH);
@@ -88,7 +88,7 @@ public class TongHopThongTinDialog extends JDialog {
         row = addDetailRow(cardInfo, gbc, row, "Sân bóng:", booking.getTenSan() != null ? booking.getTenSan() : "—");
         row = addDetailRow(cardInfo, gbc, row, "Khách hàng:", booking.getTenKhach() + " (SĐT: " + booking.getSoDienThoaiKhach() + ")");
         row = addDetailRow(cardInfo, gbc, row, "Ngày đặt sân:", booking.getNgayDat());
-        row = addDetailRow(cardInfo, gbc, row, "Khung giờ:", booking.getGioBatDau() + " ➔ " + booking.getGioKetThuc()
+        row = addDetailRow(cardInfo, gbc, row, "Khung giờ:", booking.getGioBatDau() + " - " + booking.getGioKetThuc()
                 + " (" + String.format("%.1f", calculateHours(booking.getGioBatDau(), booking.getGioKetThuc())) + " giờ)");
         row = addDetailRow(cardInfo, gbc, row, "Tiền sân tạm tính:", String.format("%,.0f VNĐ", booking.getTienSan()));
         if (booking.getGhiChu() != null && !booking.getGhiChu().isBlank()) {
@@ -209,7 +209,8 @@ public class TongHopThongTinDialog extends JDialog {
         pnlFooter.setBackground(UIConstants.BG);
         pnlFooter.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, UIConstants.BORDER));
 
-        JButton btnCancel = new JButton("✖ Hủy / Quay lại sửa");
+        JButton btnCancel = new JButton(" Hủy / Quay lại sửa");
+        btnCancel.setIcon(Utils.IconUtils.getCloseIcon(16));
         btnCancel.setFont(UIConstants.FONT_BUTTON);
         btnCancel.setPreferredSize(new Dimension(160, 36));
         btnCancel.addActionListener(e -> {
@@ -217,7 +218,8 @@ public class TongHopThongTinDialog extends JDialog {
             dispose();
         });
 
-        JButton btnConfirm = new JButton("✓ XÁC NHẬN LƯU PHIẾU");
+        JButton btnConfirm = new JButton(" XÁC NHẬN LƯU PHIẾU");
+        btnConfirm.setIcon(Utils.IconUtils.getCheckIcon(16));
         btnConfirm.setFont(UIConstants.FONT_BUTTON);
         btnConfirm.setBackground(UIConstants.PRIMARY);
         btnConfirm.setForeground(Color.WHITE);

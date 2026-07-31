@@ -98,7 +98,8 @@ public class ChiTietDichVuDialog extends JDialog {
         JPanel pnlFooter = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 12));
         pnlFooter.setBackground(UIConstants.BG);
 
-        JButton btnEdit = new JButton("✎ Sửa dịch vụ");
+        JButton btnEdit = new JButton(" Sửa dịch vụ");
+        btnEdit.setIcon(Utils.IconUtils.getEditIcon(16));
         btnEdit.setFont(UIConstants.FONT_BUTTON);
         btnEdit.addActionListener(e -> {
             editRequested = true;

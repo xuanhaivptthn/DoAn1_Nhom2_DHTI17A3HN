@@ -165,7 +165,8 @@ public class DatLichFormDialog extends JDialog {
         styleTextField(txtSoDienThoai);
         txtSoDienThoai.getDocument().addDocumentListener(new Utils.SimpleDocListener(this::onPhoneAutoLookup));
 
-        JButton btnQuickCustomer = new JButton("🔍 Khách quen");
+        JButton btnQuickCustomer = new JButton(" Khách quen");
+        btnQuickCustomer.setIcon(Utils.IconUtils.getSearchIcon(16));
         btnQuickCustomer.setFont(UIConstants.FONT_BUTTON);
         btnQuickCustomer.setPreferredSize(new Dimension(115, 34));
         btnQuickCustomer.addActionListener(e -> onPickQuickCustomer());
@@ -185,6 +186,13 @@ public class DatLichFormDialog extends JDialog {
         btnPickDate.setFont(UIConstants.FONT_BUTTON);
         btnPickDate.setPreferredSize(new Dimension(115, 34));
         btnPickDate.addActionListener(e -> onOpenDatePicker());
+
+        txtNgayDat.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                onOpenDatePicker();
+            }
+        });
 
         JPanel pnlDateChooser = new JPanel(new BorderLayout(6, 0));
         pnlDateChooser.setOpaque(false);
@@ -361,11 +369,11 @@ public class DatLichFormDialog extends JDialog {
 
     private void updateAddonStatusLabels(int svcCount, int foodCount) {
         if (lblStatusDichVu != null) {
-            lblStatusDichVu.setText(svcCount > 0 ? "✓ Đã chọn " + svcCount + " dịch vụ" : "Chưa chọn dịch vụ");
+            lblStatusDichVu.setText(svcCount > 0 ? "Đã chọn " + svcCount + " dịch vụ" : "Chưa chọn dịch vụ");
             lblStatusDichVu.setForeground(svcCount > 0 ? UIConstants.PRIMARY : UIConstants.TEXT_SECONDARY);
         }
         if (lblStatusDoAn != null) {
-            lblStatusDoAn.setText(foodCount > 0 ? "✓ Đã chọn " + foodCount + " món/vật phẩm" : "Chưa chọn đồ/vật phẩm");
+            lblStatusDoAn.setText(foodCount > 0 ? "Đã chọn " + foodCount + " món/vật phẩm" : "Chưa chọn đồ/vật phẩm");
             lblStatusDoAn.setForeground(foodCount > 0 ? UIConstants.PRIMARY : UIConstants.TEXT_SECONDARY);
         }
     }
@@ -510,7 +518,7 @@ public class DatLichFormDialog extends JDialog {
                             + "• Sân bóng     : " + san.getTenSan() + "\n"
                             + "• Mã phiếu BT  : " + activeMaint.getMaPhieuBaoTri() + "\n"
                             + "• Nội dung BT  : " + activeMaint.getNoiDung() + "\n"
-                            + "• Thời gian BT : " + activeMaint.getNgayBatDau() + " ➔ " + activeMaint.getNgayKetThuc() + "\n\n"
+                            + "• Thời gian BT : " + activeMaint.getNgayBatDau() + " - " + activeMaint.getNgayKetThuc() + "\n\n"
                             + "Sân bóng này đang có lịch bảo trì cơ sở vật chất. Vui lòng chọn sân khác!",
                     "Cảnh báo bảo trì sân bóng", JOptionPane.WARNING_MESSAGE);
             return;

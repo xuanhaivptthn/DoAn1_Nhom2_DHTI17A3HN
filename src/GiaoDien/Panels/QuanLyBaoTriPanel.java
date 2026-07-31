@@ -178,11 +178,13 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
         lblQuickNote.setFont(UIConstants.FONT_SMALL);
         lblQuickNote.setForeground(UIConstants.TEXT_SECONDARY);
 
-        JButton btnStart = new javax.swing.JButton("▶ Bắt đầu XL");
+        JButton btnStart = new javax.swing.JButton(" Bắt đầu XL");
+        btnStart.setIcon(Utils.IconUtils.getPlayIcon(16));
         PageUI.styleSecondaryButton(btnStart);
         btnStart.addActionListener(e -> setStatus("DANG_BAO_TRI"));
 
-        JButton btnDone = new javax.swing.JButton("✓ Hoàn thành");
+        JButton btnDone = new javax.swing.JButton(" Hoàn thành");
+        btnDone.setIcon(Utils.IconUtils.getCheckIcon(16));
         PageUI.styleSuccessButton(btnDone);
         btnDone.addActionListener(e -> setStatus("HOAN_THANH"));
 

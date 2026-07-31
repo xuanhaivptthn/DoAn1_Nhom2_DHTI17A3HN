@@ -93,4 +93,64 @@ public final class IconUtils {
     public static ImageIcon getCalendarIcon(int size) {
         return getIcon("calendar", size);
     }
+
+    public static ImageIcon getSoccerIcon(int size) {
+        return getIcon("ball", size);
+    }
+
+    public static ImageIcon getBoxIcon(int size) {
+        return getIcon("box", size);
+    }
+
+    public static ImageIcon getTagIcon(int size) {
+        return getIcon("tag", size);
+    }
+
+    public static ImageIcon getDrinkIcon(int size) {
+        return getIcon("drink", size);
+    }
+
+    public static ImageIcon getReceiptIcon(int size) {
+        return getIcon("receipt", size);
+    }
+
+    public static ImageIcon getCloseIcon(int size) {
+        return getIcon("close", size);
+    }
+
+    public static ImageIcon getPinIcon(int size) {
+        return getIcon("pin", size);
+    }
+
+    public static ImageIcon getWarningIcon(int size) {
+        return getIcon("warning", size);
+    }
+
+    public static ImageIcon getPlayIcon(int size) {
+        return getIcon("play", size);
+    }
+
+    public static ImageIcon getArrowRightIcon(int size) {
+        return getIcon("arrow_right", size);
+    }
+
+    public static ImageIcon getPrevIcon(int size) {
+        return getIcon("prev", size);
+    }
+
+    public static ImageIcon getNextIcon(int size) {
+        return getIcon("next", size);
+    }
+
+    public static ImageIcon getFirstIcon(int size) {
+        return getIcon("first", size);
+    }
+
+    public static ImageIcon getLastIcon(int size) {
+        return getIcon("last", size);
+    }
+
+    public static ImageIcon getDotIcon(int size) {
+        return getIcon("dot", size);
+    }
 }
