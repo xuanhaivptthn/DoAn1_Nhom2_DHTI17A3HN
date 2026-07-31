@@ -110,7 +110,7 @@ public class LoginPanel extends javax.swing.JPanel {
         pnlTop.setLayout(new java.awt.BorderLayout(0, 6));
 
         lblIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        javax.swing.ImageIcon ballIcon = Utils.IconUtils.getBallBlackIcon(44);
+        javax.swing.ImageIcon ballIcon = Utils.IconUtils.getBallBlackIcon(48);
         if (ballIcon != null) {
             lblIcon.setIcon(ballIcon);
             lblIcon.setText("");
@@ -188,8 +188,8 @@ public class LoginPanel extends javax.swing.JPanel {
         pnlForm.add(lblModeLabel, gridBagConstraints);
 
         cboDataSource = new javax.swing.JComboBox<>(new String[]{
-                "🗄️ CSDL MySQL (DAO / XAMPP)",
-                "📦 Dữ liệu mẫu (DataStore / In-Memory)"
+                "CSDL MySQL (DAO / XAMPP)",
+                "Dữ liệu mẫu (DataStore / In-Memory)"
         });
         cboDataSource.setFont(UIConstants.FONT_SMALL);
         cboDataSource.setPreferredSize(new java.awt.Dimension(0, 34));

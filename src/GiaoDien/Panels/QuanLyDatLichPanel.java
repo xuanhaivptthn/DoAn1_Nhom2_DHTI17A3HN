@@ -68,12 +68,10 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
     private JLabel lblDetailLoaiSan;
     private JLabel lblDetailTienSan;
     private JLabel lblDetailDichVu;
-    private JLabel lblDetailCoc;
     private JLabel lblDetailGhiChu;
     private JLabel lblDetailConLai;
 
-    private JButton btnConfirmBooking;
-    private JButton btnPay;
+    private JButton btnChangeStatus;
     private JButton btnSellSvc;
     private JButton btnChangeSchedule;
     private JButton btnCancelBooking;
@@ -368,7 +366,6 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         lblDetailLoaiSan = createBoldValue("—");
         lblDetailTienSan = createBoldValue("0đ");
         lblDetailDichVu = createBoldValue("0đ");
-        lblDetailCoc = createBoldValue("0đ");
         lblDetailGhiChu = new JLabel("—");
         lblDetailGhiChu.setFont(UIConstants.FONT_NORMAL);
         lblDetailGhiChu.setForeground(UIConstants.TEXT_PRIMARY);
@@ -383,7 +380,6 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         r = addInspectorRow(form, gbc, r, "Loại sân:", lblDetailLoaiSan);
         r = addInspectorRow(form, gbc, r, "Tiền sân:", lblDetailTienSan);
         r = addInspectorRow(form, gbc, r, "Dịch vụ:", lblDetailDichVu);
-        r = addInspectorRow(form, gbc, r, "Cọc:", lblDetailCoc);
         r = addInspectorRow(form, gbc, r, "Ghi chú:", lblDetailGhiChu);
 
         gbc.gridx = 0; gbc.gridy = r++; gbc.gridwidth = 2;
@@ -400,41 +396,40 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         pnlCenterWrap.add(form, BorderLayout.CENTER);
 
         // Actions panel with GridLayout for guaranteed non-zero rendering
-        JPanel actions = new JPanel(new java.awt.GridLayout(6, 1, 0, 6));
+        JPanel actions = new JPanel(new java.awt.GridLayout(5, 1, 0, 6));
         actions.setOpaque(false);
 
-        btnConfirmBooking = new javax.swing.JButton("✓ Xác nhận phiếu");
-        PageUI.styleSuccessButton(btnConfirmBooking);
-        btnConfirmBooking.setPreferredSize(new Dimension(240, 34));
-        btnConfirmBooking.addActionListener(e -> onConfirmBooking());
+        btnChangeStatus = new javax.swing.JButton("Thay đổi trạng thái lịch đặt");
+        btnChangeStatus.setIcon(Utils.IconUtils.getStatusIcon(16));
+        PageUI.stylePrimaryButton(btnChangeStatus);
+        btnChangeStatus.setPreferredSize(new Dimension(240, 34));
+        btnChangeStatus.addActionListener(e -> onChangeStatus());
 
-        btnPay = new javax.swing.JButton("[$] Thanh toán");
-        PageUI.stylePrimaryButton(btnPay);
-        btnPay.setPreferredSize(new Dimension(240, 34));
-        btnPay.addActionListener(e -> onPay());
-
-        btnSellSvc = new javax.swing.JButton("[+] Bán DV / Vật phẩm");
+        btnSellSvc = new javax.swing.JButton("Bán DV / Vật phẩm");
+        btnSellSvc.setIcon(Utils.IconUtils.getOpenIcon(16));
         PageUI.styleSecondaryButton(btnSellSvc);
         btnSellSvc.setPreferredSize(new Dimension(240, 34));
         btnSellSvc.addActionListener(e -> onSellSvc());
 
-        btnChangeSchedule = new javax.swing.JButton("✎ Sửa phiếu đặt");
+        btnChangeSchedule = new javax.swing.JButton("Sửa phiếu đặt");
+        btnChangeSchedule.setIcon(Utils.IconUtils.getEditIcon(16));
         PageUI.styleSecondaryButton(btnChangeSchedule);
         btnChangeSchedule.setPreferredSize(new Dimension(240, 34));
         btnChangeSchedule.addActionListener(e -> onChangeSchedule());
 
-        btnExportInvoice = new javax.swing.JButton("[In] Xuất hóa đơn");
+        btnExportInvoice = new javax.swing.JButton("Xuất hóa đơn");
+        btnExportInvoice.setIcon(Utils.IconUtils.getExportIcon(16));
         PageUI.styleSecondaryButton(btnExportInvoice);
         btnExportInvoice.setPreferredSize(new Dimension(240, 34));
         btnExportInvoice.addActionListener(e -> onExportInvoice());
 
-        btnCancelBooking = new javax.swing.JButton("✖ Hủy lịch đặt");
+        btnCancelBooking = new javax.swing.JButton("Hủy lịch đặt");
+        btnCancelBooking.setIcon(Utils.IconUtils.getDeleteIcon(16));
         PageUI.styleDangerButton(btnCancelBooking);
         btnCancelBooking.setPreferredSize(new Dimension(240, 34));
         btnCancelBooking.addActionListener(e -> onCancelBooking());
 
-        actions.add(btnConfirmBooking);
-        actions.add(btnPay);
+        actions.add(btnChangeStatus);
         actions.add(btnSellSvc);
         actions.add(btnChangeSchedule);
         actions.add(btnExportInvoice);
@@ -592,16 +587,13 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
             lblDetailLoaiSan.setText(court.getLoaiSanHienThi());
             lblDetailTienSan.setText(String.format("%,.0f VNĐ", (double) (currentlySelectedBooking.getTienSan())));
             lblDetailDichVu.setText(String.format("%,.0f VNĐ", (double) (currentlySelectedBooking.getTienDichVu())));
-            lblDetailCoc.setText("-" + String.format("%,.0f VNĐ", (double) (currentlySelectedBooking.getDatCoc())));
             String ghiChu = currentlySelectedBooking.getGhiChu();
             lblDetailGhiChu.setText(ghiChu != null && !ghiChu.isBlank() ? ghiChu : "—");
             lblDetailConLai.setText(String.format("%,.0f VNĐ", (double) (currentlySelectedBooking.getConLai())));
 
             boolean isPaid = "DaThanhToan".equals(currentlySelectedBooking.getTrangThaiTT());
-            boolean isPending = "ChoXacNhan".equals(currentlySelectedBooking.getTrangThai());
 
-            btnConfirmBooking.setEnabled(isPending && !isPaid);
-            btnPay.setEnabled(!isPaid);
+            btnChangeStatus.setEnabled(true);
             btnSellSvc.setEnabled(!isPaid);
             btnChangeSchedule.setEnabled(true);
             btnExportInvoice.setEnabled(true);
@@ -612,12 +604,10 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
             lblDetailLoaiSan.setText(court.getLoaiSanHienThi());
             lblDetailTienSan.setText(String.format("%,.0f VNĐ", (double) (court.getGiaThueTheoGio())));
             lblDetailDichVu.setText("0đ");
-            lblDetailCoc.setText("0đ");
             lblDetailGhiChu.setText("—");
             lblDetailConLai.setText(String.format("%,.0f VNĐ", (double) (court.getGiaThueTheoGio())));
 
-            btnConfirmBooking.setEnabled(false);
-            btnPay.setEnabled(false);
+            btnChangeStatus.setEnabled(false);
             btnSellSvc.setEnabled(false);
             btnChangeSchedule.setEnabled(false);
             btnExportInvoice.setEnabled(false);
@@ -625,16 +615,65 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         }
     }
 
-    private void onConfirmBooking() {
+    private void onChangeStatus() {
         if (currentlySelectedBooking == null) return;
-        currentlySelectedBooking.setTrangThai("DaXacNhan");
+
+        String[] options = {
+                "Chờ xác nhận",
+                "Đã xác nhận",
+                "Hoàn thành (Đã thanh toán)",
+                "Đã hủy"
+        };
+
+        String currentDisplay = currentlySelectedBooking.getTrangThaiHienThi();
+        if ("DaThanhToan".equals(currentlySelectedBooking.getTrangThaiTT())) {
+            currentDisplay = "Hoàn thành (Đã thanh toán)";
+        }
+
+        String selected = (String) JOptionPane.showInputDialog(
+                this,
+                "Chọn trạng thái mới cho phiếu " + currentlySelectedBooking.getMaLichDat() + " (Khách: " + currentlySelectedBooking.getTenKhach() + "):",
+                "Thay đổi trạng thái lịch đặt",
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                options,
+                currentDisplay
+        );
+
+        if (selected == null) return;
+
+        String maPhieu = currentlySelectedBooking.getMaLichDat();
+
+        switch (selected) {
+            case "Chờ xác nhận" -> {
+                currentlySelectedBooking.setTrangThai("ChoXacNhan");
+                currentlySelectedBooking.setTrangThaiTT("ChuaThanhToan");
+            }
+            case "Đã xác nhận" -> {
+                currentlySelectedBooking.setTrangThai("DaXacNhan");
+                currentlySelectedBooking.setTrangThaiTT("ChuaThanhToan");
+            }
+            case "Hoàn thành (Đã thanh toán)" -> {
+                currentlySelectedBooking.setTrangThai("HoanThanh");
+                currentlySelectedBooking.setTrangThaiTT("DaThanhToan");
+
+                int choice = JOptionPane.showConfirmDialog(this,
+                        "Đã chuyển trạng thái sang Hoàn thành.\nBạn có muốn xuất Hóa đơn thanh toán ngay bây giờ không?",
+                        "Xuất hóa đơn", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                if (choice == JOptionPane.YES_OPTION) {
+                    onExportInvoice("Tiền mặt");
+                }
+            }
+            case "Đã hủy" -> {
+                currentlySelectedBooking.setTrangThai("DaHuy");
+            }
+        }
+
+        String displayStatus = currentlySelectedBooking.getTrangThaiHienThi();
         reloadSchedule();
         JOptionPane.showMessageDialog(this,
-                "ĐÃ XÁC NHẬN PHIẾU ĐẶT SÂN THÀNH CÔNG!\n"
-                        + "• Mã phiếu  : " + currentlySelectedBooking.getMaLichDat() + "\n"
-                        + "• Khách hàng: " + currentlySelectedBooking.getTenKhach() + "\n"
-                        + "• Trạng thái : Đã xác nhận giữ sân",
-                "Xác nhận phiếu đặt", JOptionPane.INFORMATION_MESSAGE);
+                "Đã thay đổi trạng thái phiếu " + maPhieu + " thành: " + displayStatus,
+                "Cập nhật thành công", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private String getNextHour(String slotTime) {
@@ -738,25 +777,7 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         }
     }
 
-    private void onPay() {
-        if (currentlySelectedBooking == null) return;
-        JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
-        ThanhToanDialog dialog = new ThanhToanDialog(parent, currentlySelectedBooking);
-        dialog.setVisible(true);
-        if (!dialog.isConfirmed()) return;
 
-        currentlySelectedBooking.setTrangThaiTT("DaThanhToan");
-        currentlySelectedBooking.setTrangThai("HoanThanh");
-        reloadSchedule();
-
-        int choice = JOptionPane.showConfirmDialog(this,
-                "Thanh toán phiếu " + currentlySelectedBooking.getMaLichDat() + " thành công!\nBạn có muốn xuất Hóa đơn thanh toán ngay bây giờ không?",
-                "Thanh toán & Xuất hóa đơn", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
-
-        if (choice == JOptionPane.YES_OPTION) {
-            onExportInvoice(dialog.getHinhThuc());
-        }
-    }
 
     private void onSellSvc() {
         if (currentlySelectedBooking == null) return;
@@ -796,10 +817,9 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         currentlySelectedBooking.setTongTien(updated.getTongTien());
         currentlySelectedBooking.setDichVuKem(updated.getDichVuKem());
         currentlySelectedBooking.setSelectedDvMap(updated.getSelectedDvMap());
-        currentlySelectedBooking.setSelectedDoAnMap(updated.getSelectedDoAnMap());
-
+        String maPhieu = currentlySelectedBooking.getMaLichDat();
         reloadSchedule();
-        JOptionPane.showMessageDialog(this, "Đã cập nhật thông tin phiếu đặt sân " + currentlySelectedBooking.getMaLichDat() + " thành công!", "Cập nhật thành công", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(this, "Đã cập nhật thông tin phiếu đặt sân " + maPhieu + " thành công!", "Cập nhật thành công", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void onExportInvoice() {

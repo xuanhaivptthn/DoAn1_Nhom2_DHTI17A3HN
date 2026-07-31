@@ -17,6 +17,16 @@ public final class IconUtils {
         if (url != null) {
             return new ImageIcon(url);
         }
+        // Fallback: search available sizes (48, 32, 24, 16) and scale smoothly to requested size
+        int[] availableSizes = {48, 32, 24, 16};
+        for (int s : availableSizes) {
+            URL fallbackUrl = IconUtils.class.getResource("/resources/icons/" + name + "_" + s + "x" + s + ".png");
+            if (fallbackUrl != null) {
+                ImageIcon original = new ImageIcon(fallbackUrl);
+                java.awt.Image scaled = original.getImage().getScaledInstance(size, size, java.awt.Image.SCALE_SMOOTH);
+                return new ImageIcon(scaled);
+            }
+        }
         return null;
     }
 
@@ -62,5 +72,25 @@ public final class IconUtils {
 
     public static ImageIcon getSearchIcon(int size) {
         return getIcon("search", size);
+    }
+
+    public static ImageIcon getMaintenanceIcon(int size) {
+        return getIcon("maintenance", size);
+    }
+
+    public static ImageIcon getStatusIcon(int size) {
+        return getIcon("status", size);
+    }
+
+    public static ImageIcon getUserIcon(int size) {
+        return getIcon("user", size);
+    }
+
+    public static ImageIcon getMoneyIcon(int size) {
+        return getIcon("money", size);
+    }
+
+    public static ImageIcon getCalendarIcon(int size) {
+        return getIcon("calendar", size);
     }
 }
