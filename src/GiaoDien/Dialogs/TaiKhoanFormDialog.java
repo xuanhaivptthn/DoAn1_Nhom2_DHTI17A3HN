@@ -1,13 +1,11 @@
 package GiaoDien.Dialogs;
 
-import GiaoDien.Panels.*;
-
 import Model.ChuSan;
+import Model.NhanVien;
 import Model.TaiKhoan;
 import Utils.DataStore;
 import Utils.UIConstants;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -27,8 +25,7 @@ import java.awt.Insets;
 import java.util.function.Predicate;
 
 /**
- * Dialog thêm / sửa tài khoản.
- * Tương thích Apache NetBeans GUI Builder Drag & Drop.
+ * Dialog thêm / sửa tài khoản dùng chung cho cả Chủ sân và Nhân viên.
  */
 public class TaiKhoanFormDialog extends JDialog {
 
@@ -37,9 +34,11 @@ public class TaiKhoanFormDialog extends JDialog {
     private JPasswordField txtXacNhanMatKhau;
     private JComboBox<String> cboVaiTro;
     private JComboBox<String> cboTrangThai;
-    private JPanel pnlChuSan;
-    private JTextField txtTenChuSan;
-    private JTextField txtSoDienThoaiChuSan;
+
+    private JTextField txtHoTen;
+    private JTextField txtSoDienThoai;
+    private JLabel lblDiaChi;
+    private JTextField txtDiaChi;
 
     private boolean isEdit;
     private TaiKhoan original;
@@ -47,17 +46,17 @@ public class TaiKhoanFormDialog extends JDialog {
 
     private TaiKhoan result;
     private boolean confirmed;
-    private boolean chuSanRole;
-    private String tenChuSan;
-    private String soDienThoaiChuSan;
+    private String hoTen;
+    private String soDienThoai;
+    private String diaChi;
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
+    // Variables declaration - do not modify
     private javax.swing.JLabel lblHeaderTitle;
     private javax.swing.JPanel pnlCenterWrap;
     private javax.swing.JPanel pnlFooter;
     private javax.swing.JPanel pnlFormCard;
     private javax.swing.JPanel pnlHeader;
-    // End of variables declaration//GEN-END:variables
+    // End of variables declaration
 
     public TaiKhoanFormDialog() {
         this(null, null, null);
@@ -73,12 +72,7 @@ public class TaiKhoanFormDialog extends JDialog {
         customInit(parent);
     }
 
-    /**
-     * NetBeans GUI Builder generated code initialization.
-     */
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
-
         pnlHeader = new javax.swing.JPanel();
         lblHeaderTitle = new javax.swing.JLabel();
         pnlCenterWrap = new javax.swing.JPanel();
@@ -116,65 +110,56 @@ public class TaiKhoanFormDialog extends JDialog {
 
         pack();
         setLocationRelativeTo(null);
-    }// </editor-fold>//GEN-END:initComponents
+    }
 
     private void customInit(JFrame parent) {
-        setSize(480, 560);
+        setSize(500, 580);
         if (parent != null) setLocationRelativeTo(parent);
 
-        lblHeaderTitle.setText(isEdit ? "Cập nhật tài khoản" : "Thêm tài khoản mới");
+        lblHeaderTitle.setText(isEdit ? "Cập nhật tài khoản người dùng" : "Thêm tài khoản người dùng mới");
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(8, 8, 8, 8);
+        gbc.insets = new Insets(6, 8, 6, 8);
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         int row = 0;
 
         txtTenDangNhap = new javax.swing.JTextField(20);
-        row = addField(pnlFormCard, gbc, row, "Tên đăng nhập *", txtTenDangNhap);
+        row = addField(pnlFormCard, gbc, row, new JLabel("Tên đăng nhập *"), txtTenDangNhap);
 
         txtMatKhau = new javax.swing.JPasswordField(20);
-        row = addField(pnlFormCard, gbc, row, isEdit ? "Mật khẩu (để trống nếu giữ nguyên)" : "Mật khẩu *", txtMatKhau);
+        row = addField(pnlFormCard, gbc, row, new JLabel(isEdit ? "Mật khẩu (để trống nếu giữ nguyên)" : "Mật khẩu *"), txtMatKhau);
 
         txtXacNhanMatKhau = new javax.swing.JPasswordField(20);
-        row = addField(pnlFormCard, gbc, row, isEdit ? "Xác nhận mật khẩu" : "Xác nhận mật khẩu *", txtXacNhanMatKhau);
+        row = addField(pnlFormCard, gbc, row, new JLabel(isEdit ? "Xác nhận mật khẩu" : "Xác nhận mật khẩu *"), txtXacNhanMatKhau);
 
         cboVaiTro = new JComboBox<>(UIConstants.VAI_TRO_HIEN_THI);
         styleCombo(cboVaiTro);
-        row = addField(pnlFormCard, gbc, row, "Vai trò *", cboVaiTro);
+        row = addField(pnlFormCard, gbc, row, new JLabel("Vai trò *"), cboVaiTro);
 
-        pnlChuSan = new JPanel(new GridBagLayout());
-        pnlChuSan.setOpaque(false);
-        GridBagConstraints gbcChuSan = new GridBagConstraints();
-        gbcChuSan.insets = new Insets(8, 8, 8, 8);
-        gbcChuSan.anchor = GridBagConstraints.WEST;
-        gbcChuSan.fill = GridBagConstraints.HORIZONTAL;
-        txtTenChuSan = new javax.swing.JTextField(20);
-        txtSoDienThoaiChuSan = new javax.swing.JTextField(20);
-        int chuSanRow = 0;
-        chuSanRow = addField(pnlChuSan, gbcChuSan, chuSanRow, "Tên chủ sân", txtTenChuSan);
-        addField(pnlChuSan, gbcChuSan, chuSanRow, "SĐT chủ sân", txtSoDienThoaiChuSan);
+        txtHoTen = new javax.swing.JTextField(20);
+        row = addField(pnlFormCard, gbc, row, new JLabel("Họ và tên *"), txtHoTen);
 
-        gbc.gridx = 0;
-        gbc.gridy = row;
-        gbc.gridwidth = 2;
-        pnlFormCard.add(pnlChuSan, gbc);
-        gbc.gridwidth = 1;
-        row++;
+        txtSoDienThoai = new javax.swing.JTextField(20);
+        row = addField(pnlFormCard, gbc, row, new JLabel("Số điện thoại *"), txtSoDienThoai);
+
+        lblDiaChi = new JLabel("Địa chỉ");
+        txtDiaChi = new javax.swing.JTextField(20);
+        row = addField(pnlFormCard, gbc, row, lblDiaChi, txtDiaChi);
 
         cboVaiTro.addItemListener(e -> {
             if (e.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
-                updateChuSanVisibility();
+                updateRoleFields();
             }
         });
 
         cboTrangThai = new JComboBox<>(UIConstants.TRANG_THAI_HIEN_THI);
         styleCombo(cboTrangThai);
-        addField(pnlFormCard, gbc, row, "Trạng thái *", cboTrangThai);
+        row = addField(pnlFormCard, gbc, row, new JLabel("Trạng thái *"), cboTrangThai);
 
         gbc.gridx = 0;
-        gbc.gridy = row + 1;
+        gbc.gridy = row;
         gbc.weighty = 1;
         pnlFormCard.add(new JLabel(), gbc);
 
@@ -193,26 +178,27 @@ public class TaiKhoanFormDialog extends JDialog {
         if (isEdit && original != null) {
             fillForm(original);
         }
-        updateChuSanVisibility();
+        updateRoleFields();
 
         getRootPane().setDefaultButton(btnSave);
     }
 
-    private void updateChuSanVisibility() {
-        boolean isAdmin = "Admin".equals(UIConstants.VAI_TRO[Math.max(cboVaiTro.getSelectedIndex(), 0)]);
-        pnlChuSan.setVisible(isAdmin);
+    private void updateRoleFields() {
+        boolean isNhanVien = "Nhân viên".equals(cboVaiTro.getSelectedItem());
+        if (lblDiaChi != null) lblDiaChi.setVisible(isNhanVien);
+        if (txtDiaChi != null) txtDiaChi.setVisible(isNhanVien);
     }
 
-    private int addField(JPanel form, GridBagConstraints gbc, int row, String label, java.awt.Component field) {
+    private int addField(JPanel form, GridBagConstraints gbc, int row, JLabel labelComp, java.awt.Component field) {
         gbc.gridx = 0;
         gbc.gridy = row;
         gbc.weightx = 0.35;
         gbc.gridwidth = 1;
-        form.add(new javax.swing.JLabel(label), gbc);
+        form.add(labelComp, gbc);
 
         gbc.gridx = 1;
         gbc.weightx = 0.65;
-        field.setPreferredSize(new Dimension(240, 36));
+        field.setPreferredSize(new Dimension(240, 34));
         form.add(field, gbc);
         return row + 1;
     }
@@ -231,10 +217,19 @@ public class TaiKhoanFormDialog extends JDialog {
         cboVaiTro.setSelectedItem(tk.getQuyenHanHienThi());
         cboTrangThai.setSelectedItem(tk.getTrangThaiHienThi());
 
-        ChuSan cs = DataStore.get().findChuSanByMaTaiKhoan(tk.getMaTaiKhoan());
-        if (cs != null) {
-            txtTenChuSan.setText(cs.getTenChuSan());
-            txtSoDienThoaiChuSan.setText(cs.getSoDienThoaiChuSan());
+        if (tk.isChuSan() || tk.isAdmin()) {
+            ChuSan cs = DataStore.get().findChuSanByMaTaiKhoan(tk.getMaTaiKhoan());
+            if (cs != null) {
+                txtHoTen.setText(cs.getTenChuSan());
+                txtSoDienThoai.setText(cs.getSoDienThoaiChuSan());
+            }
+        } else if (tk.isNhanVien()) {
+            NhanVien nv = DataStore.get().findNhanVienByMaTaiKhoan(tk.getMaTaiKhoan());
+            if (nv != null) {
+                txtHoTen.setText(nv.getHoTenNhanVien());
+                txtSoDienThoai.setText(nv.getSoDienThoaiNhanVien());
+                txtDiaChi.setText(nv.getDiaChi());
+            }
         }
     }
 
@@ -244,6 +239,10 @@ public class TaiKhoanFormDialog extends JDialog {
         String xacNhan = new String(txtXacNhanMatKhau.getPassword());
         int vaiTroIdx = cboVaiTro.getSelectedIndex();
         int trangThaiIdx = cboTrangThai.getSelectedIndex();
+
+        String hTen = txtHoTen.getText().trim();
+        String sdt = txtSoDienThoai.getText().trim();
+        String dChi = txtDiaChi.getText().trim();
 
         if (tenDangNhap.isEmpty()) {
             showError("Vui lòng nhập tên đăng nhập.");
@@ -290,6 +289,18 @@ public class TaiKhoanFormDialog extends JDialog {
                 }
             }
         }
+
+        if (hTen.isEmpty()) {
+            showError("Vui lòng nhập họ và tên.");
+            txtHoTen.requestFocus();
+            return;
+        }
+        if (sdt.isEmpty()) {
+            showError("Vui lòng nhập số điện thoại.");
+            txtSoDienThoai.requestFocus();
+            return;
+        }
+
         String finalPassword;
         if (isEdit) {
             finalPassword = matKhau.isEmpty() ? original.getMatKhau() : matKhau;
@@ -315,17 +326,17 @@ public class TaiKhoanFormDialog extends JDialog {
                 quyenHan,
                 trangThai
         );
-        this.chuSanRole = "ADMIN".equals(quyenHan);
-        this.tenChuSan = txtTenChuSan.getText().trim();
-        this.soDienThoaiChuSan = txtSoDienThoaiChuSan.getText().trim();
+        this.hoTen = hTen;
+        this.soDienThoai = sdt;
+        this.diaChi = dChi;
+
         confirmed = true;
         dispose();
     }
 
-    /** true nếu vai trò được chọn là Chủ sân (Admin) — dùng để quyết định có lưu hồ sơ ChuSan hay không. */
-    public boolean isChuSanRole() { return chuSanRole; }
-    public String getTenChuSan() { return tenChuSan; }
-    public String getSoDienThoaiChuSan() { return soDienThoaiChuSan; }
+    public String getHoTen() { return hoTen; }
+    public String getSoDienThoai() { return soDienThoai; }
+    public String getDiaChi() { return diaChi; }
 
     private void showError(String message) {
         JOptionPane.showMessageDialog(this, message, "Thông báo", JOptionPane.WARNING_MESSAGE);

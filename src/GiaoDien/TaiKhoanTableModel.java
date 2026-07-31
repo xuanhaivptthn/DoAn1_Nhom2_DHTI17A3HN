@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 public class TaiKhoanTableModel extends AbstractTableModel {
 
     private static final String[] COLUMNS = {
-            "STT", "Tên đăng nhập", "Vai trò", "Trạng thái"
+            "STT", "Tên đăng nhập", "Họ và tên", "Số điện thoại", "Vai trò", "Trạng thái"
     };
 
     private final List<TaiKhoan> allData = new ArrayList<>();
@@ -34,7 +34,20 @@ public class TaiKhoanTableModel extends AbstractTableModel {
         String kw = keyword == null ? "" : keyword.trim().toLowerCase(Locale.ROOT);
         filteredData = allData.stream()
                 .filter(tk -> {
-                    boolean matchKw = kw.isEmpty() || contains(tk.getTenDangNhap(), kw);
+                    String hoTen = "";
+                    String sdt = "";
+                    if (tk.isChuSan() || tk.isAdmin()) {
+                        Model.ChuSan cs = Utils.DataStore.get().findChuSanByMaTaiKhoan(tk.getMaTaiKhoan());
+                        if (cs != null) { hoTen = cs.getTenChuSan(); sdt = cs.getSoDienThoaiChuSan(); }
+                    } else if (tk.isNhanVien()) {
+                        Model.NhanVien nv = Utils.DataStore.get().findNhanVienByMaTaiKhoan(tk.getMaTaiKhoan());
+                        if (nv != null) { hoTen = nv.getHoTenNhanVien(); sdt = nv.getSoDienThoaiNhanVien(); }
+                    }
+
+                    boolean matchKw = kw.isEmpty()
+                            || contains(tk.getTenDangNhap(), kw)
+                            || contains(hoTen, kw)
+                            || contains(sdt, kw);
                     boolean matchRole = vaiTroFilter == null
                             || vaiTroFilter.isEmpty()
                             || "Tất cả".equalsIgnoreCase(vaiTroFilter)
@@ -121,11 +134,23 @@ public class TaiKhoanTableModel extends AbstractTableModel {
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         TaiKhoan tk = filteredData.get(rowIndex);
+        String hoTen = "";
+        String sdt = "";
+        if (tk.isChuSan() || tk.isAdmin()) {
+            Model.ChuSan cs = Utils.DataStore.get().findChuSanByMaTaiKhoan(tk.getMaTaiKhoan());
+            if (cs != null) { hoTen = cs.getTenChuSan(); sdt = cs.getSoDienThoaiChuSan(); }
+        } else if (tk.isNhanVien()) {
+            Model.NhanVien nv = Utils.DataStore.get().findNhanVienByMaTaiKhoan(tk.getMaTaiKhoan());
+            if (nv != null) { hoTen = nv.getHoTenNhanVien(); sdt = nv.getSoDienThoaiNhanVien(); }
+        }
+
         return switch (columnIndex) {
             case 0 -> rowIndex + 1;
             case 1 -> tk.getTenDangNhap();
-            case 2 -> tk.getQuyenHanHienThi();
-            case 3 -> tk.getTrangThaiHienThi();
+            case 2 -> hoTen;
+            case 3 -> sdt;
+            case 4 -> tk.getQuyenHanHienThi();
+            case 5 -> tk.getTrangThaiHienThi();
             default -> "";
         };
     }

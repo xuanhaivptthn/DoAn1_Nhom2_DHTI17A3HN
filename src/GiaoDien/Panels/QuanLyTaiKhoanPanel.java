@@ -389,9 +389,7 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
             if (DataStore.isUseDatabase()) {
                 try { new DAO.TaiKhoanDAO().insert(tk); } catch (Exception ignored) {}
             }
-            if (dialog.isChuSanRole() && (!dialog.getTenChuSan().isBlank() || !dialog.getSoDienThoaiChuSan().isBlank())) {
-                DataStore.get().saveOrUpdateChuSan(tk.getMaTaiKhoan(), dialog.getTenChuSan(), dialog.getSoDienThoaiChuSan());
-            }
+            saveProfile(tk, dialog.getHoTen(), dialog.getSoDienThoai(), dialog.getDiaChi());
             applyFilter();
             JOptionPane.showMessageDialog(this,
                     "Đã thêm tài khoản \"" + tk.getTenDangNhap() + "\" thành công!",
@@ -425,13 +423,20 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
             if (DataStore.isUseDatabase()) {
                 try { new DAO.TaiKhoanDAO().update(updated); } catch (Exception ignored) {}
             }
-            if (dialog.isChuSanRole() && (!dialog.getTenChuSan().isBlank() || !dialog.getSoDienThoaiChuSan().isBlank())) {
-                DataStore.get().saveOrUpdateChuSan(updated.getMaTaiKhoan(), dialog.getTenChuSan(), dialog.getSoDienThoaiChuSan());
-            }
+            saveProfile(updated, dialog.getHoTen(), dialog.getSoDienThoai(), dialog.getDiaChi());
             applyFilter();
             JOptionPane.showMessageDialog(this,
                     "Đã cập nhật tài khoản \"" + updated.getTenDangNhap() + "\"!",
                     "Thành công", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
+    private void saveProfile(TaiKhoan tk, String hoTen, String sdt, String diaChi) {
+        if (tk == null || hoTen == null || hoTen.isBlank()) return;
+        if (tk.isChuSan() || tk.isAdmin()) {
+            DataStore.get().saveOrUpdateChuSan(tk.getMaTaiKhoan(), hoTen, sdt);
+        } else if (tk.isNhanVien()) {
+            DataStore.get().saveOrUpdateNhanVien(tk.getMaTaiKhoan(), hoTen, sdt, diaChi);
         }
     }
 

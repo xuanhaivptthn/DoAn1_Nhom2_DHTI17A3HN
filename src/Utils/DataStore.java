@@ -7,6 +7,7 @@ import Model.DichVu;
 import Model.KhachHang;
 import Model.Kho;
 import Model.KhuVucSan;
+import Model.NhanVien;
 import Model.PhienLamViec;
 import Model.TaiKhoan;
 
@@ -132,6 +133,7 @@ public final class DataStore {
 
         if (taiKhoans.isEmpty()) seedDefaultTaiKhoans();
         if (chuSans.isEmpty()) seedDefaultChuSans();
+        if (nhanViens.isEmpty()) seedDefaultNhanViens();
         if (khachHangs.isEmpty()) seedDefaultKhachHangs();
         if (dichVus.isEmpty() && khoItems.isEmpty()) seedDefaultDichVus();
         if (khuVucs.isEmpty()) seedDefaultKhuVucs();
@@ -155,8 +157,16 @@ public final class DataStore {
         taiKhoans.add(new TaiKhoan("TK004", "nhanvien03", "nv123456", "NHAN_VIEN", "KHOA"));
     }
 
+    private final List<NhanVien> nhanViens = new ArrayList<>();
+
     private void seedDefaultChuSans() {
         chuSans.add(new ChuSan("CS001", "TK001", "Chủ Sân Quản Lý", "0988111222"));
+    }
+
+    private void seedDefaultNhanViens() {
+        nhanViens.add(new NhanVien("NV001", "TK002", "Nguyễn Văn Nam", "0912345678", "Hà Nội"));
+        nhanViens.add(new NhanVien("NV002", "TK003", "Trần Thị Hằng", "0987654321", "Hà Nội"));
+        nhanViens.add(new NhanVien("NV003", "TK004", "Lê Hoàng Long", "0905123456", "Hà Nội"));
     }
 
     private void seedDefaultKhachHangs() {
@@ -255,6 +265,33 @@ public final class DataStore {
             chuSans.add(cs);
             new DAO.ChuSanDAO().insert(cs);
             return cs;
+        }
+    }
+
+    public List<NhanVien> getNhanViens() { return nhanViens; }
+
+    public NhanVien findNhanVienByMaTaiKhoan(String maTaiKhoan) {
+        if (maTaiKhoan == null) return null;
+        return nhanViens.stream()
+                .filter(nv -> maTaiKhoan.equals(nv.getMaTaiKhoan()))
+                .findFirst().orElse(null);
+    }
+
+    public synchronized NhanVien saveOrUpdateNhanVien(String maTaiKhoan, String hoTen, String sdt, String diaChi) {
+        if (maTaiKhoan == null) return null;
+        NhanVien existing = findNhanVienByMaTaiKhoan(maTaiKhoan);
+        if (existing != null) {
+            existing.setHoTenNhanVien(hoTen);
+            existing.setSoDienThoaiNhanVien(sdt);
+            existing.setDiaChi(diaChi);
+            new DAO.NhanVienDAO().update(existing);
+            return existing;
+        } else {
+            String ma = CodeGen.next("NV", nhanViens.stream().map(NhanVien::getMaNhanVien).toList(), 3);
+            NhanVien nv = new NhanVien(ma, maTaiKhoan, hoTen, sdt, diaChi);
+            nhanViens.add(nv);
+            new DAO.NhanVienDAO().insert(nv);
+            return nv;
         }
     }
 
