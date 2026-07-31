@@ -89,7 +89,7 @@ public class QuanLyDichVuPanel extends javax.swing.JPanel {
         table.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                if (evt.getClickCount() == 2) {
+                if (evt.getClickCount() == 2 && table.rowAtPoint(evt.getPoint()) >= 0) {
                     onViewInfo();
                 }
             }

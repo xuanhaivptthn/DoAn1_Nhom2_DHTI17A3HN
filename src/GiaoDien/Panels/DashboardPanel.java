@@ -13,11 +13,13 @@ import GiaoDien.Dialogs.KiemTraSanDialog;
 import Utils.PageUI;
 import Utils.UIConstants;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -53,7 +55,9 @@ public class DashboardPanel extends javax.swing.JPanel {
     private JTable todayCalendarTable;
 
     private static final String[] TIME_SLOTS = {
-            "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00"
+            "06:00", "07:00", "08:00", "09:00", "10:00", "11:00",
+            "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00",
+            "19:00", "20:00", "21:00", "22:00", "23:00"
     };
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -123,36 +127,21 @@ public class DashboardPanel extends javax.swing.JPanel {
 
     private void buildSplitTables() {
         pnlSplit.removeAll();
-        pnlSplit.setLayout(new java.awt.GridLayout(1, 2, 16, 0));
+        pnlSplit.setLayout(new java.awt.GridLayout(2, 1, 0, 16));
 
         String todayFormatted = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 
-        // 1. Left Column: Today's Upcoming Bookings (Lịch đặt sắp tới trong ngày)
-        JPanel cardLeft = new javax.swing.JPanel();
-        cardLeft.setLayout(new BorderLayout(0, 8));
-        JLabel titleLeft = new JLabel("Lịch đặt sắp tới trong ngày (" + todayFormatted + ")");
-        titleLeft.setFont(UIConstants.FONT_SUBTITLE);
-        titleLeft.setForeground(UIConstants.PRIMARY);
-        cardLeft.add(titleLeft, BorderLayout.NORTH);
+        // 1. TOP CARD: Today's Schedule Matrix Calendar (Ma trận khung giờ hôm nay)
+        JPanel cardMatrix = new JPanel(new BorderLayout(0, 8));
+        cardMatrix.setBackground(Color.WHITE);
+        cardMatrix.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(UIConstants.BORDER, 1),
+                BorderFactory.createEmptyBorder(14, 16, 14, 16)
+        ));
 
-        todayUpcomingBookingsModel = new DefaultTableModel(
-                new String[]{"Mã", "Sân bóng", "Khách hàng", "SĐT", "Khung giờ", "Tổng tiền", "Trạng thái"}, 0) {
-            @Override
-            public boolean isCellEditable(int r, int c) { return false; }
-        };
-        JTable tableBookings = new JTable(todayUpcomingBookingsModel);
-        PageUI.styleTable(tableBookings);
-        tableBookings.getColumnModel().getColumn(0).setPreferredWidth(60);
-        cardLeft.add(new javax.swing.JScrollPane(tableBookings), BorderLayout.CENTER);
-        pnlSplit.add(cardLeft);
-
-        // 2. Right Column: Today's Schedule Matrix Calendar
-        JPanel cardRight = new javax.swing.JPanel();
-        cardRight.setLayout(new BorderLayout(0, 8));
-
-        JLabel titleRight = new JLabel("Ma trận khung giờ hôm nay (" + todayFormatted + ")");
-        titleRight.setFont(UIConstants.FONT_SUBTITLE);
-        titleRight.setForeground(UIConstants.PRIMARY);
+        JLabel titleTop = new JLabel("Ma trận khung giờ hôm nay (" + todayFormatted + ")");
+        titleTop.setFont(UIConstants.FONT_SUBTITLE);
+        titleTop.setForeground(UIConstants.PRIMARY);
 
         JButton btnGoDatLich = new JButton("Chi tiết ");
         btnGoDatLich.setIcon(Utils.IconUtils.getArrowRightIcon(16));
@@ -161,23 +150,30 @@ public class DashboardPanel extends javax.swing.JPanel {
             btnGoDatLich.addActionListener(e -> pageNavigator.accept("datlich"));
         }
 
-        JPanel pnlRightHeader = new JPanel(new BorderLayout());
-        pnlRightHeader.setOpaque(false);
-        pnlRightHeader.add(titleRight, BorderLayout.WEST);
-        pnlRightHeader.add(btnGoDatLich, BorderLayout.EAST);
-        cardRight.add(pnlRightHeader, BorderLayout.NORTH);
+        JPanel pnlTopHeader = new JPanel(new BorderLayout());
+        pnlTopHeader.setOpaque(false);
+        pnlTopHeader.add(titleTop, BorderLayout.WEST);
+        pnlTopHeader.add(btnGoDatLich, BorderLayout.EAST);
+        cardMatrix.add(pnlTopHeader, BorderLayout.NORTH);
 
-        String[] slots = new String[]{"Khu vực sân", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00"};
-        todayCalendarModel = new DefaultTableModel(slots, 0) {
+        List<String> slotHeaders = new java.util.ArrayList<>();
+        slotHeaders.add("Khu vực sân");
+        for (String slot : TIME_SLOTS) {
+            slotHeaders.add(slot);
+        }
+        todayCalendarModel = new DefaultTableModel(slotHeaders.toArray(new String[0]), 0) {
             @Override
             public boolean isCellEditable(int r, int c) { return false; }
         };
         todayCalendarTable = new JTable(todayCalendarModel);
         PageUI.styleTable(todayCalendarTable);
-        todayCalendarTable.getColumnModel().getColumn(0).setPreferredWidth(95);
+        todayCalendarTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        todayCalendarTable.getColumnModel().getColumn(0).setPreferredWidth(130);
+        for (int i = 1; i <= TIME_SLOTS.length; i++) {
+            todayCalendarTable.getColumnModel().getColumn(i).setPreferredWidth(75);
+        }
         todayCalendarTable.setDefaultRenderer(Object.class, new DashboardCalendarCellRenderer());
 
-        // CLICK ON EMPTY SLOT TO QUICKLY CREATE SCHEDULE
         todayCalendarTable.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -192,8 +188,43 @@ public class DashboardPanel extends javax.swing.JPanel {
             }
         });
 
-        cardRight.add(new javax.swing.JScrollPane(todayCalendarTable), BorderLayout.CENTER);
-        pnlSplit.add(cardRight);
+        JScrollPane scrollMatrix = new JScrollPane(todayCalendarTable,
+                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollMatrix.setBorder(BorderFactory.createLineBorder(UIConstants.BORDER, 1));
+        scrollMatrix.getViewport().setBackground(Color.WHITE);
+        cardMatrix.add(scrollMatrix, BorderLayout.CENTER);
+
+        // 2. BOTTOM CARD: Today's Upcoming Bookings (Lịch đặt sắp tới trong ngày)
+        JPanel cardBookings = new JPanel(new BorderLayout(0, 8));
+        cardBookings.setBackground(Color.WHITE);
+        cardBookings.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(UIConstants.BORDER, 1),
+                BorderFactory.createEmptyBorder(14, 16, 14, 16)
+        ));
+
+        JLabel titleBottom = new JLabel("Lịch đặt sắp tới trong ngày (" + todayFormatted + ")");
+        titleBottom.setFont(UIConstants.FONT_SUBTITLE);
+        titleBottom.setForeground(UIConstants.PRIMARY);
+        cardBookings.add(titleBottom, BorderLayout.NORTH);
+
+        todayUpcomingBookingsModel = new DefaultTableModel(
+                new String[]{"Mã", "Sân bóng", "Khách hàng", "SĐT", "Khung giờ", "Tổng tiền", "Trạng thái"}, 0) {
+            @Override
+            public boolean isCellEditable(int r, int c) { return false; }
+        };
+        JTable tableBookings = new JTable(todayUpcomingBookingsModel);
+        PageUI.styleTable(tableBookings);
+        tableBookings.getColumnModel().getColumn(0).setPreferredWidth(60);
+
+        JScrollPane scrollBookings = new JScrollPane(tableBookings);
+        scrollBookings.setBorder(BorderFactory.createLineBorder(UIConstants.BORDER, 1));
+        scrollBookings.getViewport().setBackground(Color.WHITE);
+        cardBookings.add(scrollBookings, BorderLayout.CENTER);
+
+        // Add Matrix on Top, Bookings List on Bottom
+        pnlSplit.add(cardMatrix);
+        pnlSplit.add(cardBookings);
     }
 
     private void onQuickBookSlot(int courtIndex, int timeSlotIndex) {
@@ -338,9 +369,9 @@ public class DashboardPanel extends javax.swing.JPanel {
                     if (found == null) {
                         row[t + 1] = "Trống";
                     } else if ("ChoXacNhan".equalsIgnoreCase(found.getTrangThai())) {
-                        row[t + 1] = "[Đã đặt] " + found.getTenKhach() + " (" + found.getGioBatDau() + " - " + found.getGioKetThuc() + ")";
+                        row[t + 1] = "Đã đặt";
                     } else {
-                        row[t + 1] = "[Đang đá] " + found.getTenKhach() + " (" + found.getGioBatDau() + " - " + found.getGioKetThuc() + ")";
+                        row[t + 1] = "Đang đá";
                     }
                 }
             }
@@ -549,27 +580,34 @@ public class DashboardPanel extends javax.swing.JPanel {
                 c.setFont(UIConstants.FONT_BOLD);
                 c.setBackground(new Color(245, 247, 250));
                 c.setForeground(UIConstants.PRIMARY);
+                setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+                setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
                 return c;
             }
 
-            String str = value != null ? value.toString() : "";
-            c.setFont(UIConstants.FONT_SMALL);
+            String str = value != null ? value.toString().trim() : "";
+            c.setFont(UIConstants.FONT_BOLD);
+            setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+            setBorder(BorderFactory.createEmptyBorder(0, 4, 0, 4));
+
             if (c instanceof javax.swing.JComponent jc) {
-                jc.setToolTipText(str);
+                String courtName = table.getValueAt(row, 0) != null ? table.getValueAt(row, 0).toString() : "Sân";
+                String slotTime = column <= TIME_SLOTS.length ? TIME_SLOTS[column - 1] : "";
+                jc.setToolTipText(courtName + " [" + slotTime + "]: " + str + " — Nhấp đúp để chọn");
             }
 
-            if (str.startsWith("[Đang đá]")) {
-                c.setBackground(new Color(255, 235, 235));
-                c.setForeground(new Color(180, 40, 40));
-            } else if (str.startsWith("[Đã đặt]")) {
-                c.setBackground(new Color(255, 248, 220));
-                c.setForeground(new Color(180, 100, 0));
+            if (str.startsWith("Đang đá")) {
+                c.setBackground(new Color(219, 234, 254)); // Soft sky blue
+                c.setForeground(new Color(37, 99, 235));   // Dark blue
+            } else if (str.startsWith("Đã đặt")) {
+                c.setBackground(new Color(254, 243, 199)); // Soft amber
+                c.setForeground(new Color(217, 119, 6));   // Dark amber
             } else if (str.startsWith("Bảo trì")) {
-                c.setBackground(new Color(240, 240, 240));
-                c.setForeground(new Color(120, 120, 120));
-            } else {
-                c.setBackground(new Color(238, 250, 240));
-                c.setForeground(new Color(30, 130, 60));
+                c.setBackground(new Color(241, 245, 249)); // Soft grey
+                c.setForeground(new Color(100, 116, 139));  // Dark grey
+            } else { // Trống
+                c.setBackground(new Color(220, 252, 231)); // Soft emerald green
+                c.setForeground(new Color(22, 163, 74));   // Dark green
             }
 
             return c;

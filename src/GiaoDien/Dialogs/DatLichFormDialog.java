@@ -273,7 +273,7 @@ public class DatLichFormDialog extends JDialog {
 
     private JComboBox<String> createTimeComboBox() {
         List<String> times = new ArrayList<>();
-        for (int h = 5; h <= 23; h++) {
+        for (int h = 6; h <= 23; h++) {
             times.add(String.format("%02d:00", h));
             if (h < 23) {
                 times.add(String.format("%02d:30", h));
@@ -447,6 +447,23 @@ public class DatLichFormDialog extends JDialog {
             return;
         }
 
+        // XÁC MINH DỮ LIỆU NHẬP VÀO: TÊN KHÁCH VÀ SỐ ĐIỆN THOẠI
+        if (tk.length() < 2) {
+            JOptionPane.showMessageDialog(this,
+                    "Tên khách hàng không hợp lệ! Vui lòng nhập từ 2 ký tự trở lên.",
+                    "Thông báo", JOptionPane.WARNING_MESSAGE);
+            txtTenKhach.requestFocus();
+            return;
+        }
+
+        if (!sdt.matches("^\\d{10,11}$")) {
+            JOptionPane.showMessageDialog(this,
+                    "Số điện thoại không hợp lệ! Vui lòng nhập từ 10 đến 11 chữ số (ví dụ: 0912345678).",
+                    "Thông báo", JOptionPane.WARNING_MESSAGE);
+            txtSoDienThoai.requestFocus();
+            return;
+        }
+
         // KHÔNG CHO PHÉP ĐẶT LỊCH TRONG QUÁ KHỨ
         try {
             LocalDate bookingDate = LocalDate.parse(ng);
@@ -484,13 +501,13 @@ public class DatLichFormDialog extends JDialog {
             return;
         }
 
-        int minAllowed = 5 * 60;   // 05:00 sáng
+        int minAllowed = 6 * 60;   // 06:00 sáng
         int maxAllowed = 23 * 60;  // 23:00 đêm
         if (bMin < minAllowed || kMin > maxAllowed) {
             JOptionPane.showMessageDialog(this,
-                    "[!] KHUNG GIỜ PHỤC VỤ SÂN BÓNG:\n"
-                            + "Sân bóng mở cửa phục vụ đặt sân từ 05:00 sáng đến 23:00 đêm.\n"
-                            + "Vui lòng chọn khung giờ đặt trong khoảng 05:00 - 23:00!",
+                    "[!] KHUNG GIỜ PHỤC VỤ SÂN BÓNG:\n\n"
+                            + "Sân bóng mở cửa phục vụ đặt sân từ 06:00 sáng đến 23:00 đêm.\n"
+                            + "Vui lòng chọn khung giờ đặt trong khoảng 06:00 - 23:00!",
                     "Khung giờ phục vụ", JOptionPane.WARNING_MESSAGE);
             return;
         }

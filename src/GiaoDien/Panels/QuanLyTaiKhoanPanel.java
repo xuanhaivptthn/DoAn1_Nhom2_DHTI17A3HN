@@ -200,20 +200,11 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
             applyFilter();
         });
 
-        JButton btnLichSu = new javax.swing.JButton("Lịch sử đăng nhập");
-        PageUI.styleSecondaryButton(btnLichSu);
-        btnLichSu.setPreferredSize(new Dimension(160, 36));
-        btnLichSu.addActionListener(e -> {
-            JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
-            new GiaoDien.Dialogs.LichSuDangNhapDialog(parent).setVisible(true);
-        });
-
         actions.add(btnAdd);
         actions.add(btnEdit);
         actions.add(btnDelete);
         actions.add(btnLock);
         actions.add(btnRefresh);
-        actions.add(btnLichSu);
 
         gbc.gridx = 0;
         gbc.gridy = 1;
@@ -250,7 +241,7 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
         table.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
-                if (e.getClickCount() == 2) {
+                if (e.getClickCount() == 2 && table.rowAtPoint(e.getPoint()) >= 0) {
                     onEdit();
                 }
             }

@@ -205,7 +205,7 @@ public final class DataStore {
 
     private void seedDefaultDatLichs() {
         String today = java.time.LocalDate.now().toString();
-        DatLich dl1 = new DatLich(1, "DL001", 1, "Sân A1 (Sân 5)", "Anh Đức (FC Anh Em)", "0912345678", today, "17:30", "19:00", 425000, "DaXacNhan", "Nguyễn Văn Nhân", "Đặt cọc trước 100k");
+        DatLich dl1 = new DatLich(1, "DL001", 1, "Sân A1 (Sân 5)", "Anh Đức (FC Anh Em)", "0912345678", today, "08:00", "10:00", 425000, "ChoXacNhan", "TK002", "Đặt cọc trước 100k");
         dl1.setMaSan("A1");
         dl1.setTienSan(375000);
         dl1.setTienDichVu(50000);
