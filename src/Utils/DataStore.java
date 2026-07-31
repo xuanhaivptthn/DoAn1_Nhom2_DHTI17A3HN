@@ -273,6 +273,47 @@ public final class DataStore {
         );
     }
 
+    public boolean isSanDangThue(KhuVucSan k) {
+        if (k == null) return false;
+        if (isSanBaoTri(k)) return false;
+
+        String today = java.time.LocalDate.now().toString();
+        java.time.LocalTime now = java.time.LocalTime.now();
+
+        return datLichs.stream().anyMatch(d -> {
+            if ("DaHuy".equalsIgnoreCase(d.getTrangThai())) return false;
+            if (!today.equals(d.getNgayDat())) return false;
+
+            boolean matchCourt = (k.getMaSan() != null && k.getMaSan().equalsIgnoreCase(d.getMaSan()))
+                    || (d.getTenSan() != null && d.getTenSan().toLowerCase().contains(k.getMaSan().toLowerCase()));
+            if (!matchCourt) return false;
+
+            try {
+                String sStart = d.getGioBatDau().trim();
+                if (sStart.length() > 5 && sStart.contains(" ")) sStart = sStart.substring(sStart.indexOf(" ") + 1).trim();
+                if (sStart.length() > 5) sStart = sStart.substring(0, 5);
+
+                String sEnd = d.getGioKetThuc().trim();
+                if (sEnd.length() > 5 && sEnd.contains(" ")) sEnd = sEnd.substring(sEnd.indexOf(" ") + 1).trim();
+                if (sEnd.length() > 5) sEnd = sEnd.substring(0, 5);
+
+                java.time.LocalTime start = java.time.LocalTime.parse(sStart);
+                java.time.LocalTime end = java.time.LocalTime.parse(sEnd);
+
+                return !now.isBefore(start) && !now.isAfter(end);
+            } catch (Exception ex) {
+                return false;
+            }
+        });
+    }
+
+    public String getTrangThaiSanHienTai(KhuVucSan k) {
+        if (k == null) return "";
+        if (isSanBaoTri(k)) return "Bảo trì";
+        if (isSanDangThue(k)) return "Đang thuê";
+        return "Sẵn sàng";
+    }
+
     public List<KhuVucSan> getKhuVucsKhongBaoTri() {
         return khuVucs.stream()
                 .filter(k -> !isSanBaoTri(k))

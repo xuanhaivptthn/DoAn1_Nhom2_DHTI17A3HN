@@ -262,6 +262,13 @@ public class MainFrame extends JFrame {
         if ("khuvuc".equals(key) && khuVucPanel != null) khuVucPanel.reload();
     }
 
+    public void refreshDataPanels() {
+        if (datLichPanel != null) datLichPanel.reloadSchedule();
+        if (baoTriPanel != null) baoTriPanel.reload();
+        if (dashboardPanel != null) dashboardPanel.refresh();
+        if (khuVucPanel != null) khuVucPanel.reload();
+    }
+
     private void refreshUserBar() {
         rebuildSidebar();
         TaiKhoan u = SessionManager.get().getCurrentUser();

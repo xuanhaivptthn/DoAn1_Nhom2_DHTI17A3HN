@@ -138,9 +138,10 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
         model.setRowCount(0);
         List<KhuVucSan> list = DataStore.get().getKhuVucs();
         for (KhuVucSan k : list) {
+            String ttStr = DataStore.get().getTrangThaiSanHienTai(k);
             model.addRow(new Object[]{
                     k.getId(), k.getMaSan(), k.getTenSan(), k.getLoaiSanHienThi(),
-                    String.format("%,.0f VNĐ", (double) (k.getGiaThueTheoGio())), k.getTrangThaiHienThi()
+                    String.format("%,.0f VNĐ", (double) (k.getGiaThueTheoGio())), ttStr
             });
         }
         lblCount.setText(list.size() + " khu vực");
@@ -165,6 +166,11 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
             try { new DAO.KhuVucSanDAO().insert(form); } catch (Exception ignored) {}
         }
         reload();
+
+        if (parent instanceof GiaoDien.MainFrame mf) {
+            mf.refreshDataPanels();
+        }
+
         JOptionPane.showMessageDialog(this,
                 "Cập nhật khu vực thành công!\n• Mã: " + form.getMaSan()
                         + "\n• Tên: " + form.getTenSan()
@@ -178,12 +184,19 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
             JOptionPane.showMessageDialog(this, "Chọn một khu vực để sửa.");
             return;
         }
+        boolean wasBaoTri = DataStore.get().isSanBaoTri(sel);
+
         JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
         KhuVucFormDialog dialog = new KhuVucFormDialog(parent, sel);
         dialog.setVisible(true);
         if (!dialog.isConfirmed()) return;
 
         KhuVucSan form = dialog.getResult();
+
+        if (wasBaoTri && "SanSang".equalsIgnoreCase(form.getTrangThai())) {
+            checkAndUpdateRelatedMaintenance(sel);
+        }
+
         sel.setMaSan(form.getMaSan());
         sel.setTenSan(form.getTenSan());
         sel.setLoaiSan(form.getLoaiSan());
@@ -193,6 +206,11 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
             try { new DAO.KhuVucSanDAO().update(sel); } catch (Exception ignored) {}
         }
         reload();
+
+        if (parent instanceof GiaoDien.MainFrame mf) {
+            mf.refreshDataPanels();
+        }
+
         JOptionPane.showMessageDialog(this, "Đã cập nhật khu vực \"" + sel.getMaSan() + "\".",
                 "Kết quả cập nhật khu vực", JOptionPane.INFORMATION_MESSAGE);
     }
@@ -210,6 +228,12 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
             try { new DAO.KhuVucSanDAO().delete(sel.getMaSan()); } catch (Exception ignored) {}
         }
         reload();
+
+        JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
+        if (parent instanceof GiaoDien.MainFrame mf) {
+            mf.refreshDataPanels();
+        }
+
         JOptionPane.showMessageDialog(this, "Đã xóa khu vực.", "Kết quả cập nhật khu vực", JOptionPane.INFORMATION_MESSAGE);
     }
 
@@ -219,21 +243,73 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
             JOptionPane.showMessageDialog(this, "Chọn một khu vực.");
             return;
         }
-        String[] opts = {"Sẵn sàng", "Đang thuê", "Bảo trì"};
-        String pick = (String) JOptionPane.showInputDialog(this, "Trạng thái mới cho " + sel.getMaSan(),
-                "Đổi trạng thái", JOptionPane.QUESTION_MESSAGE, null, opts, sel.getTrangThaiHienThi());
+
+        boolean wasBaoTri = DataStore.get().isSanBaoTri(sel);
+
+        String[] opts = {"Sẵn sàng", "Bảo trì"};
+        String pick = (String) JOptionPane.showInputDialog(this,
+                "Đổi trạng thái cho sân " + sel.getMaSan() + " (" + sel.getTenSan() + ")\n"
+                        + "(Lưu ý: Trạng thái 'Đang thuê' được hệ thống cập nhật tự động khi có lịch đặt trong giờ)",
+                "Đổi trạng thái khu vực sân", JOptionPane.QUESTION_MESSAGE, null, opts, "Bảo trì".equals(DataStore.get().getTrangThaiSanHienTai(sel)) ? "Bảo trì" : "Sẵn sàng");
+
         if (pick == null) return;
-        sel.setTrangThai(switch (pick) {
-            case "Đang thuê" -> "DangThue";
+
+        String newStatus = switch (pick) {
             case "Bảo trì" -> "BaoTri";
             default -> "SanSang";
-        });
+        };
+
+        if (wasBaoTri && "SanSang".equals(newStatus)) {
+            checkAndUpdateRelatedMaintenance(sel);
+        }
+
+        sel.setTrangThai(newStatus);
         if (DataStore.isUseDatabase()) {
             try { new DAO.KhuVucSanDAO().update(sel); } catch (Exception ignored) {}
         }
         reload();
+
+        JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
+        if (parent instanceof GiaoDien.MainFrame mf) {
+            mf.refreshDataPanels();
+        }
+
         JOptionPane.showMessageDialog(this,
-                "Kết quả: " + sel.getMaSan() + " → " + sel.getTrangThaiHienThi(),
+                "Kết quả: " + sel.getMaSan() + " → " + DataStore.get().getTrangThaiSanHienTai(sel),
                 "Kết quả cập nhật khu vực", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void checkAndUpdateRelatedMaintenance(KhuVucSan sel) {
+        if (sel == null) return;
+        List<Model.BaoTri> listBT = DataStore.get().getBaoTris();
+        Model.BaoTri activeMaint = listBT.stream()
+                .filter(b -> !"HoanThanh".equalsIgnoreCase(b.getTrangThaiPhieu())
+                        && !"HOAN_THANH".equalsIgnoreCase(b.getTrangThaiPhieu())
+                        && !"DaHuy".equalsIgnoreCase(b.getTrangThaiPhieu())
+                        && !"HUY".equalsIgnoreCase(b.getTrangThaiPhieu())
+                        && ((sel.getMaSan() != null && sel.getMaSan().equalsIgnoreCase(b.getMaSan()))
+                        || (b.getTenSan() != null && b.getTenSan().toLowerCase().contains(sel.getMaSan().toLowerCase()))))
+                .findFirst().orElse(null);
+
+        if (activeMaint != null) {
+            int confirm = JOptionPane.showConfirmDialog(this,
+                    "Phát hiện sân " + sel.getMaSan() + " (" + sel.getTenSan() + ") có phiếu bảo trì liên quan:\n"
+                            + "• Mã phiếu  : " + activeMaint.getMaPhieuBaoTri() + "\n"
+                            + "• Nội dung  : " + activeMaint.getNoiDung() + "\n"
+                            + "• Trạng thái: " + activeMaint.getTrangThaiHienThi() + "\n\n"
+                            + "Bạn có muốn cập nhật phiếu bảo trì này thành 'Hoàn thành' không?",
+                    "Xác nhận cập nhật phiếu bảo trì",
+                    JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+
+            if (confirm == JOptionPane.YES_OPTION) {
+                activeMaint.setTrangThaiPhieu("HoanThanh");
+                if (DataStore.isUseDatabase()) {
+                    try { new DAO.BaoTriDAO().update(activeMaint); } catch (Exception ignored) {}
+                }
+                JOptionPane.showMessageDialog(this,
+                        "Đã cập nhật phiếu bảo trì " + activeMaint.getMaPhieuBaoTri() + " sang trạng thái 'Hoàn thành'.",
+                        "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            }
+        }
     }
 }
