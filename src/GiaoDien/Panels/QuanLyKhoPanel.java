@@ -89,7 +89,12 @@ public class QuanLyKhoPanel extends javax.swing.JPanel {
         };
         table = new JTable(model);
         PageUI.styleTable(table);
-        table.getColumnModel().getColumn(0).setMaxWidth(65);
+        table.getColumnModel().getColumn(0).setPreferredWidth(80);
+        table.getColumnModel().getColumn(1).setPreferredWidth(200);
+        table.getColumnModel().getColumn(2).setPreferredWidth(90);
+        table.getColumnModel().getColumn(2).setPreferredWidth(80);
+        table.getColumnModel().getColumn(3).setPreferredWidth(120);
+        table.getColumnModel().getColumn(4).setPreferredWidth(180);
 
         lblCount = new JLabel();
         lblCount.setFont(UIConstants.FONT_SMALL);

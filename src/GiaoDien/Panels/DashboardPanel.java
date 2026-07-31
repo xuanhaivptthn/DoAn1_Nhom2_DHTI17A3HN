@@ -142,7 +142,7 @@ public class DashboardPanel extends javax.swing.JPanel {
         };
         JTable tableBookings = new JTable(todayUpcomingBookingsModel);
         PageUI.styleTable(tableBookings);
-        tableBookings.getColumnModel().getColumn(0).setMaxWidth(60);
+        tableBookings.getColumnModel().getColumn(0).setPreferredWidth(60);
         cardLeft.add(new javax.swing.JScrollPane(tableBookings), BorderLayout.CENTER);
         pnlSplit.add(cardLeft);
 

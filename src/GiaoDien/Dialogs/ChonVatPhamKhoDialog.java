@@ -125,13 +125,15 @@ public class ChonVatPhamKhoDialog extends JDialog {
 
         tableKho = new JTable(modelKho);
         PageUI.styleTable(tableKho);
-        tableKho.getColumnModel().getColumn(0).setPreferredWidth(45);
-        tableKho.getColumnModel().getColumn(1).setPreferredWidth(180);
-        tableKho.getColumnModel().getColumn(2).setPreferredWidth(120);
-        tableKho.getColumnModel().getColumn(3).setPreferredWidth(90);
-        tableKho.getColumnModel().getColumn(4).setPreferredWidth(65);
-        tableKho.getColumnModel().getColumn(5).setPreferredWidth(70);
-        tableKho.getColumnModel().getColumn(6).setPreferredWidth(95);
+        tableKho.getColumnModel().getColumn(0).setPreferredWidth(40);
+        tableKho.getColumnModel().getColumn(1).setPreferredWidth(75);
+        tableKho.getColumnModel().getColumn(2).setPreferredWidth(170);
+        tableKho.getColumnModel().getColumn(3).setPreferredWidth(80);
+        tableKho.getColumnModel().getColumn(4).setPreferredWidth(95);
+        tableKho.getColumnModel().getColumn(5).setPreferredWidth(95);
+        tableKho.getColumnModel().getColumn(6).setPreferredWidth(90);
+        tableKho.getColumnModel().getColumn(6).setPreferredWidth(75);
+        tableKho.getColumnModel().getColumn(7).setPreferredWidth(110);
 
         modelKho.addTableModelListener(e -> {
             if (e.getType() == TableModelEvent.UPDATE && e.getColumn() == 6) {

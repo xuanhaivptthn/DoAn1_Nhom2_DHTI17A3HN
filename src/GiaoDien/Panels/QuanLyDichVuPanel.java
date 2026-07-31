@@ -84,7 +84,7 @@ public class QuanLyDichVuPanel extends javax.swing.JPanel {
         };
         table = new JTable(model);
         PageUI.styleTable(table);
-        table.getColumnModel().getColumn(0).setMaxWidth(65);
+        table.getColumnModel().getColumn(0).setPreferredWidth(65);
 
         table.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override

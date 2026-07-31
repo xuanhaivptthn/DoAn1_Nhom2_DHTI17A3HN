@@ -101,7 +101,7 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
         };
         table = new JTable(model);
         PageUI.styleTable(table);
-        table.getColumnModel().getColumn(0).setMaxWidth(60);
+        table.getColumnModel().getColumn(0).setPreferredWidth(60);
 
         cboFilter = new JComboBox<>(new String[]{"Tất cả", "Đang bảo trì", "Hoàn thành", "Đã hủy"});
         lblCount = new JLabel();
@@ -117,7 +117,7 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
         };
         tableCsvc = new JTable(modelCsvc);
         PageUI.styleTable(tableCsvc);
-        tableCsvc.getColumnModel().getColumn(0).setMaxWidth(80);
+        tableCsvc.getColumnModel().getColumn(0).setPreferredWidth(80);
 
         buildToolbar();
         pnlMid.add(createCsvcCard());

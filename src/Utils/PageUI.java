@@ -57,6 +57,7 @@ public final class PageUI {
             }
         };
         table.getTableHeader().setDefaultRenderer(headerRenderer);
+        table.getTableHeader().setResizingAllowed(true);
         table.setShowGrid(true);
         table.setGridColor(UIConstants.BORDER);
     }

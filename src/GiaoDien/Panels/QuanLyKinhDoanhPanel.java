@@ -210,7 +210,13 @@ public class QuanLyKinhDoanhPanel extends javax.swing.JPanel {
         };
         JTable tableSan = new JTable(modelBySan);
         PageUI.styleTable(tableSan);
-        tableSan.getColumnModel().getColumn(0).setMaxWidth(60);
+        tableSan.getColumnModel().getColumn(0).setPreferredWidth(75);
+        tableSan.getColumnModel().getColumn(1).setPreferredWidth(160);
+        tableSan.getColumnModel().getColumn(2).setPreferredWidth(85);
+        tableSan.getColumnModel().getColumn(2).setPreferredWidth(70);
+        tableSan.getColumnModel().getColumn(3).setPreferredWidth(110);
+        tableSan.getColumnModel().getColumn(4).setPreferredWidth(110);
+        tableSan.getColumnModel().getColumn(5).setPreferredWidth(130);
         left.add(new javax.swing.JScrollPane(tableSan), BorderLayout.CENTER);
 
         // Right Panel: Tabbed Detailed Reports (Bảng Báo cáo Tổng hợp & Bảng Doanh thu dịch vụ)
@@ -244,7 +250,12 @@ public class QuanLyKinhDoanhPanel extends javax.swing.JPanel {
         };
         JTable tableDichVu = new JTable(modelByDichVu);
         PageUI.styleTable(tableDichVu);
-        tableDichVu.getColumnModel().getColumn(0).setMaxWidth(50);
+        tableDichVu.getColumnModel().getColumn(0).setPreferredWidth(40);
+        tableDichVu.getColumnModel().getColumn(1).setPreferredWidth(180);
+        tableDichVu.getColumnModel().getColumn(2).setPreferredWidth(100);
+        tableDichVu.getColumnModel().getColumn(3).setPreferredWidth(80);
+        tableDichVu.getColumnModel().getColumn(4).setPreferredWidth(90);
+        tableDichVu.getColumnModel().getColumn(5).setPreferredWidth(130);
         tabReports.addTab("Chi tiết DV & Đồ ăn", new JScrollPane(tableDichVu));
 
         right.add(tabReports, BorderLayout.CENTER);

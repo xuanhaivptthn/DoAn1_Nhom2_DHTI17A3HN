@@ -135,10 +135,11 @@ public class TongHopThongTinDialog extends JDialog {
             JTable tableAddons = new JTable(modelAddons);
             PageUI.styleTable(tableAddons);
             tableAddons.getColumnModel().getColumn(0).setPreferredWidth(40);
-            tableAddons.getColumnModel().getColumn(1).setPreferredWidth(180);
-            tableAddons.getColumnModel().getColumn(2).setPreferredWidth(90);
-            tableAddons.getColumnModel().getColumn(3).setPreferredWidth(90);
-            tableAddons.getColumnModel().getColumn(4).setPreferredWidth(100);
+            tableAddons.getColumnModel().getColumn(1).setPreferredWidth(210);
+            tableAddons.getColumnModel().getColumn(2).setPreferredWidth(85);
+            tableAddons.getColumnModel().getColumn(2).setPreferredWidth(75);
+            tableAddons.getColumnModel().getColumn(3).setPreferredWidth(100);
+            tableAddons.getColumnModel().getColumn(4).setPreferredWidth(110);
 
             JScrollPane spAddons = new JScrollPane(tableAddons);
             spAddons.setPreferredSize(new Dimension(540, 120));

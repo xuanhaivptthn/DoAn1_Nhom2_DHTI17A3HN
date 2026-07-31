@@ -298,8 +298,7 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
         t.setFillsViewportHeight(true);
         t.setAutoCreateRowSorter(true);
 
-        t.getColumnModel().getColumn(0).setPreferredWidth(50);
-        t.getColumnModel().getColumn(0).setMaxWidth(60);
+        t.getColumnModel().getColumn(0).setPreferredWidth(45);
         t.getColumnModel().getColumn(1).setPreferredWidth(180);
         t.getColumnModel().getColumn(2).setPreferredWidth(140);
         t.getColumnModel().getColumn(3).setPreferredWidth(120);

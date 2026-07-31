@@ -86,7 +86,7 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
         };
         table = new JTable(model);
         PageUI.styleTable(table);
-        table.getColumnModel().getColumn(0).setMaxWidth(80);
+        table.getColumnModel().getColumn(0).setPreferredWidth(80);
         lblCount = new JLabel();
         lblCount.setFont(UIConstants.FONT_SMALL);
         lblCount.setForeground(UIConstants.TEXT_SECONDARY);

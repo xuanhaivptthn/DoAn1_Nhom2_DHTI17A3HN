@@ -288,7 +288,7 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         th.setReorderingAllowed(false);
 
         tableSchedule.getColumnModel().getColumn(0).setPreferredWidth(65);
-        tableSchedule.getColumnModel().getColumn(0).setMaxWidth(75);
+        tableSchedule.getColumnModel().getColumn(0).setPreferredWidth(75);
 
         tableSchedule.setDefaultRenderer(Object.class, new ScheduleMatrixCellRenderer());
 

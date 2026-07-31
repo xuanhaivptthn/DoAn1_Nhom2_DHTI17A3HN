@@ -125,12 +125,14 @@ public class ChonDichVuDialog extends JDialog {
 
         tableDichVu = new JTable(modelDichVu);
         PageUI.styleTable(tableDichVu);
-        tableDichVu.getColumnModel().getColumn(0).setPreferredWidth(45);
-        tableDichVu.getColumnModel().getColumn(1).setPreferredWidth(160);
-        tableDichVu.getColumnModel().getColumn(2).setPreferredWidth(180);
-        tableDichVu.getColumnModel().getColumn(3).setPreferredWidth(100);
-        tableDichVu.getColumnModel().getColumn(4).setPreferredWidth(70);
-        tableDichVu.getColumnModel().getColumn(5).setPreferredWidth(100);
+        tableDichVu.getColumnModel().getColumn(0).setPreferredWidth(40);
+        tableDichVu.getColumnModel().getColumn(1).setPreferredWidth(75);
+        tableDichVu.getColumnModel().getColumn(2).setPreferredWidth(170);
+        tableDichVu.getColumnModel().getColumn(3).setPreferredWidth(85);
+        tableDichVu.getColumnModel().getColumn(4).setPreferredWidth(100);
+        tableDichVu.getColumnModel().getColumn(5).setPreferredWidth(90);
+        tableDichVu.getColumnModel().getColumn(5).setPreferredWidth(75);
+        tableDichVu.getColumnModel().getColumn(6).setPreferredWidth(110);
 
         modelDichVu.addTableModelListener(e -> {
             if (e.getType() == TableModelEvent.UPDATE && e.getColumn() == 5) {
