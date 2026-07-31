@@ -4,6 +4,7 @@ import GiaoDien.Dialogs.*;
 import GiaoDien.TaiKhoanTableModel;
 import Utils.PageUI;
 
+import Model.BaoTri;
 import Model.KhuVucSan;
 import Utils.DataStore;
 import Utils.UIConstants;
@@ -79,13 +80,13 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
                 "Yêu cầu: Quản lý khu vực sân bóng  →  Phản hồi: Kết quả cập nhật khu vực"), BorderLayout.CENTER);
 
         model = new DefaultTableModel(
-                new String[]{"ID", "Mã sân", "Tên sân", "Loại", "Giá/giờ", "Trạng thái"}, 0) {
+                new String[]{"Mã sân", "Tên sân", "Loại sân", "Giá/giờ", "Trạng thái"}, 0) {
             @Override
             public boolean isCellEditable(int r, int c) { return false; }
         };
         table = new JTable(model);
         PageUI.styleTable(table);
-        table.getColumnModel().getColumn(0).setMaxWidth(45);
+        table.getColumnModel().getColumn(0).setMaxWidth(80);
         lblCount = new JLabel();
         lblCount.setFont(UIConstants.FONT_SMALL);
         lblCount.setForeground(UIConstants.TEXT_SECONDARY);
@@ -96,6 +97,12 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
     }
 
     private void buildToolbar() {
+        pnlToolbar.setLayout(new BorderLayout(0, 6));
+        pnlToolbar.setOpaque(false);
+
+        JPanel pnlLeft = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        pnlLeft.setOpaque(false);
+
         JButton btnAdd = new javax.swing.JButton(" Thêm sân");
         btnAdd.setIcon(Utils.IconUtils.getAddIcon(16));
         PageUI.stylePrimaryButton(btnAdd);
@@ -111,15 +118,31 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
         PageUI.styleDangerButton(btnDelete);
         btnDelete.addActionListener(e -> onDelete());
 
-        JButton btnStatus = new javax.swing.JButton(" Đổi trạng thái");
-        btnStatus.setIcon(Utils.IconUtils.getRefreshIcon(16));
-        PageUI.styleSuccessButton(btnStatus);
-        btnStatus.addActionListener(e -> onChangeStatus());
+        pnlLeft.add(btnAdd);
+        pnlLeft.add(btnEdit);
+        pnlLeft.add(btnDelete);
 
-        pnlToolbar.add(btnAdd);
-        pnlToolbar.add(btnEdit);
-        pnlToolbar.add(btnDelete);
-        pnlToolbar.add(btnStatus);
+        JPanel pnlRight = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+        pnlRight.setOpaque(false);
+
+        JLabel lblQuickNote = new JLabel("Chuyển nhanh trạng thái:");
+        lblQuickNote.setFont(UIConstants.FONT_SMALL);
+        lblQuickNote.setForeground(UIConstants.TEXT_SECONDARY);
+
+        JButton btnQuickReady = new javax.swing.JButton("✓ Sẵn sàng");
+        PageUI.styleSuccessButton(btnQuickReady);
+        btnQuickReady.addActionListener(e -> onQuickSetStatus("SanSang"));
+
+        JButton btnQuickMaint = new javax.swing.JButton("⚠ Bảo trì");
+        PageUI.styleDangerButton(btnQuickMaint);
+        btnQuickMaint.addActionListener(e -> onQuickSetStatus("BaoTri"));
+
+        pnlRight.add(lblQuickNote);
+        pnlRight.add(btnQuickReady);
+        pnlRight.add(btnQuickMaint);
+
+        pnlToolbar.add(pnlLeft, BorderLayout.WEST);
+        pnlToolbar.add(pnlRight, BorderLayout.EAST);
     }
 
     private void buildTableCard() {
@@ -140,7 +163,7 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
         for (KhuVucSan k : list) {
             String ttStr = DataStore.get().getTrangThaiSanHienTai(k);
             model.addRow(new Object[]{
-                    k.getId(), k.getMaSan(), k.getTenSan(), k.getLoaiSanHienThi(),
+                    k.getMaSan(), k.getTenSan(), k.getLoaiSanHienThi(),
                     String.format("%,.0f VNĐ", (double) (k.getGiaThueTheoGio())), ttStr
             });
         }
@@ -150,8 +173,8 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
     private KhuVucSan selected() {
         int row = table.getSelectedRow();
         if (row < 0) return null;
-        int id = (Integer) model.getValueAt(row, 0);
-        return DataStore.get().getKhuVucs().stream().filter(k -> k.getId() == id).findFirst().orElse(null);
+        String maSan = (String) model.getValueAt(row, 0);
+        return DataStore.get().getKhuVucs().stream().filter(k -> maSan.equals(k.getMaSan())).findFirst().orElse(null);
     }
 
     private void onAdd() {
@@ -193,6 +216,8 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
 
         KhuVucSan form = dialog.getResult();
 
+        boolean isSwitchingToBaoTri = !wasBaoTri && "BaoTri".equalsIgnoreCase(form.getTrangThai());
+
         if (wasBaoTri && "SanSang".equalsIgnoreCase(form.getTrangThai())) {
             checkAndUpdateRelatedMaintenance(sel);
         }
@@ -213,6 +238,10 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
 
         JOptionPane.showMessageDialog(this, "Đã cập nhật khu vực \"" + sel.getMaSan() + "\".",
                 "Kết quả cập nhật khu vực", JOptionPane.INFORMATION_MESSAGE);
+
+        if (isSwitchingToBaoTri) {
+            promptCreateMaintenanceTicket(sel);
+        }
     }
 
     private void onDelete() {
@@ -235,48 +264,6 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
         }
 
         JOptionPane.showMessageDialog(this, "Đã xóa khu vực.", "Kết quả cập nhật khu vực", JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    private void onChangeStatus() {
-        KhuVucSan sel = selected();
-        if (sel == null) {
-            JOptionPane.showMessageDialog(this, "Chọn một khu vực.");
-            return;
-        }
-
-        boolean wasBaoTri = DataStore.get().isSanBaoTri(sel);
-
-        String[] opts = {"Sẵn sàng", "Bảo trì"};
-        String pick = (String) JOptionPane.showInputDialog(this,
-                "Đổi trạng thái cho sân " + sel.getMaSan() + " (" + sel.getTenSan() + ")\n"
-                        + "(Lưu ý: Trạng thái 'Đang thuê' được hệ thống cập nhật tự động khi có lịch đặt trong giờ)",
-                "Đổi trạng thái khu vực sân", JOptionPane.QUESTION_MESSAGE, null, opts, "Bảo trì".equals(DataStore.get().getTrangThaiSanHienTai(sel)) ? "Bảo trì" : "Sẵn sàng");
-
-        if (pick == null) return;
-
-        String newStatus = switch (pick) {
-            case "Bảo trì" -> "BaoTri";
-            default -> "SanSang";
-        };
-
-        if (wasBaoTri && "SanSang".equals(newStatus)) {
-            checkAndUpdateRelatedMaintenance(sel);
-        }
-
-        sel.setTrangThai(newStatus);
-        if (DataStore.isUseDatabase()) {
-            try { new DAO.KhuVucSanDAO().update(sel); } catch (Exception ignored) {}
-        }
-        reload();
-
-        JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
-        if (parent instanceof GiaoDien.MainFrame mf) {
-            mf.refreshDataPanels();
-        }
-
-        JOptionPane.showMessageDialog(this,
-                "Kết quả: " + sel.getMaSan() + " → " + DataStore.get().getTrangThaiSanHienTai(sel),
-                "Kết quả cập nhật khu vực", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void checkAndUpdateRelatedMaintenance(KhuVucSan sel) {
@@ -310,6 +297,84 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
                         "Đã cập nhật phiếu bảo trì " + activeMaint.getMaPhieuBaoTri() + " sang trạng thái 'Hoàn thành'.",
                         "Thông báo", JOptionPane.INFORMATION_MESSAGE);
             }
+        }
+    }
+
+    private void promptCreateMaintenanceTicket(KhuVucSan sel) {
+        if (sel == null) return;
+        int choice = JOptionPane.showConfirmDialog(this,
+                "Sân " + sel.getMaSan() + " (" + sel.getTenSan() + ") đã được chuyển sang trạng thái 'Bảo trì'.\n\n"
+                        + "Bạn có muốn lập PHIẾU BẢO TRÌ mới cho sân này ngay bây giờ không?",
+                "Tạo phiếu bảo trì mới",
+                JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+
+        if (choice == JOptionPane.YES_OPTION) {
+            JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
+            BaoTriFormDialog dialog = new BaoTriFormDialog(parent, null);
+            dialog.setSelectedSan(sel);
+            dialog.setVisible(true);
+
+            if (dialog.isConfirmed() && dialog.getResult() != null) {
+                BaoTri form = dialog.getResult();
+                String ma = Utils.CodeGen.next("BT", DataStore.get().getBaoTris().stream().map(BaoTri::getMaPhieuBaoTri).toList(), 3);
+
+                BaoTri b = new BaoTri();
+                b.setMaPhieuBaoTri(ma);
+                b.setMaSan(sel.getMaSan());
+                b.setTenSan(sel.getTenSan());
+                b.setNoiDung(form.getNoiDung());
+                b.setNgayBatDau(form.getNgayBatDau());
+                b.setNgayKetThuc(form.getNgayKetThuc());
+                b.setTrangThaiPhieu(form.getTrangThaiPhieu());
+
+                DataStore.get().getBaoTris().add(b);
+                if (DataStore.isUseDatabase()) {
+                    try { new DAO.BaoTriDAO().insert(b); } catch (Exception ignored) {}
+                }
+
+                if (parent instanceof GiaoDien.MainFrame mf) {
+                    mf.refreshDataPanels();
+                }
+
+                JOptionPane.showMessageDialog(this,
+                        "Đã tạo phiếu bảo trì " + ma + " cho sân " + sel.getMaSan() + " thành công!",
+                        "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            }
+        }
+    }
+
+    private void onQuickSetStatus(String targetStatus) {
+        KhuVucSan sel = selected();
+        if (sel == null) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn một sân bóng trong bảng để chuyển nhanh trạng thái.", "Thông báo", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        boolean wasBaoTri = DataStore.get().isSanBaoTri(sel);
+
+        if (wasBaoTri && "SanSang".equalsIgnoreCase(targetStatus)) {
+            checkAndUpdateRelatedMaintenance(sel);
+        }
+
+        sel.setTrangThai(targetStatus);
+        if (DataStore.isUseDatabase()) {
+            try { new DAO.KhuVucSanDAO().update(sel); } catch (Exception ignored) {}
+        }
+
+        reload();
+
+        JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
+        if (parent instanceof GiaoDien.MainFrame mf) {
+            mf.refreshDataPanels();
+        }
+
+        String label = "SanSang".equalsIgnoreCase(targetStatus) ? "Sẵn sàng" : "Bảo trì";
+        JOptionPane.showMessageDialog(this,
+                "Đã chuyển nhanh trạng thái sân " + sel.getMaSan() + " (" + sel.getTenSan() + ") sang: " + label,
+                "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+
+        if (!wasBaoTri && "BaoTri".equalsIgnoreCase(targetStatus)) {
+            promptCreateMaintenanceTicket(sel);
         }
     }
 }

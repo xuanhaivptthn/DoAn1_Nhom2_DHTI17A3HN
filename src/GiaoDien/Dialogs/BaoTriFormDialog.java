@@ -276,4 +276,15 @@ public class BaoTriFormDialog extends JDialog {
     public boolean isConfirmed() { return confirmed; }
     public BaoTri getResult() { return result; }
     public KhuVucSan getSelectedSan() { return (KhuVucSan) cboSan.getSelectedItem(); }
+
+    public void setSelectedSan(KhuVucSan targetSan) {
+        if (targetSan == null || cboSan == null) return;
+        for (int i = 0; i < cboSan.getItemCount(); i++) {
+            KhuVucSan k = cboSan.getItemAt(i);
+            if (k != null && k.getMaSan() != null && k.getMaSan().equalsIgnoreCase(targetSan.getMaSan())) {
+                cboSan.setSelectedIndex(i);
+                break;
+            }
+        }
+    }
 }

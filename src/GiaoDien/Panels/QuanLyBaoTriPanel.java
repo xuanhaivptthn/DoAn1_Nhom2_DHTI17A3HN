@@ -110,14 +110,14 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
 
         // Model Bảng Tình trạng cơ sở vật chất (JTable)
         modelCsvc = new DefaultTableModel(new String[]{
-                "Mã sân", "Tên sân bóng", "Loại sân", "Giá/Giờ", "Tình trạng CSVC"
+                "Mã sân", "Tên sân", "Loại sân", "Giá/giờ", "Trạng thái"
         }, 0) {
             @Override
             public boolean isCellEditable(int r, int c) { return false; }
         };
         tableCsvc = new JTable(modelCsvc);
         PageUI.styleTable(tableCsvc);
-        tableCsvc.getColumnModel().getColumn(0).setMaxWidth(60);
+        tableCsvc.getColumnModel().getColumn(0).setMaxWidth(80);
 
         buildToolbar();
         pnlMid.add(createCsvcCard());
@@ -228,19 +228,13 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
         modelCsvc.setRowCount(0);
 
         for (KhuVucSan k : DataStore.get().getKhuVucs()) {
-            String statusText = switch (k.getTrangThai()) {
-                case "SanSang" -> "✓ Sẵn sàng cho thuê";
-                case "DangThue" -> "● Đang cho thuê";
-                case "BaoTri" -> "⚠ Đang bảo trì";
-                default -> k.getTrangThaiHienThi();
-            };
-
+            String ttStr = DataStore.get().getTrangThaiSanHienTai(k);
             modelCsvc.addRow(new Object[]{
                     k.getMaSan(),
                     k.getTenSan(),
                     k.getLoaiSanHienThi(),
                     String.format("%,.0f VNĐ", (double) (k.getGiaThueTheoGio())),
-                    statusText
+                    ttStr
             });
         }
     }
