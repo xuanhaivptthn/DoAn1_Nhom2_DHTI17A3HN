@@ -36,7 +36,7 @@ public final class SessionManager {
 
         if (DataStore.isUseDatabase()) {
             if (!DAO.DBConnect.testConnection()) {
-                return Optional.of("Lỗi kết nối CSDL MySQL! Vui lòng bật MySQL trên XAMPP hoặc chọn 'Dữ liệu mẫu'.");
+                return Optional.of("Không thể kết nối MySQL! Vui lòng mở XAMPP hoặc chọn 'Dữ liệu mẫu'.");
             }
             try {
                 TaiKhoan dbUser = new DAO.TaiKhoanDAO().findByUsernameAndPassword(username.trim(), password);

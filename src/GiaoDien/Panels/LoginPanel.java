@@ -102,20 +102,20 @@ public class LoginPanel extends javax.swing.JPanel {
         pnlCenter.setLayout(new java.awt.GridBagLayout());
 
         pnlCard.setOpaque(false);
-        pnlCard.setPreferredSize(new java.awt.Dimension(450, 560));
-        pnlCard.setBorder(BorderFactory.createEmptyBorder(20, 28, 20, 28));
+        pnlCard.setPreferredSize(new java.awt.Dimension(430, 550));
+        pnlCard.setBorder(BorderFactory.createEmptyBorder(22, 28, 20, 28));
         pnlCard.setLayout(new java.awt.BorderLayout());
 
         pnlTop.setOpaque(false);
-        pnlTop.setLayout(new java.awt.BorderLayout(0, 6));
+        pnlTop.setLayout(new java.awt.BorderLayout(0, 4));
 
         lblIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        javax.swing.ImageIcon ballIcon = Utils.IconUtils.getBallBlackIcon(48);
+        javax.swing.ImageIcon ballIcon = Utils.IconUtils.getBallBlackIcon(42);
         if (ballIcon != null) {
             lblIcon.setIcon(ballIcon);
             lblIcon.setText("");
         } else {
-            lblIcon.setFont(new java.awt.Font("Segoe UI", 1, 24));
+            lblIcon.setFont(new java.awt.Font("Segoe UI", 1, 22));
             lblIcon.setText("SAN BONG MANAGER");
         }
         pnlTop.add(lblIcon, java.awt.BorderLayout.NORTH);
@@ -126,7 +126,7 @@ public class LoginPanel extends javax.swing.JPanel {
         lblTitle.setFont(UIConstants.FONT_TITLE);
         lblTitle.setForeground(UIConstants.PRIMARY);
         lblTitle.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lblTitle.setText("Cho thuê sân bóng");
+        lblTitle.setText("Cho Thuê Sân Bóng");
         pnlTitles.add(lblTitle, java.awt.BorderLayout.NORTH);
 
         lblSub.setFont(UIConstants.FONT_SMALL);
@@ -140,7 +140,7 @@ public class LoginPanel extends javax.swing.JPanel {
         pnlCard.add(pnlTop, java.awt.BorderLayout.NORTH);
 
         pnlForm.setOpaque(false);
-        pnlForm.setBorder(BorderFactory.createEmptyBorder(10, 0, 8, 0));
+        pnlForm.setBorder(BorderFactory.createEmptyBorder(8, 0, 4, 0));
         pnlForm.setLayout(new java.awt.GridBagLayout());
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -173,7 +173,7 @@ public class LoginPanel extends javax.swing.JPanel {
         gridBagConstraints.gridy = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(4, 0, 2, 0);
+        gridBagConstraints.insets = new java.awt.Insets(2, 0, 2, 0);
         pnlForm.add(txtPass, gridBagConstraints);
 
         JLabel lblModeLabel = new JLabel("Nguồn dữ liệu kết nối:");
@@ -211,26 +211,26 @@ public class LoginPanel extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(4, 0, 2, 0);
         pnlForm.add(lblError, gridBagConstraints);
 
-        btnLogin.setPreferredSize(new java.awt.Dimension(0, 40));
+        btnLogin.setPreferredSize(new java.awt.Dimension(0, 38));
         btnLogin.addActionListener(e -> doLogin());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 7;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(8, 0, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(6, 0, 0, 0);
         pnlForm.add(btnLogin, gridBagConstraints);
 
         pnlCard.add(pnlForm, java.awt.BorderLayout.CENTER);
 
         pnlHint.setOpaque(false);
-        pnlHint.setBorder(BorderFactory.createEmptyBorder(12, 0, 0, 0));
+        pnlHint.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
         pnlHint.setLayout(new java.awt.BorderLayout());
 
         lblHint.setFont(new java.awt.Font("Segoe UI", 0, 11));
         lblHint.setForeground(UIConstants.TEXT_SECONDARY);
         lblHint.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lblHint.setText("<html><center><b>Tài khoản demo</b><br>admin / admin123 (Chủ sân)<br>nhanvien01 / nv123456 (Nhân viên)</center></html>");
+        lblHint.setText("<html><center><span style='color:#64748b;'>Demo:</span> <b>admin</b>/admin123 &bull; <b>nhanvien01</b>/nv123456</center></html>");
         pnlHint.add(lblHint, java.awt.BorderLayout.CENTER);
 
         pnlCard.add(pnlHint, java.awt.BorderLayout.SOUTH);
@@ -243,7 +243,7 @@ public class LoginPanel extends javax.swing.JPanel {
         lblFooter.setForeground(new java.awt.Color(165, 214, 167));
         lblFooter.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lblFooter.setText("Hệ thống quản lý hoạt động cho thuê sân bóng");
-        lblFooter.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 16, 0));
+        lblFooter.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 14, 0));
         add(lblFooter, java.awt.BorderLayout.SOUTH);
     }// </editor-fold>//GEN-END:initComponents
 
@@ -258,7 +258,9 @@ public class LoginPanel extends javax.swing.JPanel {
 
         Optional<String> error = SessionManager.get().login(txtUser.getText(), new String(txtPass.getPassword()));
         if (error.isPresent()) {
-            lblError.setText("<html><div style='width: 360px; color: #dc2626;'>[!] " + error.get() + "</div></html>");
+            lblError.setText("<html><table width='350' style='color: #dc2626; word-wrap: break-word; table-layout: fixed;'><tr><td><b>[!]</b> " + error.get() + "</td></tr></table></html>");
+            pnlCard.revalidate();
+            pnlCard.repaint();
             return;
         }
         lblError.setText(" ");
