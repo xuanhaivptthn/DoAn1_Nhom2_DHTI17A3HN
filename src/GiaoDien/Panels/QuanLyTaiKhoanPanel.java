@@ -264,6 +264,12 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
     }
 
     private void buildTableCard() {
+        pnlTableCard.setBackground(Color.WHITE);
+        pnlTableCard.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(UIConstants.BORDER, 1),
+                BorderFactory.createEmptyBorder(14, 16, 14, 16)
+        ));
+
         JPanel top = new JPanel(new BorderLayout());
         top.setOpaque(false);
         JLabel lbl = new JLabel("Danh sách tài khoản");
@@ -298,58 +304,12 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
         t.setFillsViewportHeight(true);
         t.setAutoCreateRowSorter(true);
 
-        t.getColumnModel().getColumn(0).setPreferredWidth(45);
-        t.getColumnModel().getColumn(1).setPreferredWidth(180);
-        t.getColumnModel().getColumn(2).setPreferredWidth(140);
-        t.getColumnModel().getColumn(3).setPreferredWidth(120);
-
-        DefaultTableCellRenderer renderer = new DefaultTableCellRenderer() {
-            @Override
-            public Component getTableCellRendererComponent(JTable table, Object value,
-                                                           boolean isSelected, boolean hasFocus,
-                                                           int row, int column) {
-                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
-                setFont(UIConstants.FONT_TABLE);
-
-                if (!isSelected) {
-                    c.setBackground(row % 2 == 0 ? Color.WHITE : UIConstants.TABLE_ROW_ALT);
-                    c.setForeground(UIConstants.TEXT_PRIMARY);
-                }
-
-                if (column == 3 && value != null) {
-                    setFont(UIConstants.FONT_BOLD);
-                    if ("Hoạt động".equals(value.toString())) {
-                        if (!isSelected) setForeground(UIConstants.SUCCESS);
-                    } else if ("Đã khóa".equals(value.toString())) {
-                        if (!isSelected) setForeground(UIConstants.DANGER);
-                    }
-                }
-
-                if (column == 2 && value != null && !isSelected) {
-                    setFont(UIConstants.FONT_BOLD);
-                    String v = value.toString();
-                    if ("Quản trị viên".equals(v)) {
-                        setForeground(new Color(156, 39, 176));
-                    } else if ("Nhân viên".equals(v)) {
-                        setForeground(new Color(25, 118, 210));
-                    } else {
-                        setForeground(UIConstants.TEXT_SECONDARY);
-                    }
-                }
-
-                if (column == 0 || column == 2 || column == 3) {
-                    setHorizontalAlignment(CENTER);
-                } else {
-                    setHorizontalAlignment(LEFT);
-                }
-
-                return c;
-            }
-        };
-        for (int i = 0; i < t.getColumnCount(); i++) {
-            t.getColumnModel().getColumn(i).setCellRenderer(renderer);
-        }
+        t.getColumnModel().getColumn(0).setPreferredWidth(45);  // STT
+        t.getColumnModel().getColumn(1).setPreferredWidth(140); // Tên đăng nhập
+        t.getColumnModel().getColumn(2).setPreferredWidth(160); // Họ và tên
+        t.getColumnModel().getColumn(3).setPreferredWidth(120); // Số điện thoại
+        t.getColumnModel().getColumn(4).setPreferredWidth(120); // Vai trò
+        t.getColumnModel().getColumn(5).setPreferredWidth(110); // Trạng thái
 
         return t;
     }

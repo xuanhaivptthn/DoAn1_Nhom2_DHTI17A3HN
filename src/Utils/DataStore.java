@@ -60,6 +60,7 @@ public final class DataStore {
     public synchronized void reseed() {
         taiKhoans.clear();
         chuSans.clear();
+        nhanViens.clear();
         khuVucs.clear();
         dichVus.clear();
         khoItems.clear();
@@ -82,6 +83,11 @@ public final class DataStore {
                 List<ChuSan> dbChuSans = new DAO.ChuSanDAO().getAll();
                 if (dbChuSans != null && !dbChuSans.isEmpty()) {
                     chuSans.addAll(dbChuSans);
+                }
+
+                List<NhanVien> dbNhanViens = new DAO.NhanVienDAO().getAll();
+                if (dbNhanViens != null && !dbNhanViens.isEmpty()) {
+                    nhanViens.addAll(dbNhanViens);
                 }
 
                 List<KhuVucSan> dbKhuVucs = new DAO.KhuVucSanDAO().getAll();

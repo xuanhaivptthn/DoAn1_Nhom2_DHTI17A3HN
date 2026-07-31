@@ -11,6 +11,7 @@ USE `DoAn1_QuanLySanBong`;
 -- ------------------------------------------------------------
 -- 1. BẢNG TÀI KHOẢN (tai_khoan) — Model.TaiKhoan / DAO.TaiKhoanDAO
 -- ------------------------------------------------------------
+DROP TABLE IF EXISTS `nhan_vien`;
 DROP TABLE IF EXISTS `chu_san`;
 DROP TABLE IF EXISTS `bao_tri`;
 DROP TABLE IF EXISTS `lich_dat_san`;
@@ -37,8 +38,6 @@ INSERT INTO `tai_khoan` (`maTaiKhoan`, `tenDangNhap`, `matKhau`, `quyenHan`, `tr
 
 -- ------------------------------------------------------------
 -- 2. BẢNG CHỦ SÂN (chu_san) — Model.ChuSan / DAO.ChuSanDAO
---    Hồ sơ chủ sân gắn với một tài khoản (thường là tài khoản ADMIN),
---    được quản lý ngay trong màn hình "Quản lý tài khoản".
 -- ------------------------------------------------------------
 CREATE TABLE `chu_san` (
   `maChuSan` VARCHAR(20) NOT NULL PRIMARY KEY,
@@ -50,6 +49,24 @@ CREATE TABLE `chu_san` (
 
 INSERT INTO `chu_san` (`maChuSan`, `maTaiKhoan`, `tenChuSan`, `soDienThoaiChuSan`) VALUES
 ('CS001', 'TK001', 'Chủ Sân Quản Lý', '0988111222');
+
+
+-- ------------------------------------------------------------
+-- 3. BẢNG NHÂN VIÊN (nhan_vien) — Model.NhanVien / DAO.NhanVienDAO
+-- ------------------------------------------------------------
+CREATE TABLE `nhan_vien` (
+  `maNhanVien` VARCHAR(20) NOT NULL PRIMARY KEY,
+  `maTaiKhoan` VARCHAR(20) NOT NULL UNIQUE,
+  `hoTenNhanVien` VARCHAR(100) NOT NULL,
+  `soDienThoaiNhanVien` VARCHAR(15) NOT NULL,
+  `diaChi` VARCHAR(255),
+  FOREIGN KEY (`maTaiKhoan`) REFERENCES `tai_khoan`(`maTaiKhoan`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO `nhan_vien` (`maNhanVien`, `maTaiKhoan`, `hoTenNhanVien`, `soDienThoaiNhanVien`, `diaChi`) VALUES
+('NV001', 'TK002', 'Nguyễn Văn Nam', '0912345678', 'Hà Nội'),
+('NV002', 'TK003', 'Trần Thị Hằng', '0987654321', 'Hà Nội'),
+('NV003', 'TK004', 'Lê Hoàng Long', '0905123456', 'Hà Nội');
 
 
 -- ------------------------------------------------------------
