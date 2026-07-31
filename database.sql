@@ -153,9 +153,9 @@ CREATE TABLE `lich_dat_san` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `lich_dat_san` (`maLichDat`, `maSan`, `maTaiKhoan`, `maKhachHang`, `tenKhach`, `soDienThoaiKhach`, `ngayDat`, `gioBatDau`, `gioKetThuc`, `trangThai`, `ghiChu`) VALUES
-('DL001', 'A1', 'Nguyễn Văn Nhân', 'KH001', 'Anh Đức (FC Anh Em)', '0912345678', CURDATE(), '17:30', '19:00', 'DaXacNhan', 'Đặt cọc trước 100k'),
-('DL002', 'B1', 'Trần Thị Thu', 'KH002', 'Anh Tuấn (FC Thể Công)', '0987654321', CURDATE(), '19:00', '20:30', 'DaXacNhan', 'Thanh toán cọc qua CK'),
-('DL003', 'A2', 'Chủ Sân Quản Lý', 'KH003', 'Chị Mai (Công ty FPT)', '0905123456', CURDATE(), '20:30', '22:00', 'HoanThanh', 'Đã chuyển khoản đủ 100%');
+('DL001', 'A1', 'TK002', 'KH001', 'Anh Đức (FC Anh Em)', '0912345678', CURDATE(), '17:30', '19:00', 'DaXacNhan', 'Đặt cọc trước 100k'),
+('DL002', 'B1', 'TK003', 'KH002', 'Anh Tuấn (FC Thể Công)', '0987654321', CURDATE(), '19:00', '20:30', 'DaXacNhan', 'Thanh toán cọc qua CK'),
+('DL003', 'A2', 'TK001', 'KH003', 'Chị Mai (Công ty FPT)', '0905123456', CURDATE(), '20:30', '22:00', 'HoanThanh', 'Đã chuyển khoản đủ 100%');
 
 
 -- ------------------------------------------------------------

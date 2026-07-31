@@ -76,7 +76,7 @@ public final class PageUI {
                 if (value != null) {
                     String strVal = value.toString().trim();
                     // Smart Status Formatting
-                    if (strVal.equals("Sẵn sàng") || strVal.equals("Hoạt động") || strVal.equals("Hoàn thành") || strVal.startsWith("✓")) {
+                    if (strVal.equals("Sẵn sàng") || strVal.equals("Hoạt động") || strVal.equals("Hoàn thành") || strVal.startsWith("[OK]")) {
                         setFont(UIConstants.FONT_BOLD);
                         if (!isSelected) setForeground(UIConstants.SUCCESS);
                     } else if (strVal.contains("Bảo trì") || strVal.equals("Đang thuê") || strVal.equals("Đang đá") || strVal.equals("Đang đặt") || strVal.contains("[Đã đặt]")) {

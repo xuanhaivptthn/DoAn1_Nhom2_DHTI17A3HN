@@ -22,20 +22,14 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.JTableHeader;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.RenderingHints;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -121,40 +115,6 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
 
         buildToolbar();
         buildTableCard();
-    }
-
-    private JPanel createHeader() {
-        JPanel header = new JPanel(new BorderLayout()) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(UIConstants.PRIMARY);
-                g2.fillRect(0, 0, getWidth(), getHeight());
-                g2.setColor(UIConstants.PRIMARY_LIGHT);
-                g2.fillRect(0, getHeight() - 4, getWidth(), 4);
-                g2.dispose();
-            }
-        };
-        header.setPreferredSize(new Dimension(0, 72));
-        header.setBorder(BorderFactory.createEmptyBorder(12, 24, 12, 24));
-
-        JPanel left = new JPanel(new BorderLayout(0, 2));
-        left.setOpaque(false);
-
-        JLabel title = new JLabel("Quản lý tài khoản");
-        title.setFont(UIConstants.FONT_TITLE);
-        title.setForeground(Color.WHITE);
-
-        JLabel subtitle = new JLabel("Hệ thống quản lý sân bóng — phân quyền người dùng");
-        subtitle.setFont(UIConstants.FONT_SMALL);
-        subtitle.setForeground(new Color(200, 230, 201));
-
-        left.add(title, BorderLayout.NORTH);
-        left.add(subtitle, BorderLayout.SOUTH);
-        header.add(left, BorderLayout.WEST);
-
-        return header;
     }
 
     private void buildToolbar() {
@@ -312,25 +272,6 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
         t.getColumnModel().getColumn(5).setPreferredWidth(110); // Trạng thái
 
         return t;
-    }
-
-    private JPanel createFooter() {
-        JPanel footer = new JPanel(new BorderLayout());
-        footer.setBackground(UIConstants.PRIMARY_DARK);
-        footer.setBorder(BorderFactory.createEmptyBorder(8, 20, 8, 20));
-        footer.setPreferredSize(new Dimension(0, 36));
-
-        JLabel left = new JLabel("Đồ án Quản lý sân bóng  •  Module Tài khoản");
-        left.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        left.setForeground(new Color(200, 230, 201));
-
-        JLabel right = new JLabel("Double-click dòng để sửa  |  © 2026");
-        right.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        right.setForeground(new Color(165, 214, 167));
-
-        footer.add(left, BorderLayout.WEST);
-        footer.add(right, BorderLayout.EAST);
-        return footer;
     }
 
     private void onAdd() {
