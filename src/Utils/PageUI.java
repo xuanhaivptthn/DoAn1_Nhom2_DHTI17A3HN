@@ -47,8 +47,12 @@ public final class PageUI {
                 label.setFont(UIConstants.FONT_TABLE_HEADER);
                 label.setBackground(UIConstants.PRIMARY);
                 label.setForeground(Color.WHITE);
-                label.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
                 label.setOpaque(true);
+
+                String colName = value != null ? value.toString() : "";
+                int align = getColumnAlignment(colName, null);
+                label.setHorizontalAlignment(align);
+
                 label.setBorder(BorderFactory.createCompoundBorder(
                         BorderFactory.createMatteBorder(0, 0, 1, 1, new Color(40, 100, 45)),
                         BorderFactory.createEmptyBorder(6, 10, 6, 10)
@@ -85,16 +89,21 @@ public final class PageUI {
                     } else if (strVal.equals("Đã khóa") || strVal.equals("Bị khóa") || strVal.equals("Đã hủy") || strVal.startsWith("[!]")) {
                         setFont(UIConstants.FONT_BOLD);
                         if (!isSelected) setForeground(UIConstants.DANGER);
+                    } else if (strVal.equals("Quản trị viên") || strVal.equals("Chủ sân")) {
+                        setFont(UIConstants.FONT_BOLD);
+                        if (!isSelected) setForeground(new Color(156, 39, 176)); // Purple
+                    } else if (strVal.equals("Nhân viên")) {
+                        setFont(UIConstants.FONT_BOLD);
+                        if (!isSelected) setForeground(new Color(25, 118, 210)); // Blue
                     }
 
-                    // Smart Alignment
-                    if (strVal.endsWith("đ") || strVal.endsWith("VNĐ") || strVal.endsWith("đ/giờ")) {
-                        setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-                    } else if (strVal.length() <= 8 || strVal.matches("^(\\d+|STT\\d*|TK\\d*|A\\d+|B\\d+|C\\d+|HH\\d*|KH\\d*|DV\\d*|BT\\d*|DL\\d*)$") || strVal.equals("San5") || strVal.equals("San7") || strVal.equals("San11")) {
-                        setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-                    } else {
-                        setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-                    }
+                    // Column Name Based Alignment (Ensures 100% consistency across all rows in a column)
+                    String colName = "";
+                    try {
+                        colName = t.getColumnName(column);
+                    } catch (Exception ignored) {}
+
+                    setHorizontalAlignment(getColumnAlignment(colName, value));
                 }
                 return c;
             }
@@ -103,6 +112,53 @@ public final class PageUI {
         for (int i = 0; i < table.getColumnCount(); i++) {
             table.getColumnModel().getColumn(i).setCellRenderer(standardCellRenderer);
         }
+    }
+
+    public static int getColumnAlignment(String colName, Object cellValue) {
+        if (colName != null && !colName.isBlank()) {
+            String lowerName = colName.toLowerCase(java.util.Locale.ROOT).trim();
+
+            // Right alignment: Prices, Amounts, Revenue, Expenses, Real values
+            if (lowerName.contains("giá") || lowerName.contains("tiền") || lowerName.contains("doanh thu")
+                    || lowerName.contains("thành tiền") || lowerName.contains("chi phí")
+                    || lowerName.contains("số tiền") || lowerName.contains("thực tế")) {
+                return javax.swing.SwingConstants.RIGHT;
+            }
+
+            // Center alignment: Codes, IDs, STT, Phones, Dates, Times, Status, Role, Unit, Type, Quantities
+            if (lowerName.contains("mã") || lowerName.equals("stt") || lowerName.equals("id")
+                    || lowerName.contains("sđt") || lowerName.contains("điện thoại")
+                    || lowerName.contains("trạng thái") || lowerName.contains("vai trò")
+                    || lowerName.contains("loại") || lowerName.contains("đơn vị")
+                    || lowerName.contains("bắt đầu") || lowerName.contains("kết thúc")
+                    || lowerName.contains("giờ") || lowerName.contains("ngày")
+                    || lowerName.contains("hình thức") || lowerName.contains("số lượng")
+                    || lowerName.contains("số lượt")) {
+                return javax.swing.SwingConstants.CENTER;
+            }
+
+            // Left alignment: Names, Descriptions, Addresses, Notes, Customer, Staff, Report Title, Pitch Name
+            if (lowerName.contains("tên") || lowerName.contains("mô tả") || lowerName.contains("nội dung")
+                    || lowerName.contains("khách") || lowerName.contains("nhân viên")
+                    || lowerName.contains("nhà cung cấp") || lowerName.contains("địa chỉ")
+                    || lowerName.contains("ghi chú") || lowerName.contains("chỉ số")
+                    || lowerName.contains("báo cáo") || lowerName.contains("sân bóng")) {
+                return javax.swing.SwingConstants.LEFT;
+            }
+        }
+
+        // Fallback checks by cell value type/suffix
+        if (cellValue != null) {
+            String strVal = cellValue.toString().trim();
+            if (strVal.endsWith("đ") || strVal.endsWith("VNĐ") || strVal.endsWith("đ/giờ")) {
+                return javax.swing.SwingConstants.RIGHT;
+            }
+            if (strVal.matches("^(\\d+|STT\\d*|TK\\d*|A\\d+|B\\d+|C\\d+|HH\\d*|KH\\d*|DV\\d*|BT\\d*|DL\\d*)$")) {
+                return javax.swing.SwingConstants.CENTER;
+            }
+        }
+
+        return javax.swing.SwingConstants.LEFT;
     }
 
     public static JPanel createTableCardPanel(String title, JLabel lblCount, JTable table) {

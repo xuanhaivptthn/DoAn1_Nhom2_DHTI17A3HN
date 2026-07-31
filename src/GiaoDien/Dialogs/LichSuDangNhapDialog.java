@@ -42,9 +42,7 @@ public class LichSuDangNhapDialog extends JDialog {
         }
 
         JTable table = new JTable(model);
-        table.setFont(UIConstants.FONT_TABLE);
-        table.setRowHeight(28);
-        table.getTableHeader().setFont(UIConstants.FONT_TABLE_HEADER);
+        Utils.PageUI.styleTable(table);
         table.setFillsViewportHeight(true);
 
         JScrollPane scroll = new JScrollPane(table);
