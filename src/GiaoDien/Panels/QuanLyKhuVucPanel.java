@@ -79,7 +79,7 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
                 "Yêu cầu: Quản lý khu vực sân bóng  →  Phản hồi: Kết quả cập nhật khu vực"), BorderLayout.CENTER);
 
         model = new DefaultTableModel(
-                new String[]{"ID", "Mã sân", "Chủ sân", "Tên sân", "Loại", "Giá/giờ", "Trạng thái"}, 0) {
+                new String[]{"ID", "Mã sân", "Tên sân", "Loại", "Giá/giờ", "Trạng thái"}, 0) {
             @Override
             public boolean isCellEditable(int r, int c) { return false; }
         };
@@ -138,11 +138,8 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
         model.setRowCount(0);
         List<KhuVucSan> list = DataStore.get().getKhuVucs();
         for (KhuVucSan k : list) {
-            Model.ChuSan cs = DataStore.get().getChuSans().stream()
-                    .filter(c -> c.getMaChuSan() != null && c.getMaChuSan().equals(k.getMaChuSan()))
-                    .findFirst().orElse(null);
             model.addRow(new Object[]{
-                    k.getId(), k.getMaSan(), cs != null ? cs.getTenChuSan() : "", k.getTenSan(), k.getLoaiSanHienThi(),
+                    k.getId(), k.getMaSan(), k.getTenSan(), k.getLoaiSanHienThi(),
                     String.format("%,.0f VNĐ", (double) (k.getGiaThueTheoGio())), k.getTrangThaiHienThi()
             });
         }
@@ -188,7 +185,6 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
 
         KhuVucSan form = dialog.getResult();
         sel.setMaSan(form.getMaSan());
-        sel.setMaChuSan(form.getMaChuSan());
         sel.setTenSan(form.getTenSan());
         sel.setLoaiSan(form.getLoaiSan());
         sel.setGiaThueTheoGio(form.getGiaThueTheoGio());

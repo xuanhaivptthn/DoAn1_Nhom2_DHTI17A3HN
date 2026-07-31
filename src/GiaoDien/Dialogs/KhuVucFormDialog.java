@@ -28,7 +28,6 @@ import java.awt.Insets;
 public class KhuVucFormDialog extends JDialog {
 
     private JTextField txtMaSan;
-    private JComboBox<ChuSan> cboChuSan;
     private JTextField txtTenSan;
     private JComboBox<String> cboLoaiSan;
     private JTextField txtGiaTheoGio;
@@ -106,7 +105,7 @@ public class KhuVucFormDialog extends JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void customInit(JFrame parent) {
-        setSize(460, 480);
+        setSize(460, 420);
         if (parent != null) setLocationRelativeTo(parent);
 
         lblHeaderTitle.setText(isEdit ? "Cập nhật khu vực sân" : "Thêm khu vực sân mới");
@@ -119,10 +118,6 @@ public class KhuVucFormDialog extends JDialog {
         int row = 0;
         txtMaSan = new javax.swing.JTextField(16);
         row = addField(pnlFormCard, gbc, row, "Mã sân *", txtMaSan);
-
-        cboChuSan = new JComboBox<>(DataStore.get().getChuSans().toArray(new ChuSan[0]));
-        styleCombo(cboChuSan);
-        row = addField(pnlFormCard, gbc, row, "Chủ sân *", cboChuSan);
 
         txtTenSan = new javax.swing.JTextField(16);
         row = addField(pnlFormCard, gbc, row, "Tên sân *", txtTenSan);
@@ -179,12 +174,6 @@ public class KhuVucFormDialog extends JDialog {
 
     private void fillForm(KhuVucSan k) {
         txtMaSan.setText(k.getMaSan());
-        for (int i = 0; i < cboChuSan.getItemCount(); i++) {
-            if (cboChuSan.getItemAt(i).getMaChuSan().equals(k.getMaChuSan())) {
-                cboChuSan.setSelectedIndex(i);
-                break;
-            }
-        }
         txtTenSan.setText(k.getTenSan());
         cboLoaiSan.setSelectedItem(k.getLoaiSanHienThi());
         txtGiaTheoGio.setText(String.valueOf((long) k.getGiaThueTheoGio()));
@@ -196,9 +185,8 @@ public class KhuVucFormDialog extends JDialog {
         String ten = txtTenSan.getText().trim();
         String giaStr = txtGiaTheoGio.getText().trim().replace(",", "").replace(".", "");
 
-        ChuSan chuSan = (ChuSan) cboChuSan.getSelectedItem();
-        if (ma.isEmpty() || ten.isEmpty() || chuSan == null) {
-            JOptionPane.showMessageDialog(this, "Mã sân, tên sân và chủ sân không được để trống.", "Thông báo", JOptionPane.WARNING_MESSAGE);
+        if (ma.isEmpty() || ten.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Mã sân và tên sân không được để trống.", "Thông báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -222,7 +210,7 @@ public class KhuVucFormDialog extends JDialog {
             default -> "SanSang";
         };
 
-        result = new KhuVucSan(ma, chuSan.getMaChuSan(), ten, loaiCode, price, ttCode);
+        result = new KhuVucSan(ma, ten, loaiCode, price, ttCode);
         confirmed = true;
         dispose();
     }

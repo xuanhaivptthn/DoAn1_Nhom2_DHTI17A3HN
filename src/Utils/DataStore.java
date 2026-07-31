@@ -180,12 +180,11 @@ public final class DataStore {
     }
 
     private void seedDefaultKhuVucs() {
-        String chuSanId = chuSans.isEmpty() ? null : chuSans.get(0).getMaChuSan();
-        khuVucs.add(new KhuVucSan("A1", chuSanId, "Sân A1 (Sân 5)", "San5", 250000, "SanSang"));
-        khuVucs.add(new KhuVucSan("A2", chuSanId, "Sân A2 (Sân 5)", "San5", 250000, "SanSang"));
-        khuVucs.add(new KhuVucSan("B1", chuSanId, "Sân B1 (Sân 7)", "San7", 400000, "SanSang"));
-        khuVucs.add(new KhuVucSan("B2", chuSanId, "Sân B2 (Sân 7)", "San7", 400000, "SanSang"));
-        khuVucs.add(new KhuVucSan("C1", chuSanId, "Sân C1 (Sân 11)", "San11", 800000, "BaoTri"));
+        khuVucs.add(new KhuVucSan("A1", "Sân A1 (Sân 5)", "San5", 250000, "SanSang"));
+        khuVucs.add(new KhuVucSan("A2", "Sân A2 (Sân 5)", "San5", 250000, "SanSang"));
+        khuVucs.add(new KhuVucSan("B1", "Sân B1 (Sân 7)", "San7", 400000, "SanSang"));
+        khuVucs.add(new KhuVucSan("B2", "Sân B2 (Sân 7)", "San7", 400000, "SanSang"));
+        khuVucs.add(new KhuVucSan("C1", "Sân C1 (Sân 11)", "San11", 800000, "BaoTri"));
     }
 
     private void seedDefaultDatLichs() {

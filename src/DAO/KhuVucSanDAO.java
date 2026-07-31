@@ -30,16 +30,15 @@ public class KhuVucSanDAO {
     }
 
     public boolean insert(KhuVucSan k) {
-        String sql = "INSERT INTO san_bong (maSan, maChuSan, tenSan, loaiSan, giaThueTheoGio, trangThai) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO san_bong (maSan, tenSan, loaiSan, giaThueTheoGio, trangThai) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = DBConnect.getConnection()) {
             if (conn == null) return false;
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setString(1, k.getMaSan());
-                pstmt.setString(2, k.getMaChuSan());
-                pstmt.setString(3, k.getTenSan());
-                pstmt.setString(4, k.getLoaiSan());
-                pstmt.setDouble(5, k.getGiaThueTheoGio());
-                pstmt.setString(6, k.getTrangThai());
+                pstmt.setString(2, k.getTenSan());
+                pstmt.setString(3, k.getLoaiSan());
+                pstmt.setDouble(4, k.getGiaThueTheoGio());
+                pstmt.setString(5, k.getTrangThai());
                 return pstmt.executeUpdate() > 0;
             }
         } catch (SQLException ex) {
@@ -49,16 +48,15 @@ public class KhuVucSanDAO {
     }
 
     public boolean update(KhuVucSan k) {
-        String sql = "UPDATE san_bong SET maChuSan = ?, tenSan = ?, loaiSan = ?, giaThueTheoGio = ?, trangThai = ? WHERE maSan = ?";
+        String sql = "UPDATE san_bong SET tenSan = ?, loaiSan = ?, giaThueTheoGio = ?, trangThai = ? WHERE maSan = ?";
         try (Connection conn = DBConnect.getConnection()) {
             if (conn == null) return false;
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                pstmt.setString(1, k.getMaChuSan());
-                pstmt.setString(2, k.getTenSan());
-                pstmt.setString(3, k.getLoaiSan());
-                pstmt.setDouble(4, k.getGiaThueTheoGio());
-                pstmt.setString(5, k.getTrangThai());
-                pstmt.setString(6, k.getMaSan());
+                pstmt.setString(1, k.getTenSan());
+                pstmt.setString(2, k.getLoaiSan());
+                pstmt.setDouble(3, k.getGiaThueTheoGio());
+                pstmt.setString(4, k.getTrangThai());
+                pstmt.setString(5, k.getMaSan());
                 return pstmt.executeUpdate() > 0;
             }
         } catch (SQLException ex) {
@@ -84,7 +82,6 @@ public class KhuVucSanDAO {
     private KhuVucSan mapResultSet(ResultSet rs) throws SQLException {
         return new KhuVucSan(
                 rs.getString("maSan"),
-                rs.getString("maChuSan"),
                 rs.getString("tenSan"),
                 rs.getString("loaiSan"),
                 rs.getDouble("giaThueTheoGio"),

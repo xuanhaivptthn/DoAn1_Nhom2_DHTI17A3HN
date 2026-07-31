@@ -57,20 +57,18 @@ INSERT INTO `chu_san` (`maChuSan`, `maTaiKhoan`, `tenChuSan`, `soDienThoaiChuSan
 -- ------------------------------------------------------------
 CREATE TABLE `san_bong` (
   `maSan` VARCHAR(20) NOT NULL PRIMARY KEY,
-  `maChuSan` VARCHAR(20) NOT NULL,
   `tenSan` VARCHAR(100) NOT NULL,
   `loaiSan` VARCHAR(20) NOT NULL, -- San5 | San7 | San11
   `giaThueTheoGio` DECIMAL(12,2) NOT NULL DEFAULT 0,
-  `trangThai` VARCHAR(20) DEFAULT 'SanSang', -- SanSang | DangThue | BaoTri
-  FOREIGN KEY (`maChuSan`) REFERENCES `chu_san`(`maChuSan`) ON DELETE CASCADE
+  `trangThai` VARCHAR(20) DEFAULT 'SanSang' -- SanSang | DangThue | BaoTri
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO `san_bong` (`maSan`, `maChuSan`, `tenSan`, `loaiSan`, `giaThueTheoGio`, `trangThai`) VALUES
-('A1', 'CS001', 'Sân A1 (Sân 5)', 'San5', 250000, 'SanSang'),
-('A2', 'CS001', 'Sân A2 (Sân 5)', 'San5', 250000, 'SanSang'),
-('B1', 'CS001', 'Sân B1 (Sân 7)', 'San7', 400000, 'SanSang'),
-('B2', 'CS001', 'Sân B2 (Sân 7)', 'San7', 400000, 'SanSang'),
-('C1', 'CS001', 'Sân C1 (Sân 11)', 'San11', 800000, 'BaoTri');
+INSERT INTO `san_bong` (`maSan`, `tenSan`, `loaiSan`, `giaThueTheoGio`, `trangThai`) VALUES
+('A1', 'Sân A1 (Sân 5)', 'San5', 250000, 'SanSang'),
+('A2', 'Sân A2 (Sân 5)', 'San5', 250000, 'SanSang'),
+('B1', 'Sân B1 (Sân 7)', 'San7', 400000, 'SanSang'),
+('B2', 'Sân B2 (Sân 7)', 'San7', 400000, 'SanSang'),
+('C1', 'Sân C1 (Sân 11)', 'San11', 800000, 'BaoTri');
 
 
 -- ------------------------------------------------------------

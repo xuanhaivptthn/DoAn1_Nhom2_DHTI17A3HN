@@ -3,13 +3,10 @@ package Model;
 /**
  * Bảng: san_bong
  * Lưu trữ thông tin danh mục các sân bóng thuộc cụm sân.
- * FK: maChuSan → chu_san(maChuSan)
  */
 public class KhuVucSan {
     /** PK, AUTO_INCREMENT, varchar(20) */
     private String maSan;
-    /** FK → chu_san.maChuSan, NOT NULL, UNIQUE */
-    private String maChuSan;
     /** NOT NULL - tên hiển thị sân (VD: Sân 5A, Sân 7B) */
     private String tenSan;
     /** NOT NULL - Sân 5 người | Sân 7 người | ... */
@@ -22,10 +19,9 @@ public class KhuVucSan {
     public KhuVucSan() {
     }
 
-    public KhuVucSan(String maSan, String maChuSan, String tenSan, String loaiSan,
+    public KhuVucSan(String maSan, String tenSan, String loaiSan,
                      double giaThueTheoGio, String trangThai) {
         this.maSan = maSan;
-        this.maChuSan = maChuSan;
         this.tenSan = tenSan;
         this.loaiSan = loaiSan;
         this.giaThueTheoGio = giaThueTheoGio;
@@ -45,9 +41,6 @@ public class KhuVucSan {
 
     public String getMaSan() { return maSan; }
     public void setMaSan(String maSan) { this.maSan = maSan; }
-
-    public String getMaChuSan() { return maChuSan; }
-    public void setMaChuSan(String maChuSan) { this.maChuSan = maChuSan; }
 
     public String getTenSan() { return tenSan; }
     public void setTenSan(String tenSan) { this.tenSan = tenSan; }
