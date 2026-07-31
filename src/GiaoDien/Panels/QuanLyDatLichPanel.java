@@ -69,6 +69,7 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
     private JLabel lblDetailTienSan;
     private JLabel lblDetailDichVu;
     private JLabel lblDetailCoc;
+    private JLabel lblDetailGhiChu;
     private JLabel lblDetailConLai;
 
     private JButton btnConfirmBooking;
@@ -368,6 +369,9 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         lblDetailTienSan = createBoldValue("0đ");
         lblDetailDichVu = createBoldValue("0đ");
         lblDetailCoc = createBoldValue("0đ");
+        lblDetailGhiChu = new JLabel("—");
+        lblDetailGhiChu.setFont(UIConstants.FONT_NORMAL);
+        lblDetailGhiChu.setForeground(UIConstants.TEXT_PRIMARY);
 
         lblDetailConLai = new JLabel("0đ");
         lblDetailConLai.setFont(new Font("Segoe UI", Font.BOLD, 18));
@@ -380,6 +384,7 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         r = addInspectorRow(form, gbc, r, "Tiền sân:", lblDetailTienSan);
         r = addInspectorRow(form, gbc, r, "Dịch vụ:", lblDetailDichVu);
         r = addInspectorRow(form, gbc, r, "Cọc:", lblDetailCoc);
+        r = addInspectorRow(form, gbc, r, "Ghi chú:", lblDetailGhiChu);
 
         gbc.gridx = 0; gbc.gridy = r++; gbc.gridwidth = 2;
         form.add(new javax.swing.JSeparator(), gbc);
@@ -460,7 +465,7 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
     }
 
     private void buildStatusBar() {
-        lblStatusLeft = new JLabel("Đăng nhập: " + (SessionManager.get().getCurrentUser() != null ? SessionManager.get().getCurrentUser().getHoTen() : "Admin"));
+        lblStatusLeft = new JLabel("Đăng nhập: " + (SessionManager.get().getCurrentUser() != null ? SessionManager.get().getCurrentUser().getTenDangNhap() : "Admin"));
         lblStatusLeft.setFont(UIConstants.FONT_SMALL);
         lblStatusLeft.setForeground(UIConstants.TEXT_SECONDARY);
 
@@ -482,8 +487,8 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
                 .toList();
 
         List<BaoTri> dayMaints = DataStore.get().getBaoTris().stream()
-                .filter(b -> !"DaHuy".equalsIgnoreCase(b.getTrangThai())
-                        && !"Huy".equalsIgnoreCase(b.getTrangThai())
+                .filter(b -> !"DaHuy".equalsIgnoreCase(b.getTrangThaiPhieu())
+                        && !"Huy".equalsIgnoreCase(b.getTrangThaiPhieu())
                         && isDateInMaintenanceRange(curDateStr, b.getNgayBatDau(), b.getNgayKetThuc()))
                 .toList();
 
@@ -495,7 +500,7 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
                 KhuVucSan court = courtList.get(col);
 
                 // Check maintenance status for court
-                BaoTri maint = dayMaints.stream().filter(b -> b.getKhuVucId() == court.getId()).findFirst().orElse(null);
+                BaoTri maint = dayMaints.stream().filter(b -> court.getMaSan() != null && court.getMaSan().equals(b.getMaSan())).findFirst().orElse(null);
                 if (maint != null || DataStore.get().isSanBaoTri(court)) {
                     rowData[col + 1] = maint != null ? "🔧 Bảo trì - " + maint.getNoiDung() : "🔧 Đang bảo trì";
                     continue;
@@ -503,7 +508,7 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
 
                 // Check booking
                 DatLich booking = dayBookings.stream()
-                        .filter(d -> d.getKhuVucId() == court.getId() && isTimeOverlap(d.getGioBatDau(), d.getGioKetThuc(), slotTime))
+                        .filter(d -> court.getMaSan() != null && court.getMaSan().equals(d.getMaSan()) && isTimeOverlap(d.getGioBatDau(), d.getGioKetThuc(), slotTime))
                         .findFirst().orElse(null);
 
                 if (booking != null) {
@@ -576,18 +581,20 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
 
         currentlySelectedBooking = DataStore.get().getDatLichs().stream()
                 .filter(d -> curDateStr.equals(d.getNgayDat())
-                        && d.getKhuVucId() == court.getId()
+                        && court.getMaSan() != null && court.getMaSan().equals(d.getMaSan())
                         && !"DaHuy".equals(d.getTrangThai())
                         && isTimeOverlap(d.getGioBatDau(), d.getGioKetThuc(), slotTime))
                 .findFirst().orElse(null);
 
         if (currentlySelectedBooking != null) {
             lblDetailKhach.setText(currentlySelectedBooking.getTenKhach());
-            lblDetailSdt.setText(currentlySelectedBooking.getSoDienThoai());
+            lblDetailSdt.setText(currentlySelectedBooking.getSoDienThoaiKhach());
             lblDetailLoaiSan.setText(court.getLoaiSanHienThi());
             lblDetailTienSan.setText(String.format("%,.0f VNĐ", (double) (currentlySelectedBooking.getTienSan())));
             lblDetailDichVu.setText(String.format("%,.0f VNĐ", (double) (currentlySelectedBooking.getTienDichVu())));
             lblDetailCoc.setText("-" + String.format("%,.0f VNĐ", (double) (currentlySelectedBooking.getDatCoc())));
+            String ghiChu = currentlySelectedBooking.getGhiChu();
+            lblDetailGhiChu.setText(ghiChu != null && !ghiChu.isBlank() ? ghiChu : "—");
             lblDetailConLai.setText(String.format("%,.0f VNĐ", (double) (currentlySelectedBooking.getConLai())));
 
             boolean isPaid = "DaThanhToan".equals(currentlySelectedBooking.getTrangThaiTT());
@@ -603,10 +610,11 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
             lblDetailKhach.setText("(Sân trống)");
             lblDetailSdt.setText("—");
             lblDetailLoaiSan.setText(court.getLoaiSanHienThi());
-            lblDetailTienSan.setText(String.format("%,.0f VNĐ", (double) (court.getGiaTheoGio())));
+            lblDetailTienSan.setText(String.format("%,.0f VNĐ", (double) (court.getGiaThueTheoGio())));
             lblDetailDichVu.setText("0đ");
             lblDetailCoc.setText("0đ");
-            lblDetailConLai.setText(String.format("%,.0f VNĐ", (double) (court.getGiaTheoGio())));
+            lblDetailGhiChu.setText("—");
+            lblDetailConLai.setText(String.format("%,.0f VNĐ", (double) (court.getGiaThueTheoGio())));
 
             btnConfirmBooking.setEnabled(false);
             btnPay.setEnabled(false);
@@ -623,7 +631,7 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         reloadSchedule();
         JOptionPane.showMessageDialog(this,
                 "ĐÃ XÁC NHẬN PHIẾU ĐẶT SÂN THÀNH CÔNG!\n"
-                        + "• Mã phiếu  : " + currentlySelectedBooking.getMaPhieu() + "\n"
+                        + "• Mã phiếu  : " + currentlySelectedBooking.getMaLichDat() + "\n"
                         + "• Khách hàng: " + currentlySelectedBooking.getTenKhach() + "\n"
                         + "• Trạng thái : Đã xác nhận giữ sân",
                 "Xác nhận phiếu đặt", JOptionPane.INFORMATION_MESSAGE);
@@ -648,12 +656,22 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         KhuVucSan san = dialog.getSelectedSan();
         if (san == null) return;
 
-        int nextId = DataStore.get().getDatLichs().stream().mapToInt(DatLich::getId).max().orElse(0) + 1;
-        String ma = String.format("DL%03d", nextId);
-        String nv = SessionManager.get().getCurrentUser() != null ? SessionManager.get().getCurrentUser().getHoTen() : "Admin";
+        String ma = Utils.CodeGen.next("DL", DataStore.get().getDatLichs().stream().map(DatLich::getMaLichDat).toList(), 3);
+        String nv = SessionManager.get().getCurrentUser() != null ? SessionManager.get().getCurrentUser().getTenDangNhap() : "Admin";
 
-        DatLich phieu = new DatLich(nextId, ma, san.getId(), san.getTenSan(), form.getTenKhach(), form.getSoDienThoai(),
-                form.getNgayDat(), form.getGioBatDau(), form.getGioKetThuc(), form.getTongTien(), "ChoXacNhan", nv, form.getGhiChu());
+        DatLich phieu = new DatLich();
+        phieu.setMaLichDat(ma);
+        phieu.setMaSan(san.getMaSan());
+        phieu.setTenSan(san.getTenSan());
+        phieu.setMaKhachHang(form.getMaKhachHang());
+        phieu.setTenKhach(form.getTenKhach());
+        phieu.setSoDienThoaiKhach(form.getSoDienThoaiKhach());
+        phieu.setNgayDat(form.getNgayDat());
+        phieu.setGioBatDau(form.getGioBatDau());
+        phieu.setGioKetThuc(form.getGioKetThuc());
+        phieu.setTrangThai("ChoXacNhan");
+        phieu.setMaTaiKhoan(nv);
+        phieu.setGhiChu(form.getGhiChu());
         phieu.setTienSan(form.getTienSan());
         phieu.setTienDichVu(form.getTienDichVu());
         phieu.setDichVuKem(form.getDichVuKem());
@@ -679,7 +697,7 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
 
         DatLich existing = DataStore.get().getDatLichs().stream()
                 .filter(d -> curDateStr.equals(d.getNgayDat())
-                        && d.getKhuVucId() == court.getId()
+                        && court.getMaSan() != null && court.getMaSan().equals(d.getMaSan())
                         && !"DaHuy".equals(d.getTrangThai())
                         && isTimeOverlap(d.getGioBatDau(), d.getGioKetThuc(), slotTime))
                 .findFirst().orElse(null);
@@ -694,12 +712,21 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
             KhuVucSan san = dialog.getSelectedSan();
             if (san == null) return;
 
-            int nextId = DataStore.get().getDatLichs().stream().mapToInt(DatLich::getId).max().orElse(0) + 1;
-            String ma = String.format("DL%03d", nextId);
-            String nv = SessionManager.get().getCurrentUser() != null ? SessionManager.get().getCurrentUser().getHoTen() : "Admin";
+            String ma = Utils.CodeGen.next("DL", DataStore.get().getDatLichs().stream().map(DatLich::getMaLichDat).toList(), 3);
+            String nv = SessionManager.get().getCurrentUser() != null ? SessionManager.get().getCurrentUser().getTenDangNhap() : "Admin";
 
-            DatLich phieu = new DatLich(nextId, ma, san.getId(), san.getTenSan(), form.getTenKhach(), form.getSoDienThoai(),
-                    form.getNgayDat(), form.getGioBatDau(), form.getGioKetThuc(), form.getTongTien(), "ChoXacNhan", nv, form.getGhiChu());
+            DatLich phieu = new DatLich();
+            phieu.setMaLichDat(ma);
+            phieu.setMaSan(san.getMaSan());
+            phieu.setTenSan(san.getTenSan());
+            phieu.setTenKhach(form.getTenKhach());
+            phieu.setSoDienThoaiKhach(form.getSoDienThoaiKhach());
+            phieu.setNgayDat(form.getNgayDat());
+            phieu.setGioBatDau(form.getGioBatDau());
+            phieu.setGioKetThuc(form.getGioKetThuc());
+            phieu.setTrangThai("ChoXacNhan");
+            phieu.setMaTaiKhoan(nv);
+            phieu.setGhiChu(form.getGhiChu());
             phieu.setTienSan(form.getTienSan());
             phieu.setTienDichVu(form.getTienDichVu());
             phieu.setDichVuKem(form.getDichVuKem());
@@ -723,7 +750,7 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         reloadSchedule();
 
         int choice = JOptionPane.showConfirmDialog(this,
-                "Thanh toán phiếu " + currentlySelectedBooking.getMaPhieu() + " thành công!\nBạn có muốn xuất Hóa đơn thanh toán ngay bây giờ không?",
+                "Thanh toán phiếu " + currentlySelectedBooking.getMaLichDat() + " thành công!\nBạn có muốn xuất Hóa đơn thanh toán ngay bây giờ không?",
                 "Thanh toán & Xuất hóa đơn", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
 
         if (choice == JOptionPane.YES_OPTION) {
@@ -755,10 +782,11 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         if (!dialog.isConfirmed()) return;
 
         DatLich updated = dialog.getResult();
-        currentlySelectedBooking.setKhuVucId(updated.getKhuVucId());
+        currentlySelectedBooking.setMaSan(updated.getMaSan());
         currentlySelectedBooking.setTenSan(updated.getTenSan());
+        currentlySelectedBooking.setMaKhachHang(updated.getMaKhachHang());
         currentlySelectedBooking.setTenKhach(updated.getTenKhach());
-        currentlySelectedBooking.setSoDienThoai(updated.getSoDienThoai());
+        currentlySelectedBooking.setSoDienThoaiKhach(updated.getSoDienThoaiKhach());
         currentlySelectedBooking.setNgayDat(updated.getNgayDat());
         currentlySelectedBooking.setGioBatDau(updated.getGioBatDau());
         currentlySelectedBooking.setGioKetThuc(updated.getGioKetThuc());
@@ -771,7 +799,7 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         currentlySelectedBooking.setSelectedDoAnMap(updated.getSelectedDoAnMap());
 
         reloadSchedule();
-        JOptionPane.showMessageDialog(this, "Đã cập nhật thông tin phiếu đặt sân " + currentlySelectedBooking.getMaPhieu() + " thành công!", "Cập nhật thành công", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(this, "Đã cập nhật thông tin phiếu đặt sân " + currentlySelectedBooking.getMaLichDat() + " thành công!", "Cập nhật thành công", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void onExportInvoice() {
@@ -787,7 +815,7 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
 
     private void onCancelBooking() {
         if (currentlySelectedBooking == null) return;
-        if (JOptionPane.showConfirmDialog(this, "Bạn có chắc muốn hủy phiếu " + currentlySelectedBooking.getMaPhieu() + " của khách " + currentlySelectedBooking.getTenKhach() + "?", "Xác nhận hủy", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.YES_OPTION) {
+        if (JOptionPane.showConfirmDialog(this, "Bạn có chắc muốn hủy phiếu " + currentlySelectedBooking.getMaLichDat() + " của khách " + currentlySelectedBooking.getTenKhach() + "?", "Xác nhận hủy", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.YES_OPTION) {
             currentlySelectedBooking.setTrangThai("DaHuy");
             reloadSchedule();
             JOptionPane.showMessageDialog(this, "Đã hủy phiếu đặt lịch.", "Thông báo", JOptionPane.INFORMATION_MESSAGE);

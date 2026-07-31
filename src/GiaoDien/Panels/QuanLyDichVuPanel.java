@@ -226,7 +226,6 @@ public class QuanLyDichVuPanel extends javax.swing.JPanel {
 
         DichVu form = dialog.getResult();
         int nextId = DataStore.get().getDichVus().stream().mapToInt(DichVu::getId).max().orElse(0) + 1;
-        form.setId(nextId);
         form.setMaDichVu(String.format("DV%03d", nextId));
         DataStore.get().getDichVus().add(form);
         reload();

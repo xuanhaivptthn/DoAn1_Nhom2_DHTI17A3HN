@@ -93,6 +93,9 @@ public final class SessionManager {
         if (currentSession != null) {
             currentSession.setThoiGianDangXuat(LocalDateTime.now().format(FMT));
             currentSession.setTrangThai("DaDangXuat");
+            if (DataStore.isUseDatabase()) {
+                try { new DAO.PhienLamViecDAO().update(currentSession); } catch (Exception ignored) {}
+            }
         }
         this.currentUser = null;
         this.currentSession = null;
@@ -106,6 +109,9 @@ public final class SessionManager {
                 .ifPresent(p -> {
                     p.setThoiGianDangXuat(LocalDateTime.now().format(FMT));
                     p.setTrangThai("DaDangXuat");
+                    if (DataStore.isUseDatabase()) {
+                        try { new DAO.PhienLamViecDAO().update(p); } catch (Exception ignored) {}
+                    }
                 });
     }
 

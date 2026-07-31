@@ -106,7 +106,7 @@ public class BanDichVuDialog extends JDialog {
         if (parent != null) setLocationRelativeTo(parent);
 
         if (datLich != null) {
-            lblHeaderTitle.setText("Bán dịch vụ — " + datLich.getMaPhieu());
+            lblHeaderTitle.setText("Bán dịch vụ — " + datLich.getMaLichDat());
         }
 
         GridBagConstraints gbc = new GridBagConstraints();
@@ -115,8 +115,8 @@ public class BanDichVuDialog extends JDialog {
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         List<DichVu> selling = new java.util.ArrayList<>();
-        selling.addAll(DataStore.get().getKhoItems().stream().filter(x -> "DangBan".equals(x.getTrangThai())).toList());
-        selling.addAll(DataStore.get().getDichVus().stream().filter(x -> "DangBan".equals(x.getTrangThai())).toList());
+        selling.addAll(DataStore.get().getKhoItems());
+        selling.addAll(DataStore.get().getDichVus());
         cboDichVu = new JComboBox<>(selling.toArray(new DichVu[0]));
         styleCombo(cboDichVu);
 

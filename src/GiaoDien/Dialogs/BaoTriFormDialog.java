@@ -5,7 +5,6 @@ import GiaoDien.Panels.*;
 import Model.BaoTri;
 import Model.KhuVucSan;
 import Utils.DataStore;
-import Utils.SessionManager;
 import Utils.UIConstants;
 
 import javax.swing.JButton;
@@ -31,10 +30,8 @@ public class BaoTriFormDialog extends JDialog {
 
     private JComboBox<KhuVucSan> cboSan;
     private JTextField txtNoiDung;
-    private JTextField txtNguoiPhuTrach;
     private JTextField txtNgayBatDau;
     private JTextField txtNgayKetThuc;
-    private JTextField txtChiPhi;
     private JComboBox<String> cboTrangThai;
 
     private boolean isEdit;
@@ -129,22 +126,13 @@ public class BaoTriFormDialog extends JDialog {
         txtNoiDung = new javax.swing.JTextField(18);
         row = addField(pnlFormCard, gbc, row, "Nội dung bảo trì *", txtNoiDung);
 
-        txtNguoiPhuTrach = new javax.swing.JTextField(18);
-        if (SessionManager.get().getCurrentUser() != null) {
-            txtNguoiPhuTrach.setText(SessionManager.get().getCurrentUser().getHoTen());
-        }
-        row = addField(pnlFormCard, gbc, row, "Người phụ trách", txtNguoiPhuTrach);
-
         txtNgayBatDau = new javax.swing.JTextField(18);
         row = addField(pnlFormCard, gbc, row, "Ngày bắt đầu *", txtNgayBatDau);
 
         txtNgayKetThuc = new javax.swing.JTextField(18);
         row = addField(pnlFormCard, gbc, row, "Ngày kết thúc", txtNgayKetThuc);
 
-        txtChiPhi = new javax.swing.JTextField(18);
-        row = addField(pnlFormCard, gbc, row, "Chi phí dự kiến (VNĐ)", txtChiPhi);
-
-        cboTrangThai = new JComboBox<>(new String[]{"Chờ xử lý", "Đang xử lý", "Hoàn thành", "Đã hủy"});
+        cboTrangThai = new JComboBox<>(new String[]{"Đang bảo trì", "Hoàn thành", "Đã hủy"});
         styleCombo(cboTrangThai);
         addField(pnlFormCard, gbc, row, "Trạng thái BT", cboTrangThai);
 
@@ -164,7 +152,6 @@ public class BaoTriFormDialog extends JDialog {
             fillForm(original);
         } else {
             txtNgayBatDau.setText(java.time.LocalDate.now().toString());
-            txtChiPhi.setText("0");
         }
 
         getRootPane().setDefaultButton(btnSave);
@@ -193,17 +180,15 @@ public class BaoTriFormDialog extends JDialog {
     private void fillForm(BaoTri b) {
         for (int i = 0; i < cboSan.getItemCount(); i++) {
             KhuVucSan k = cboSan.getItemAt(i);
-            if (k.getId() == b.getKhuVucId()) {
+            if (k.getMaSan() != null && k.getMaSan().equals(b.getMaSan())) {
                 cboSan.setSelectedIndex(i);
                 break;
             }
         }
         cboSan.setEnabled(false);
         txtNoiDung.setText(b.getNoiDung());
-        txtNguoiPhuTrach.setText(b.getNguoiPhuTrach());
         txtNgayBatDau.setText(b.getNgayBatDau());
         txtNgayKetThuc.setText(b.getNgayKetThuc() == null ? "" : b.getNgayKetThuc());
-        txtChiPhi.setText(String.valueOf((long) b.getChiPhi()));
         cboTrangThai.setSelectedItem(b.getTrangThaiHienThi());
     }
 
@@ -211,25 +196,17 @@ public class BaoTriFormDialog extends JDialog {
         KhuVucSan san = (KhuVucSan) cboSan.getSelectedItem();
         String nd = txtNoiDung.getText().trim();
         String nbd = txtNgayBatDau.getText().trim();
-        String cpStr = txtChiPhi.getText().trim().replace(",", "").replace(".", "");
 
         if (san == null || nd.isEmpty() || nbd.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin bắt buộc.", "Thông báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        double cost = 0;
-        try {
-            if (!cpStr.isEmpty()) cost = Double.parseDouble(cpStr);
-        } catch (NumberFormatException e) {
-            cost = 0;
-        }
-
         String nkt = txtNgayKetThuc.getText().trim();
 
         // KIỂM TRA LỊCH ĐẶT SÂN ĐÃ CÓ TRONG THỜI GIAN BẢO TRÌ NÀY
         List<Model.DatLich> conflictingBookings = DataStore.get().getDatLichs().stream()
-                .filter(d -> d.getKhuVucId() == san.getId()
+                .filter(d -> san.getMaSan() != null && san.getMaSan().equals(d.getMaSan())
                         && !"DaHuy".equalsIgnoreCase(d.getTrangThai())
                         && isDateInMaintenanceRange(d.getNgayDat(), nbd, nkt))
                 .toList();
@@ -247,9 +224,9 @@ public class BaoTriFormDialog extends JDialog {
 
             int idx = 1;
             for (Model.DatLich d : conflictingBookings) {
-                sb.append(idx++).append(". Phiếu: ").append(d.getMaPhieu()).append("\n");
+                sb.append(idx++).append(". Phiếu: ").append(d.getMaLichDat()).append("\n");
                 sb.append("   • Khách hàng : ").append(d.getTenKhach()).append("\n");
-                sb.append("   • SĐT liên hệ: ").append(d.getSoDienThoai()).append("\n");
+                sb.append("   • SĐT liên hệ: ").append(d.getSoDienThoaiKhach()).append("\n");
                 sb.append("   • Ngày đặt   : ").append(d.getNgayDat()).append(" (").append(d.getKhungGio()).append(")\n");
                 sb.append("   • Trạng thái : ").append(d.getTrangThaiHienThi()).append("\n");
                 sb.append("   ------------------------------------\n");
@@ -259,18 +236,20 @@ public class BaoTriFormDialog extends JDialog {
             JOptionPane.showMessageDialog(this, sb.toString(), "Cảnh báo trùng lịch đặt sân", JOptionPane.WARNING_MESSAGE);
         }
 
-        String ttCode = switch ((String) cboTrangThai.getSelectedItem()) {
-            case "Đang xử lý" -> "DangXuLy";
-            case "Hoàn thành" -> "HoanThanh";
-            case "Đã hủy" -> "Huy";
-            default -> "ChoXuLy";
+        String trangThaiPhieu = switch ((String) cboTrangThai.getSelectedItem()) {
+            case "Hoàn thành" -> "HOAN_THANH";
+            case "Đã hủy" -> "HUY";
+            default -> "DANG_BAO_TRI"; // "Đang bảo trì"
         };
 
-        result = new BaoTri(isEdit ? original.getId() : 0,
-                isEdit ? original.getMaPhieu() : "",
-                san.getId(), san.getTenSan(), nd,
-                txtNguoiPhuTrach.getText().trim(), nbd,
-                nkt, cost, ttCode);
+        result = new BaoTri();
+        result.setMaPhieuBaoTri(isEdit ? original.getMaPhieuBaoTri() : "");
+        result.setMaSan(san.getMaSan());
+        result.setTenSan(san.getTenSan());
+        result.setNoiDung(nd);
+        result.setNgayBatDau(nbd);
+        result.setNgayKetThuc(nkt);
+        result.setTrangThaiPhieu(trangThaiPhieu);
 
         confirmed = true;
         dispose();

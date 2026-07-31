@@ -86,7 +86,7 @@ public class TongHopThongTinDialog extends JDialog {
 
         int row = 0;
         row = addDetailRow(cardInfo, gbc, row, "Sân bóng:", booking.getTenSan() != null ? booking.getTenSan() : "—");
-        row = addDetailRow(cardInfo, gbc, row, "Khách hàng:", booking.getTenKhach() + " (SĐT: " + booking.getSoDienThoai() + ")");
+        row = addDetailRow(cardInfo, gbc, row, "Khách hàng:", booking.getTenKhach() + " (SĐT: " + booking.getSoDienThoaiKhach() + ")");
         row = addDetailRow(cardInfo, gbc, row, "Ngày đặt sân:", booking.getNgayDat());
         row = addDetailRow(cardInfo, gbc, row, "Khung giờ:", booking.getGioBatDau() + " ➔ " + booking.getGioKetThuc()
                 + " (" + String.format("%.1f", calculateHours(booking.getGioBatDau(), booking.getGioKetThuc())) + " giờ)");

@@ -2,7 +2,9 @@ package GiaoDien.Dialogs;
 
 import GiaoDien.Panels.*;
 
+import Model.ChuSan;
 import Model.TaiKhoan;
+import Utils.DataStore;
 import Utils.UIConstants;
 
 import javax.swing.BorderFactory;
@@ -33,11 +35,11 @@ public class TaiKhoanFormDialog extends JDialog {
     private JTextField txtTenDangNhap;
     private JPasswordField txtMatKhau;
     private JPasswordField txtXacNhanMatKhau;
-    private JTextField txtHoTen;
-    private JTextField txtSoDienThoai;
-    private JTextField txtEmail;
     private JComboBox<String> cboVaiTro;
     private JComboBox<String> cboTrangThai;
+    private JPanel pnlChuSan;
+    private JTextField txtTenChuSan;
+    private JTextField txtSoDienThoaiChuSan;
 
     private boolean isEdit;
     private TaiKhoan original;
@@ -45,6 +47,9 @@ public class TaiKhoanFormDialog extends JDialog {
 
     private TaiKhoan result;
     private boolean confirmed;
+    private boolean chuSanRole;
+    private String tenChuSan;
+    private String soDienThoaiChuSan;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel lblHeaderTitle;
@@ -135,18 +140,34 @@ public class TaiKhoanFormDialog extends JDialog {
         txtXacNhanMatKhau = new javax.swing.JPasswordField(20);
         row = addField(pnlFormCard, gbc, row, isEdit ? "Xác nhận mật khẩu" : "Xác nhận mật khẩu *", txtXacNhanMatKhau);
 
-        txtHoTen = new javax.swing.JTextField(20);
-        row = addField(pnlFormCard, gbc, row, "Họ và tên *", txtHoTen);
-
-        txtSoDienThoai = new javax.swing.JTextField(20);
-        row = addField(pnlFormCard, gbc, row, "Số điện thoại", txtSoDienThoai);
-
-        txtEmail = new javax.swing.JTextField(20);
-        row = addField(pnlFormCard, gbc, row, "Email", txtEmail);
-
         cboVaiTro = new JComboBox<>(UIConstants.VAI_TRO_HIEN_THI);
         styleCombo(cboVaiTro);
         row = addField(pnlFormCard, gbc, row, "Vai trò *", cboVaiTro);
+
+        pnlChuSan = new JPanel(new GridBagLayout());
+        pnlChuSan.setOpaque(false);
+        GridBagConstraints gbcChuSan = new GridBagConstraints();
+        gbcChuSan.insets = new Insets(8, 8, 8, 8);
+        gbcChuSan.anchor = GridBagConstraints.WEST;
+        gbcChuSan.fill = GridBagConstraints.HORIZONTAL;
+        txtTenChuSan = new javax.swing.JTextField(20);
+        txtSoDienThoaiChuSan = new javax.swing.JTextField(20);
+        int chuSanRow = 0;
+        chuSanRow = addField(pnlChuSan, gbcChuSan, chuSanRow, "Tên chủ sân", txtTenChuSan);
+        addField(pnlChuSan, gbcChuSan, chuSanRow, "SĐT chủ sân", txtSoDienThoaiChuSan);
+
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        gbc.gridwidth = 2;
+        pnlFormCard.add(pnlChuSan, gbc);
+        gbc.gridwidth = 1;
+        row++;
+
+        cboVaiTro.addItemListener(e -> {
+            if (e.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+                updateChuSanVisibility();
+            }
+        });
 
         cboTrangThai = new JComboBox<>(UIConstants.TRANG_THAI_HIEN_THI);
         styleCombo(cboTrangThai);
@@ -172,8 +193,14 @@ public class TaiKhoanFormDialog extends JDialog {
         if (isEdit && original != null) {
             fillForm(original);
         }
+        updateChuSanVisibility();
 
         getRootPane().setDefaultButton(btnSave);
+    }
+
+    private void updateChuSanVisibility() {
+        boolean isAdmin = "Admin".equals(UIConstants.VAI_TRO[Math.max(cboVaiTro.getSelectedIndex(), 0)]);
+        pnlChuSan.setVisible(isAdmin);
     }
 
     private int addField(JPanel form, GridBagConstraints gbc, int row, String label, java.awt.Component field) {
@@ -201,20 +228,20 @@ public class TaiKhoanFormDialog extends JDialog {
         txtTenDangNhap.setText(tk.getTenDangNhap());
         txtTenDangNhap.setEditable(false);
         txtTenDangNhap.setBackground(new Color(240, 240, 240));
-        txtHoTen.setText(tk.getHoTen());
-        txtSoDienThoai.setText(tk.getSoDienThoai());
-        txtEmail.setText(tk.getEmail());
-        cboVaiTro.setSelectedItem(tk.getVaiTroHienThi());
+        cboVaiTro.setSelectedItem(tk.getQuyenHanHienThi());
         cboTrangThai.setSelectedItem(tk.getTrangThaiHienThi());
+
+        ChuSan cs = DataStore.get().findChuSanByMaTaiKhoan(tk.getMaTaiKhoan());
+        if (cs != null) {
+            txtTenChuSan.setText(cs.getTenChuSan());
+            txtSoDienThoaiChuSan.setText(cs.getSoDienThoaiChuSan());
+        }
     }
 
     private void onSave() {
         String tenDangNhap = txtTenDangNhap.getText().trim();
         String matKhau = new String(txtMatKhau.getPassword());
         String xacNhan = new String(txtXacNhanMatKhau.getPassword());
-        String hoTen = txtHoTen.getText().trim();
-        String sdt = txtSoDienThoai.getText().trim();
-        String email = txtEmail.getText().trim();
         int vaiTroIdx = cboVaiTro.getSelectedIndex();
         int trangThaiIdx = cboTrangThai.getSelectedIndex();
 
@@ -263,22 +290,6 @@ public class TaiKhoanFormDialog extends JDialog {
                 }
             }
         }
-        if (hoTen.isEmpty()) {
-            showError("Vui lòng nhập họ và tên.");
-            txtHoTen.requestFocus();
-            return;
-        }
-        if (!sdt.isEmpty() && !sdt.matches("0\\d{9,10}")) {
-            showError("Số điện thoại không hợp lệ (bắt đầu bằng 0, 10-11 số).");
-            txtSoDienThoai.requestFocus();
-            return;
-        }
-        if (!email.isEmpty() && !email.matches("^[\\w.+-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")) {
-            showError("Email không hợp lệ.");
-            txtEmail.requestFocus();
-            return;
-        }
-
         String finalPassword;
         if (isEdit) {
             finalPassword = matKhau.isEmpty() ? original.getMatKhau() : matKhau;
@@ -286,19 +297,35 @@ public class TaiKhoanFormDialog extends JDialog {
             finalPassword = matKhau;
         }
 
+        String quyenHan = switch (UIConstants.VAI_TRO[vaiTroIdx]) {
+            case "Admin" -> "ADMIN";
+            case "NhanVien" -> "NHAN_VIEN";
+            default -> UIConstants.VAI_TRO[vaiTroIdx].toUpperCase();
+        };
+        String trangThai = switch (UIConstants.TRANG_THAI[trangThaiIdx]) {
+            case "HoatDong" -> "HOAT_DONG";
+            case "Khoa" -> "KHOA";
+            default -> UIConstants.TRANG_THAI[trangThaiIdx].toUpperCase();
+        };
+
         result = new TaiKhoan(
-                isEdit ? original.getId() : 0,
+                isEdit ? original.getMaTaiKhoan() : null,
                 tenDangNhap,
                 finalPassword,
-                hoTen,
-                sdt,
-                email,
-                UIConstants.VAI_TRO[vaiTroIdx],
-                UIConstants.TRANG_THAI[trangThaiIdx]
+                quyenHan,
+                trangThai
         );
+        this.chuSanRole = "ADMIN".equals(quyenHan);
+        this.tenChuSan = txtTenChuSan.getText().trim();
+        this.soDienThoaiChuSan = txtSoDienThoaiChuSan.getText().trim();
         confirmed = true;
         dispose();
     }
+
+    /** true nếu vai trò được chọn là Chủ sân (Admin) — dùng để quyết định có lưu hồ sơ ChuSan hay không. */
+    public boolean isChuSanRole() { return chuSanRole; }
+    public String getTenChuSan() { return tenChuSan; }
+    public String getSoDienThoaiChuSan() { return soDienThoaiChuSan; }
 
     private void showError(String message) {
         JOptionPane.showMessageDialog(this, message, "Thông báo", JOptionPane.WARNING_MESSAGE);

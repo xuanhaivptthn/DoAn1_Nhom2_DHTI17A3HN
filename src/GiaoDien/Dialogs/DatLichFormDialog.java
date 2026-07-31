@@ -400,14 +400,14 @@ public class DatLichFormDialog extends JDialog {
     private void fillForm(DatLich d) {
         for (int i = 0; i < cboSan.getItemCount(); i++) {
             KhuVucSan k = cboSan.getItemAt(i);
-            if (k.getId() == d.getKhuVucId()) {
+            if (k.getMaSan() != null && k.getMaSan().equals(d.getMaSan())) {
                 cboSan.setSelectedIndex(i);
                 break;
             }
         }
         cboSan.setEnabled(true);
         txtTenKhach.setText(d.getTenKhach());
-        txtSoDienThoai.setText(d.getSoDienThoai());
+        txtSoDienThoai.setText(d.getSoDienThoaiKhach());
         txtNgayDat.setText(d.getNgayDat());
         setComboTime(cboGioBatDau, d.getGioBatDau());
         setComboTime(cboGioKetThuc, d.getGioKetThuc());
@@ -500,16 +500,15 @@ public class DatLichFormDialog extends JDialog {
 
         // KIỂM TRA PHIẾU BẢO TRÌ HOẠT ĐỘNG TRÊN SÂN
         Model.BaoTri activeMaint = DataStore.get().getBaoTris().stream()
-                .filter(b -> b.getKhuVucId() == san.getId()
-                        && !"HoanThanh".equalsIgnoreCase(b.getTrangThai())
-                        && !"DaHuy".equalsIgnoreCase(b.getTrangThai()))
+                .filter(b -> san.getMaSan() != null && san.getMaSan().equals(b.getMaSan())
+                        && b.isDangBaoTri())
                 .findFirst().orElse(null);
 
         if (activeMaint != null) {
             JOptionPane.showMessageDialog(this,
                     "[!] KHÔNG THỂ ĐẶT SÂN ĐANG CÓ LỊCH BẢO TRÌ!\n\n"
                             + "• Sân bóng     : " + san.getTenSan() + "\n"
-                            + "• Mã phiếu BT  : " + activeMaint.getMaPhieu() + "\n"
+                            + "• Mã phiếu BT  : " + activeMaint.getMaPhieuBaoTri() + "\n"
                             + "• Nội dung BT  : " + activeMaint.getNoiDung() + "\n"
                             + "• Thời gian BT : " + activeMaint.getNgayBatDau() + " ➔ " + activeMaint.getNgayKetThuc() + "\n\n"
                             + "Sân bóng này đang có lịch bảo trì cơ sở vật chất. Vui lòng chọn sân khác!",
@@ -518,7 +517,7 @@ public class DatLichFormDialog extends JDialog {
         }
 
         // KIỂM TRA TRÙNG LỊCH ĐẶT SÂN
-        DatLich conflict = findOverlapBooking(san.getId(), ng, bd, kt, isEdit ? original.getId() : 0);
+        DatLich conflict = findOverlapBooking(san.getMaSan(), ng, bd, kt, isEdit ? original.getMaLichDat() : null);
         if (conflict != null) {
             JOptionPane.showMessageDialog(this,
                     "[!] CẢNH BÁO TRÙNG LỊCH ĐẶT SÂN!\n\n"
@@ -526,8 +525,8 @@ public class DatLichFormDialog extends JDialog {
                             + "• Ngày đặt   : " + ng + "\n"
                             + "• Khung giờ  : " + bd + " - " + kt + "\n\n"
                             + "Đã trùng lịch với phiếu đặt sân hiện có:\n"
-                            + "  - Mã phiếu : " + conflict.getMaPhieu() + "\n"
-                            + "  - Khách    : " + conflict.getTenKhach() + " (" + conflict.getSoDienThoai() + ")\n"
+                            + "  - Mã phiếu : " + conflict.getMaLichDat() + "\n"
+                            + "  - Khách    : " + conflict.getTenKhach() + " (" + conflict.getSoDienThoaiKhach() + ")\n"
                             + "  - Giờ đặt  : " + conflict.getKhungGio() + " [" + conflict.getTrangThaiHienThi() + "]\n\n"
                             + "Vui lòng chọn khung giờ khác hoặc chọn sân khác!",
                     "Cảnh báo trùng lịch đặt sân", JOptionPane.WARNING_MESSAGE);
@@ -535,15 +534,21 @@ public class DatLichFormDialog extends JDialog {
         }
 
         double durationHours = (kMin - bMin) / 60.0;
-        double initialCourtPrice = isEdit ? original.getTienSan() : (san.getGiaTheoGio() * durationHours);
+        double initialCourtPrice = isEdit ? original.getTienSan() : (san.getGiaThueTheoGio() * durationHours);
 
-        DatLich candidate = new DatLich(isEdit ? original.getId() : 0,
-                isEdit ? original.getMaPhieu() : "",
-                san.getId(), san.getTenSan(), tk, sdt, ng, bd, kt,
-                initialCourtPrice,
-                isEdit ? original.getTrangThai() : "ChoXacNhan",
-                isEdit ? original.getNhanVienLap() : "Hệ thống",
-                txtGhiChu.getText().trim());
+        DatLich candidate = new DatLich();
+        candidate.setMaLichDat(isEdit ? original.getMaLichDat() : "");
+        candidate.setMaSan(san.getMaSan());
+        candidate.setTenSan(san.getTenSan());
+        candidate.setTenKhach(tk);
+        candidate.setSoDienThoaiKhach(sdt);
+        candidate.setNgayDat(ng);
+        candidate.setGioBatDau(bd);
+        candidate.setGioKetThuc(kt);
+        candidate.setTienSan(initialCourtPrice);
+        candidate.setTrangThai(isEdit ? original.getTrangThai() : "ChoXacNhan");
+        candidate.setMaTaiKhoan(isEdit ? original.getMaTaiKhoan() : "Hệ thống");
+        candidate.setGhiChu(txtGhiChu.getText().trim());
 
         candidate.setSelectedDvMap(currentDvMap);
         candidate.setSelectedDoAnMap(currentDoAnMap);
@@ -555,7 +560,10 @@ public class DatLichFormDialog extends JDialog {
 
         if (summaryDialog.isConfirmed()) {
             // LƯU/CẬP NHẬT THÔNG TIN KHÁCH HÀNG VÀO CSDL (Không lưu ghi chú lần đặt vào hồ sơ khách hàng)
-            DataStore.get().saveOrUpdateKhachHang(tk, sdt);
+            Model.KhachHang khachHang = DataStore.get().saveOrUpdateKhachHang(tk, sdt);
+            if (khachHang != null) {
+                candidate.setMaKhachHang(khachHang.getMaKhachHang());
+            }
 
             this.result = candidate;
             this.confirmed = true;
@@ -567,8 +575,8 @@ public class DatLichFormDialog extends JDialog {
         String sdt = txtSoDienThoai.getText().trim();
         if (sdt.length() >= 9) {
             Model.KhachHang kh = DataStore.get().findKhachHangBySoDienThoai(sdt);
-            if (kh != null && (txtTenKhach.getText().isBlank() || !txtTenKhach.getText().equals(kh.getHoTen()))) {
-                txtTenKhach.setText(kh.getHoTen());
+            if (kh != null && (txtTenKhach.getText().isBlank() || !txtTenKhach.getText().equals(kh.getTenKhachHang()))) {
+                txtTenKhach.setText(kh.getTenKhachHang());
             }
         }
     }
@@ -580,20 +588,20 @@ public class DatLichFormDialog extends JDialog {
 
         if (dialog.isConfirmed() && dialog.getSelectedCustomer() != null) {
             Model.KhachHang selected = dialog.getSelectedCustomer();
-            txtTenKhach.setText(selected.getHoTen());
+            txtTenKhach.setText(selected.getTenKhachHang());
             txtSoDienThoai.setText(selected.getSoDienThoai());
         }
     }
 
-    public static DatLich findOverlapBooking(int sanId, String ngayDat, String gioBD, String gioKT, int excludeId) {
+    public static DatLich findOverlapBooking(String maSan, String ngayDat, String gioBD, String gioKT, String excludeMaLichDat) {
         int newStart = toMinutes(gioBD);
         int newEnd = toMinutes(gioKT);
 
         if (newStart >= newEnd) return null;
 
         for (DatLich existing : DataStore.get().getDatLichs()) {
-            if (existing.getId() == excludeId) continue;
-            if (existing.getKhuVucId() != sanId) continue;
+            if (excludeMaLichDat != null && excludeMaLichDat.equals(existing.getMaLichDat())) continue;
+            if (!java.util.Objects.equals(existing.getMaSan(), maSan)) continue;
             if (!existing.getNgayDat().trim().equalsIgnoreCase(ngayDat.trim())) continue;
             if ("DaHuy".equalsIgnoreCase(existing.getTrangThai())) continue;
 

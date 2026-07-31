@@ -2,7 +2,9 @@ package GiaoDien.Dialogs;
 
 import GiaoDien.Panels.*;
 
+import Model.ChuSan;
 import Model.KhuVucSan;
+import Utils.DataStore;
 import Utils.UIConstants;
 
 import javax.swing.JButton;
@@ -26,10 +28,10 @@ import java.awt.Insets;
 public class KhuVucFormDialog extends JDialog {
 
     private JTextField txtMaSan;
+    private JComboBox<ChuSan> cboChuSan;
     private JTextField txtTenSan;
     private JComboBox<String> cboLoaiSan;
     private JTextField txtGiaTheoGio;
-    private JTextField txtMoTa;
     private JComboBox<String> cboTrangThai;
 
     private boolean isEdit;
@@ -118,6 +120,10 @@ public class KhuVucFormDialog extends JDialog {
         txtMaSan = new javax.swing.JTextField(16);
         row = addField(pnlFormCard, gbc, row, "Mã sân *", txtMaSan);
 
+        cboChuSan = new JComboBox<>(DataStore.get().getChuSans().toArray(new ChuSan[0]));
+        styleCombo(cboChuSan);
+        row = addField(pnlFormCard, gbc, row, "Chủ sân *", cboChuSan);
+
         txtTenSan = new javax.swing.JTextField(16);
         row = addField(pnlFormCard, gbc, row, "Tên sân *", txtTenSan);
 
@@ -127,9 +133,6 @@ public class KhuVucFormDialog extends JDialog {
 
         txtGiaTheoGio = new javax.swing.JTextField(16);
         row = addField(pnlFormCard, gbc, row, "Giá/giờ (VNĐ) *", txtGiaTheoGio);
-
-        txtMoTa = new javax.swing.JTextField(16);
-        row = addField(pnlFormCard, gbc, row, "Mô tả", txtMoTa);
 
         cboTrangThai = new JComboBox<>(new String[]{"Sẵn sàng", "Đang thuê", "Bảo trì"});
         styleCombo(cboTrangThai);
@@ -168,7 +171,7 @@ public class KhuVucFormDialog extends JDialog {
         return row + 1;
     }
 
-    private void styleCombo(JComboBox<String> combo) {
+    private void styleCombo(JComboBox<?> combo) {
         combo.setFont(UIConstants.FONT_NORMAL);
         combo.setBackground(Color.WHITE);
         combo.setForeground(UIConstants.TEXT_PRIMARY);
@@ -176,10 +179,15 @@ public class KhuVucFormDialog extends JDialog {
 
     private void fillForm(KhuVucSan k) {
         txtMaSan.setText(k.getMaSan());
+        for (int i = 0; i < cboChuSan.getItemCount(); i++) {
+            if (cboChuSan.getItemAt(i).getMaChuSan().equals(k.getMaChuSan())) {
+                cboChuSan.setSelectedIndex(i);
+                break;
+            }
+        }
         txtTenSan.setText(k.getTenSan());
         cboLoaiSan.setSelectedItem(k.getLoaiSanHienThi());
-        txtGiaTheoGio.setText(String.valueOf((long) k.getGiaTheoGio()));
-        txtMoTa.setText(k.getMoTa());
+        txtGiaTheoGio.setText(String.valueOf((long) k.getGiaThueTheoGio()));
         cboTrangThai.setSelectedItem(k.getTrangThaiHienThi());
     }
 
@@ -188,8 +196,9 @@ public class KhuVucFormDialog extends JDialog {
         String ten = txtTenSan.getText().trim();
         String giaStr = txtGiaTheoGio.getText().trim().replace(",", "").replace(".", "");
 
-        if (ma.isEmpty() || ten.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Mã và tên sân không được để trống.", "Thông báo", JOptionPane.WARNING_MESSAGE);
+        ChuSan chuSan = (ChuSan) cboChuSan.getSelectedItem();
+        if (ma.isEmpty() || ten.isEmpty() || chuSan == null) {
+            JOptionPane.showMessageDialog(this, "Mã sân, tên sân và chủ sân không được để trống.", "Thông báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -213,7 +222,7 @@ public class KhuVucFormDialog extends JDialog {
             default -> "SanSang";
         };
 
-        result = new KhuVucSan(isEdit ? original.getId() : 0, ma, ten, loaiCode, price, txtMoTa.getText().trim(), ttCode);
+        result = new KhuVucSan(ma, chuSan.getMaChuSan(), ten, loaiCode, price, ttCode);
         confirmed = true;
         dispose();
     }

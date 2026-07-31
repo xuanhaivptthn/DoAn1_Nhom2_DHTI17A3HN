@@ -124,18 +124,6 @@ public class DichVu {
         return true;
     }
 
-    /** @deprecated id nội bộ UI - dùng getMaDichVu() */
-    public void setId(int id) {
-        if (maDichVu == null || maDichVu.isBlank()) {
-            maDichVu = String.format("DV%03d", id);
-        }
-    }
-
-    /** @deprecated Không còn trong CSDL - trả về "DangBan" mặc định */
-    public String getTrangThai() { return "DangBan"; }
-    /** @deprecated Không còn trong CSDL */
-    public void setTrangThai(String trangThai) { /* no-op */ }
-
     @Override
     public String toString() {
         return tenDichVu + " (" + String.format("%,.0f", gia) + " VNĐ)";

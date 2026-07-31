@@ -1,6 +1,7 @@
 -- ============================================================
 -- CƠ SỞ DỮ LIỆU: DoAn1_QuanLySanBong
 -- Hệ thống Quản lý Hoạt động Cho thuê Sân bóng
+-- Khớp với DAO/*.java (DBConnect dùng mysql-connector-j 8.x)
 -- Tương thích MySQL 5.7+ / 8.0+ / MariaDB trên XAMPP
 -- ============================================================
 
@@ -8,164 +9,161 @@ CREATE DATABASE IF NOT EXISTS `DoAn1_QuanLySanBong` DEFAULT CHARACTER SET utf8mb
 USE `DoAn1_QuanLySanBong`;
 
 -- ------------------------------------------------------------
--- 1. BẢNG TÀI KHOẢN (TaiKhoan)
+-- 1. BẢNG TÀI KHOẢN (tai_khoan) — Model.TaiKhoan / DAO.TaiKhoanDAO
 -- ------------------------------------------------------------
-DROP TABLE IF EXISTS `TaiKhoan`;
-CREATE TABLE `TaiKhoan` (
-  `id` INT AUTO_INCREMENT PRIMARY KEY,
+DROP TABLE IF EXISTS `chu_san`;
+DROP TABLE IF EXISTS `bao_tri`;
+DROP TABLE IF EXISTS `lich_dat_san`;
+DROP TABLE IF EXISTS `san_bong`;
+DROP TABLE IF EXISTS `PhienLamViec`;
+DROP TABLE IF EXISTS `dich_vu`;
+DROP TABLE IF EXISTS `khach_hang`;
+DROP TABLE IF EXISTS `tai_khoan`;
+
+CREATE TABLE `tai_khoan` (
+  `maTaiKhoan` VARCHAR(20) NOT NULL PRIMARY KEY,
   `tenDangNhap` VARCHAR(50) NOT NULL UNIQUE,
   `matKhau` VARCHAR(100) NOT NULL,
-  `hoTen` VARCHAR(100) NOT NULL,
-  `soDienThoai` VARCHAR(20),
-  `email` VARCHAR(100),
-  `vaiTro` VARCHAR(20) DEFAULT 'NhanVien', -- Admin | NhanVien
-  `trangThai` VARCHAR(20) DEFAULT 'HoatDong' -- HoatDong | Khoa
+  `quyenHan` VARCHAR(20) DEFAULT 'NHAN_VIEN', -- ADMIN | CHU_SAN | NHAN_VIEN | KHACH_HANG
+  `trangThai` VARCHAR(20) DEFAULT 'HOAT_DONG' -- HOAT_DONG | KHOA
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO `TaiKhoan` (`id`, `tenDangNhap`, `matKhau`, `hoTen`, `soDienThoai`, `email`, `vaiTro`, `trangThai`) VALUES
-(1, 'admin', 'admin123', 'Chủ Sân Quản Lý', '0988111222', 'admin@sanbong.vn', 'Admin', 'HoatDong'),
-(2, 'nhanvien01', 'nv123456', 'Nguyễn Văn Nhân', '0977222333', 'nv01@sanbong.vn', 'NhanVien', 'HoatDong'),
-(3, 'nhanvien02', 'nv123456', 'Trần Thị Thu', '0966333444', 'nv02@sanbong.vn', 'NhanVien', 'HoatDong'),
-(4, 'nhanvien03', 'nv123456', 'Lê Hoàng Nam', '0955444555', 'nv03@sanbong.vn', 'NhanVien', 'Khoa');
+INSERT INTO `tai_khoan` (`maTaiKhoan`, `tenDangNhap`, `matKhau`, `quyenHan`, `trangThai`) VALUES
+('TK001', 'admin',      'admin123', 'ADMIN',     'HOAT_DONG'),
+('TK002', 'nhanvien01', 'nv123456', 'NHAN_VIEN', 'HOAT_DONG'),
+('TK003', 'nhanvien02', 'nv123456', 'NHAN_VIEN', 'HOAT_DONG'),
+('TK004', 'nhanvien03', 'nv123456', 'NHAN_VIEN', 'KHOA');
 
 
 -- ------------------------------------------------------------
--- 2. BẢNG KHU VỰC SÂN BÓNG (KhuVucSan)
+-- 2. BẢNG CHỦ SÂN (chu_san) — Model.ChuSan / DAO.ChuSanDAO
+--    Hồ sơ chủ sân gắn với một tài khoản (thường là tài khoản ADMIN),
+--    được quản lý ngay trong màn hình "Quản lý tài khoản".
 -- ------------------------------------------------------------
-DROP TABLE IF EXISTS `KhuVucSan`;
-CREATE TABLE `KhuVucSan` (
-  `id` INT AUTO_INCREMENT PRIMARY KEY,
-  `maSan` VARCHAR(20) NOT NULL UNIQUE,
+CREATE TABLE `chu_san` (
+  `maChuSan` VARCHAR(20) NOT NULL PRIMARY KEY,
+  `maTaiKhoan` VARCHAR(20) NOT NULL UNIQUE,
+  `tenChuSan` VARCHAR(100) NOT NULL,
+  `soDienThoaiChuSan` VARCHAR(15),
+  FOREIGN KEY (`maTaiKhoan`) REFERENCES `tai_khoan`(`maTaiKhoan`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO `chu_san` (`maChuSan`, `maTaiKhoan`, `tenChuSan`, `soDienThoaiChuSan`) VALUES
+('CS001', 'TK001', 'Chủ Sân Quản Lý', '0988111222');
+
+
+-- ------------------------------------------------------------
+-- 3. BẢNG KHU VỰC SÂN BÓNG (san_bong) — Model.KhuVucSan / DAO.KhuVucSanDAO
+-- ------------------------------------------------------------
+CREATE TABLE `san_bong` (
+  `maSan` VARCHAR(20) NOT NULL PRIMARY KEY,
+  `maChuSan` VARCHAR(20) NOT NULL,
   `tenSan` VARCHAR(100) NOT NULL,
   `loaiSan` VARCHAR(20) NOT NULL, -- San5 | San7 | San11
-  `giaTheoGio` DOUBLE NOT NULL DEFAULT 0,
+  `giaThueTheoGio` DECIMAL(12,2) NOT NULL DEFAULT 0,
+  `trangThai` VARCHAR(20) DEFAULT 'SanSang', -- SanSang | DangThue | BaoTri
+  FOREIGN KEY (`maChuSan`) REFERENCES `chu_san`(`maChuSan`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO `san_bong` (`maSan`, `maChuSan`, `tenSan`, `loaiSan`, `giaThueTheoGio`, `trangThai`) VALUES
+('A1', 'CS001', 'Sân A1 (Sân 5)', 'San5', 250000, 'SanSang'),
+('A2', 'CS001', 'Sân A2 (Sân 5)', 'San5', 250000, 'SanSang'),
+('B1', 'CS001', 'Sân B1 (Sân 7)', 'San7', 400000, 'SanSang'),
+('B2', 'CS001', 'Sân B2 (Sân 7)', 'San7', 400000, 'SanSang'),
+('C1', 'CS001', 'Sân C1 (Sân 11)', 'San11', 800000, 'BaoTri');
+
+
+-- ------------------------------------------------------------
+-- 4. BẢNG DỊCH VỤ & KHO VẬT TƯ (dich_vu) — Model.DichVu / DAO.DichVuDAO
+--    soLuongTon/donVi dùng chung cho cả dịch vụ thường lẫn "Vật tư kho".
+-- ------------------------------------------------------------
+CREATE TABLE `dich_vu` (
+  `maDichVu` VARCHAR(20) NOT NULL PRIMARY KEY,
+  `tenDichVu` VARCHAR(100) NOT NULL UNIQUE,
+  `loaiDichVu` VARCHAR(50) NOT NULL,
+  `gia` DECIMAL(15,0) NOT NULL DEFAULT 0,
   `moTa` TEXT,
-  `trangThai` VARCHAR(20) DEFAULT 'SanSang' -- SanSang | DangThue | BaoTri
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-INSERT INTO `KhuVucSan` (`id`, `maSan`, `tenSan`, `loaiSan`, `giaTheoGio`, `moTa`, `trangThai`) VALUES
-(1, 'A1', 'Sân A1 (Sân 5)', 'San5', 250000, 'Sân cỏ nhân tạo tiêu chuẩn FIFA 5 người, có đèn thắp sáng', 'SanSang'),
-(2, 'A2', 'Sân A2 (Sân 5)', 'San5', 250000, 'Sân cỏ nhân tạo 5 người, thoáng mát có lưới chắn bóng mới', 'SanSang'),
-(3, 'B1', 'Sân B1 (Sân 7)', 'San7', 400000, 'Sân 7 người cỏ chất lượng cao, thoát nước tốt', 'SanSang'),
-(4, 'B2', 'Sân B2 (Sân 7)', 'San7', 400000, 'Sân 7 người trang bị hệ thống chiếu sáng LED hiện đại', 'SanSang'),
-(5, 'C1', 'Sân C1 (Sân 11)', 'San11', 800000, 'Sân 11 người đạt tiêu chuẩn thi đấu giải giao hữu chuyên nghiệp', 'BaoTri');
-
-
--- ------------------------------------------------------------
--- 3. BẢNG DỊCH VỤ & KHO VẬT TƯ (DichVu)
--- ------------------------------------------------------------
-DROP TABLE IF EXISTS `DichVu`;
-CREATE TABLE `DichVu` (
-  `id` INT AUTO_INCREMENT PRIMARY KEY,
-  `maDichVu` VARCHAR(20) UNIQUE,
-  `tenDichVu` VARCHAR(100) NOT NULL,
-  `loaiDichVu` VARCHAR(50),
-  `donGia` DOUBLE NOT NULL DEFAULT 0,
-  `donVi` VARCHAR(20),
-  `trangThai` VARCHAR(20) DEFAULT 'DangBan',
   `soLuongTon` INT DEFAULT 0,
-  `tonToiThieu` INT DEFAULT 5,
-  `moTa` TEXT
+  `donVi` VARCHAR(20)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO `DichVu` (`id`, `maDichVu`, `tenDichVu`, `loaiDichVu`, `donGia`, `donVi`, `trangThai`, `soLuongTon`, `tonToiThieu`, `moTa`) VALUES
--- 1. Các gói dịch vụ riêng
-(1, 'DV001', 'Dịch vụ thuê trọng tài chính', 'Nhân sự', 150000, 'Trận', 'DangBan', 0, 0, 'Trọng tài chuyên nghiệp điều hành 1 trận (90p)'),
-(2, 'DV002', 'Huấn luyện viên cá nhân 1v1', 'HLV cá nhân', 300000, 'Giờ', 'DangBan', 0, 0, 'HLV hướng dẫn kỹ thuật cá nhân theo giờ'),
-(3, 'DV003', 'Giặt sấy trang phục thi đấu', 'Giặt sấy', 30000, 'Bộ', 'DangBan', 0, 0, 'Giặt sấy tiệt trùng bộ quần áo sau trận'),
-(4, 'DV004', 'Hỗ trợ truyền thông & Quay phim', 'Dịch vụ thi đấu', 250000, 'Trận', 'DangBan', 0, 0, 'Quay video trận đấu & phát lại Highlights'),
+INSERT INTO `dich_vu` (`maDichVu`, `tenDichVu`, `loaiDichVu`, `gia`, `moTa`, `soLuongTon`, `donVi`) VALUES
+-- 4.1 Các gói dịch vụ riêng (không quản lý tồn kho)
+('DV001', 'Dịch vụ thuê trọng tài chính', 'Nhân sự', 150000, 'Trọng tài chuyên nghiệp điều hành 1 trận (90p)', 0, 'Trận'),
+('DV002', 'Huấn luyện viên cá nhân 1v1', 'HLV cá nhân', 300000, 'HLV hướng dẫn kỹ thuật cá nhân theo giờ', 0, 'Giờ'),
+('DV003', 'Giặt sấy trang phục thi đấu', 'Giặt sấy', 30000, 'Giặt sấy tiệt trùng bộ quần áo sau trận', 0, 'Bộ'),
+('DV004', 'Hỗ trợ truyền thông & Quay phim', 'Dịch vụ thi đấu', 250000, 'Quay video trận đấu & phát lại Highlights', 0, 'Trận'),
 
--- 2. Danh mục mặt hàng kho hàng & vật tư
-(101, 'HH101', 'Nước suối Aquafina 500ml', 'Vật tư kho', 10000, 'Chai', 'DangBan', 150, 10, 'Công ty Nước khoáng Aquafina'),
-(102, 'HH102', 'Nước điện giải Revive 500ml', 'Vật tư kho', 15000, 'Chai', 'DangBan', 120, 10, 'Công ty Pocari Sweat Việt Nam'),
-(103, 'HH103', 'Áo lưới tập bib phân đội', 'Vật tư kho', 20000, 'Bộ', 'DangBan', 60, 5, 'Xưởng may Trang phục Thể thao'),
-(104, 'HH104', 'Bóng đá FIFA Động Lực size 5', 'Vật tư kho', 30000, 'Lượt', 'DangBan', 15, 3, 'Tập đoàn Thể thao Động Lực'),
-(105, 'HH105', 'Găng tay thủ môn Adidas', 'Vật tư kho', 50000, 'Đôi', 'DangBan', 10, 2, 'Adidas Việt Nam'),
-(106, 'HH106', 'Giày đá bóng sân cỏ nhân tạo', 'Vật tư kho', 50000, 'Đôi', 'DangBan', 12, 3, 'NCS Sports Việt Nam'),
-(107, 'HH107', 'Lưới bóng đá S7', 'Vật tư kho', 180000, 'Bộ', 'DangBan', 12, 3, 'NCS Sports Việt Nam'),
-(108, 'HH108', 'Băng gối & khuỷu tay bảo vệ', 'Vật tư kho', 45000, 'Đôi', 'DangBan', 25, 5, 'Y tế Thể thao Chấn thương');
+-- 4.2 Danh mục mặt hàng kho hàng hóa & vật tư (loaiDichVu = 'Vật tư kho')
+('HH101', 'Nước suối Aquafina 500ml', 'Vật tư kho', 10000, 'Công ty Nước khoáng Aquafina', 120, 'Chai'),
+('HH102', 'Nước điện giải Revive 500ml', 'Vật tư kho', 15000, 'Công ty Pocari Sweat Việt Nam', 85, 'Chai'),
+('HH103', 'Áo bib tập luyện phân đội', 'Vật tư kho', 30000, 'Xưởng may Trang phục Thể thao', 25, 'Bộ'),
+('HH104', 'Bóng thi đấu Động Lực', 'Vật tư kho', 50000, 'Tập đoàn Thể thao Động Lực', 15, 'Lượt'),
+('HH105', 'Găng tay thủ môn cao cấp', 'Vật tư kho', 40000, 'Adidas Việt Nam', 8, 'Đôi'),
+('HH106', 'Giày đá bóng sân cỏ nhân tạo', 'Vật tư kho', 50000, 'NCS Sports Việt Nam', 12, 'Đôi');
 
 
 -- ------------------------------------------------------------
--- 4. BẢNG KHÁCH HÀNG (KhachHang)
+-- 5. BẢNG KHÁCH HÀNG (khach_hang) — Model.KhachHang / DAO.KhachHangDAO
 -- ------------------------------------------------------------
-DROP TABLE IF EXISTS `KhachHang`;
-CREATE TABLE `KhachHang` (
-  `id` INT AUTO_INCREMENT PRIMARY KEY,
-  `hoTen` VARCHAR(100) NOT NULL,
-  `soDienThoai` VARCHAR(20) NOT NULL UNIQUE,
-  `email` VARCHAR(100),
-  `ghiChu` TEXT,
-  `soLanDat` INT DEFAULT 1,
-  `ngayTao` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE `khach_hang` (
+  `maKhachHang` VARCHAR(20) NOT NULL PRIMARY KEY,
+  `tenKhachHang` VARCHAR(100) NOT NULL,
+  `soDienThoai` VARCHAR(15) NOT NULL UNIQUE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO `KhachHang` (`id`, `hoTen`, `soDienThoai`, `email`, `ghiChu`, `soLanDat`) VALUES
-(1, 'Anh Đức (FC Anh Em)', '0912345678', 'duc.fc@gmail.com', 'Khách quen đặt cố định thứ 3 & thứ 5', 8),
-(2, 'Anh Tuấn (FC Thể Công)', '0987654321', 'tuan.tc@gmail.com', 'Khách hay đá khung 19h - 20h30', 5),
-(3, 'Chị Mai (Công ty FPT)', '0905123456', 'mai.fpt@gmail.com', 'Đặt sân cố định cuối tuần cho công ty', 12);
+INSERT INTO `khach_hang` (`maKhachHang`, `tenKhachHang`, `soDienThoai`) VALUES
+('KH001', 'Anh Đức (FC Anh Em)', '0912345678'),
+('KH002', 'Anh Tuấn (FC Thể Công)', '0987654321'),
+('KH003', 'Chị Mai (Công ty FPT)', '0905123456');
 
 
 -- ------------------------------------------------------------
--- 5. BẢNG ĐẶT LỊCH SÂN BÓNG (DatLich)
+-- 6. BẢNG ĐẶT LỊCH SÂN BÓNG (lich_dat_san) — Model.DatLich / DAO.DatLichDAO
 -- ------------------------------------------------------------
-DROP TABLE IF EXISTS `DatLich`;
-CREATE TABLE `DatLich` (
-  `id` INT AUTO_INCREMENT PRIMARY KEY,
-  `maPhieu` VARCHAR(20) NOT NULL UNIQUE,
-  `khuVucId` INT NOT NULL,
-  `tenSan` VARCHAR(100) NOT NULL,
+CREATE TABLE `lich_dat_san` (
+  `maLichDat` VARCHAR(20) NOT NULL PRIMARY KEY,
+  `maSan` VARCHAR(20) NOT NULL,
+  `maTaiKhoan` VARCHAR(50),
+  `maKhachHang` VARCHAR(20),
   `tenKhach` VARCHAR(100) NOT NULL,
-  `soDienThoai` VARCHAR(20) NOT NULL,
-  `ngayDat` VARCHAR(20) NOT NULL, -- yyyy-MM-dd
+  `soDienThoaiKhach` VARCHAR(15) NOT NULL,
+  `ngayDat` VARCHAR(20) NOT NULL,   -- yyyy-MM-dd
   `gioBatDau` VARCHAR(10) NOT NULL, -- HH:mm
   `gioKetThuc` VARCHAR(10) NOT NULL,
-  `tienSan` DOUBLE DEFAULT 0,
-  `tienDichVu` DOUBLE DEFAULT 0,
-  `tongTien` DOUBLE DEFAULT 0,
-  `datCoc` DOUBLE DEFAULT 0,
   `trangThai` VARCHAR(20) DEFAULT 'ChoXacNhan', -- ChoXacNhan | DaXacNhan | HoanThanh | DaHuy
-  `trangThaiTT` VARCHAR(20) DEFAULT 'ChuaThanhToan', -- ChuaThanhToan | DaThanhToan | ThanhToanMotPhan
-  `nhanVienLap` VARCHAR(100),
   `ghiChu` TEXT,
-  `dichVuKem` TEXT,
-  `ngayTao` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (`khuVucId`) REFERENCES `KhuVucSan`(`id`) ON DELETE CASCADE
+  FOREIGN KEY (`maSan`) REFERENCES `san_bong`(`maSan`) ON DELETE CASCADE,
+  FOREIGN KEY (`maKhachHang`) REFERENCES `khach_hang`(`maKhachHang`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO `DatLich` (`id`, `maPhieu`, `khuVucId`, `tenSan`, `tenKhach`, `soDienThoai`, `ngayDat`, `gioBatDau`, `gioKetThuc`, `tienSan`, `tienDichVu`, `tongTien`, `datCoc`, `trangThai`, `trangThaiTT`, `nhanVienLap`, `ghiChu`, `dichVuKem`) VALUES
-(1, 'DL001', 1, 'Sân A1 (Sân 5)', 'Anh Đức (FC Anh Em)', '0912345678', '2026-07-29', '17:30', '19:00', 375000, 50000, 425000, 100000, 'DaXacNhan', 'ThanhToanMotPhan', 'Nguyễn Văn Nhân', 'Đặt cọc trước 100k', 'Nước suối Aquafina 500ml (x5): 50,000 VNĐ'),
-(2, 'DL002', 3, 'Sân B1 (Sân 7)', 'Anh Tuấn (FC Thể Công)', '0987654321', '2026-07-29', '19:00', '20:30', 600000, 80000, 680000, 200000, 'DaXacNhan', 'ThanhToanMotPhan', 'Trần Thị Thu', 'Thanh toán cọc qua CK', 'Nước điện giải Revive (x4): 60,000 VNĐ\nÁo bít tập luyện (Bộ) (x1): 20,000 VNĐ'),
-(3, 'DL003', 2, 'Sân A2 (Sân 5)', 'Chị Mai (Công ty FPT)', '0905123456', '2026-07-29', '20:30', '22:00', 375000, 0, 375000, 375000, 'HoanThanh', 'DaThanhToan', 'Chủ Sân Quản Lý', 'Đã chuyển khoản đủ 100%', '');
+INSERT INTO `lich_dat_san` (`maLichDat`, `maSan`, `maTaiKhoan`, `maKhachHang`, `tenKhach`, `soDienThoaiKhach`, `ngayDat`, `gioBatDau`, `gioKetThuc`, `trangThai`, `ghiChu`) VALUES
+('DL001', 'A1', 'Nguyễn Văn Nhân', 'KH001', 'Anh Đức (FC Anh Em)', '0912345678', CURDATE(), '17:30', '19:00', 'DaXacNhan', 'Đặt cọc trước 100k'),
+('DL002', 'B1', 'Trần Thị Thu', 'KH002', 'Anh Tuấn (FC Thể Công)', '0987654321', CURDATE(), '19:00', '20:30', 'DaXacNhan', 'Thanh toán cọc qua CK'),
+('DL003', 'A2', 'Chủ Sân Quản Lý', 'KH003', 'Chị Mai (Công ty FPT)', '0905123456', CURDATE(), '20:30', '22:00', 'HoanThanh', 'Đã chuyển khoản đủ 100%');
 
 
 -- ------------------------------------------------------------
--- 6. BẢNG BẢO TRÌ SÂN BÓNG (BaoTri)
+-- 7. BẢNG BẢO TRÌ SÂN BÓNG (bao_tri) — Model.BaoTri / DAO.BaoTriDAO
 -- ------------------------------------------------------------
-DROP TABLE IF EXISTS `BaoTri`;
-CREATE TABLE `BaoTri` (
-  `id` INT AUTO_INCREMENT PRIMARY KEY,
-  `maBaoTri` VARCHAR(20) NOT NULL UNIQUE,
-  `khuVucId` INT NOT NULL,
-  `tenSan` VARCHAR(100) NOT NULL,
+CREATE TABLE `bao_tri` (
+  `maPhieuBaoTri` VARCHAR(20) NOT NULL PRIMARY KEY,
+  `maSan` VARCHAR(20) NOT NULL,
   `noiDung` TEXT NOT NULL,
-  `nguoiPhuTrach` VARCHAR(100),
   `ngayBatDau` VARCHAR(20),
   `ngayKetThuc` VARCHAR(20),
-  `chiPhi` DOUBLE DEFAULT 0,
-  `trangThai` VARCHAR(20) DEFAULT 'ChoXuLy', -- ChoXuLy | DangXuLy | HoanThanh | DaHuy
-  FOREIGN KEY (`khuVucId`) REFERENCES `KhuVucSan`(`id`) ON DELETE CASCADE
+  `trangThaiPhieu` VARCHAR(20) DEFAULT 'DANG_BAO_TRI', -- DANG_BAO_TRI | HOAN_THANH | HUY
+  FOREIGN KEY (`maSan`) REFERENCES `san_bong`(`maSan`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO `BaoTri` (`id`, `maBaoTri`, `khuVucId`, `tenSan`, `noiDung`, `nguoiPhuTrach`, `ngayBatDau`, `ngayKetThuc`, `chiPhi`, `trangThai`) VALUES
-(1, 'BT001', 5, 'Sân C1 (Sân 11)', 'Thay lại thảm cỏ nhân tạo vùng cấm địa & kiểm tra hệ thống đèn pha LED', 'Lê Minh Tuấn', '2026-07-25', '2026-08-05', 4500000, 'DangXuLy'),
-(2, 'BT002', 4, 'Sân B2 (Sân 7)', 'Bảo dưỡng định kỳ lưới chắn bóng xung quanh', 'Trần Thị Lan', '2026-07-20', '2026-07-22', 800000, 'HoanThanh');
+INSERT INTO `bao_tri` (`maPhieuBaoTri`, `maSan`, `noiDung`, `ngayBatDau`, `ngayKetThuc`, `trangThaiPhieu`) VALUES
+('BT001', 'C1', 'Thay lại thảm cỏ nhân tạo vùng cấm địa & kiểm tra hệ thống đèn pha LED', '2026-07-25', '2026-08-05', 'DANG_BAO_TRI'),
+('BT002', 'B2', 'Bảo dưỡng định kỳ lưới chắn bóng xung quanh', '2026-07-20', '2026-07-22', 'HOAN_THANH');
 
 
 -- ------------------------------------------------------------
--- 7. BẢNG PHIÊN LÀM VIỆC (PhienLamViec)
+-- 8. BẢNG PHIÊN LÀM VIỆC (PhienLamViec) — Model.PhienLamViec / DAO.PhienLamViecDAO
 -- ------------------------------------------------------------
-DROP TABLE IF EXISTS `PhienLamViec`;
 CREATE TABLE `PhienLamViec` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `sessionId` VARCHAR(50) NOT NULL UNIQUE,
@@ -174,11 +172,13 @@ CREATE TABLE `PhienLamViec` (
   `vaiTro` VARCHAR(20),
   `thoiGianDangNhap` VARCHAR(50),
   `thoiGianDangXuat` VARCHAR(50),
-  `trangThai` VARCHAR(20) DEFAULT 'DangHoatDong'
+  `trangThai` VARCHAR(20) DEFAULT 'DangHoatDong', -- DangHoatDong | DaDangXuat | HetHan
+  `diaChiIp` VARCHAR(45),
+  `thietBi` VARCHAR(100)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO `PhienLamViec` (`id`, `sessionId`, `tenDangNhap`, `hoTen`, `vaiTro`, `thoiGianDangNhap`, `thoiGianDangXuat`, `trangThai`) VALUES
-(1, 'SESS-1001', 'admin', 'Chủ Sân Quản Lý', 'Admin', '2026-07-29 08:00:00', NULL, 'DangHoatDong');
+INSERT INTO `PhienLamViec` (`sessionId`, `tenDangNhap`, `hoTen`, `vaiTro`, `thoiGianDangNhap`, `thoiGianDangXuat`, `trangThai`, `diaChiIp`, `thietBi`) VALUES
+('SES-1001', 'admin', 'admin', 'ADMIN', '2026-07-29 08:00:00', NULL, 'DangHoatDong', '127.0.0.1', 'Desktop App (Java Swing)');
 
 -- ============================================================
 -- HOÀN TẤT TẠO CSDL

@@ -37,12 +37,6 @@ public class KhachHang {
     public String getSoDienThoai() { return soDienThoai; }
     public void setSoDienThoai(String soDienThoai) { this.soDienThoai = soDienThoai; }
 
-    // ─── Alias helpers để tương thích với UI code hiện tại ────────────────────
-    /** @deprecated dùng getTenKhachHang() */
-    public String getHoTen() { return tenKhachHang; }
-    /** @deprecated dùng setTenKhachHang() */
-    public void setHoTen(String hoTen) { this.tenKhachHang = hoTen; }
-
     @Override
     public String toString() {
         return tenKhachHang + " (" + soDienThoai + ")";

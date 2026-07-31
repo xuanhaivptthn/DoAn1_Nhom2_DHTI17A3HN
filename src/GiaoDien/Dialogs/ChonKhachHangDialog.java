@@ -135,13 +135,13 @@ public class ChonKhachHangDialog extends JDialog {
 
         List<KhachHang> all = DataStore.get().getKhachHangs();
         for (KhachHang kh : all) {
-            boolean matchName = kh.getHoTen() != null && kh.getHoTen().toLowerCase().contains(keyword);
+            boolean matchName = kh.getTenKhachHang() != null && kh.getTenKhachHang().toLowerCase().contains(keyword);
             boolean matchPhone = kh.getSoDienThoai() != null && kh.getSoDienThoai().toLowerCase().contains(keyword);
             if (keyword.isEmpty() || matchName || matchPhone) {
                 displayList.add(kh);
                 modelKhach.addRow(new Object[]{
                         kh.getMaKhachHang(),
-                        kh.getHoTen(),
+                        kh.getTenKhachHang(),
                         kh.getSoDienThoai()
                 });
             }

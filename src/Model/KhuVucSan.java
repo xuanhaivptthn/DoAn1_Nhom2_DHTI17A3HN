@@ -61,11 +61,6 @@ public class KhuVucSan {
     public String getTrangThai() { return trangThai; }
     public void setTrangThai(String trangThai) { this.trangThai = trangThai; }
 
-    // ─── Alias helpers tương thích UI code hiện tại ───────────────────────────
-    /** @deprecated dùng getGiaThueTheoGio() */
-    public double getGiaTheoGio() { return giaThueTheoGio; }
-    /** @deprecated dùng setGiaThueTheoGio() */
-    public void setGiaTheoGio(double gia) { this.giaThueTheoGio = gia; }
     /** id nội bộ cho UI (dùng hashCode của maSan) */
     public int getId() { return maSan != null ? maSan.hashCode() & 0x7FFFFFFF : 0; }
 
@@ -106,11 +101,4 @@ public class KhuVucSan {
         return maSan + " - " + tenSan;
     }
 
-    // ─── Alias backward-compat cho UI cũ ─────────────────────────────────
-    /** @deprecated Không còn trong CSDL */
-    public String getMoTa() { return ""; }
-    /** @deprecated Không còn trong CSDL */
-    public void setMoTa(String moTa) { /* no-op */ }
-    /** @deprecated id nội bộ - dùng getMaSan() */
-    public void setId(int id) { /* no-op */ }
 }

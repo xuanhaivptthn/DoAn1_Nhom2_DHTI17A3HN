@@ -79,7 +79,7 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
                 "Yêu cầu: Quản lý khu vực sân bóng  →  Phản hồi: Kết quả cập nhật khu vực"), BorderLayout.CENTER);
 
         model = new DefaultTableModel(
-                new String[]{"ID", "Mã sân", "Tên sân", "Loại", "Giá/giờ", "Mô tả", "Trạng thái"}, 0) {
+                new String[]{"ID", "Mã sân", "Chủ sân", "Tên sân", "Loại", "Giá/giờ", "Trạng thái"}, 0) {
             @Override
             public boolean isCellEditable(int r, int c) { return false; }
         };
@@ -138,9 +138,12 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
         model.setRowCount(0);
         List<KhuVucSan> list = DataStore.get().getKhuVucs();
         for (KhuVucSan k : list) {
+            Model.ChuSan cs = DataStore.get().getChuSans().stream()
+                    .filter(c -> c.getMaChuSan() != null && c.getMaChuSan().equals(k.getMaChuSan()))
+                    .findFirst().orElse(null);
             model.addRow(new Object[]{
-                    k.getId(), k.getMaSan(), k.getTenSan(), k.getLoaiSanHienThi(),
-                    String.format("%,.0f VNĐ", (double) (k.getGiaTheoGio())), k.getMoTa(), k.getTrangThaiHienThi()
+                    k.getId(), k.getMaSan(), cs != null ? cs.getTenChuSan() : "", k.getTenSan(), k.getLoaiSanHienThi(),
+                    String.format("%,.0f VNĐ", (double) (k.getGiaThueTheoGio())), k.getTrangThaiHienThi()
             });
         }
         lblCount.setText(list.size() + " khu vực");
@@ -160,14 +163,15 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
         if (!dialog.isConfirmed()) return;
 
         KhuVucSan form = dialog.getResult();
-        int next = DataStore.get().getKhuVucs().stream().mapToInt(KhuVucSan::getId).max().orElse(0) + 1;
-        form.setId(next);
         DataStore.get().getKhuVucs().add(form);
+        if (DataStore.isUseDatabase()) {
+            try { new DAO.KhuVucSanDAO().insert(form); } catch (Exception ignored) {}
+        }
         reload();
         JOptionPane.showMessageDialog(this,
                 "Cập nhật khu vực thành công!\n• Mã: " + form.getMaSan()
                         + "\n• Tên: " + form.getTenSan()
-                        + "\n• Giá: " + String.format("%,.0f VNĐ", (double) (form.getGiaTheoGio())) + "/giờ",
+                        + "\n• Giá: " + String.format("%,.0f VNĐ", (double) (form.getGiaThueTheoGio())) + "/giờ",
                 "Kết quả cập nhật khu vực", JOptionPane.INFORMATION_MESSAGE);
     }
 
@@ -184,11 +188,14 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
 
         KhuVucSan form = dialog.getResult();
         sel.setMaSan(form.getMaSan());
+        sel.setMaChuSan(form.getMaChuSan());
         sel.setTenSan(form.getTenSan());
         sel.setLoaiSan(form.getLoaiSan());
-        sel.setGiaTheoGio(form.getGiaTheoGio());
-        sel.setMoTa(form.getMoTa());
+        sel.setGiaThueTheoGio(form.getGiaThueTheoGio());
         sel.setTrangThai(form.getTrangThai());
+        if (DataStore.isUseDatabase()) {
+            try { new DAO.KhuVucSanDAO().update(sel); } catch (Exception ignored) {}
+        }
         reload();
         JOptionPane.showMessageDialog(this, "Đã cập nhật khu vực \"" + sel.getMaSan() + "\".",
                 "Kết quả cập nhật khu vực", JOptionPane.INFORMATION_MESSAGE);
@@ -203,6 +210,9 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
         if (JOptionPane.showConfirmDialog(this, "Xóa sân " + sel.getMaSan() + "?",
                 "Xác nhận", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) return;
         DataStore.get().getKhuVucs().remove(sel);
+        if (DataStore.isUseDatabase()) {
+            try { new DAO.KhuVucSanDAO().delete(sel.getMaSan()); } catch (Exception ignored) {}
+        }
         reload();
         JOptionPane.showMessageDialog(this, "Đã xóa khu vực.", "Kết quả cập nhật khu vực", JOptionPane.INFORMATION_MESSAGE);
     }
@@ -222,6 +232,9 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
             case "Bảo trì" -> "BaoTri";
             default -> "SanSang";
         });
+        if (DataStore.isUseDatabase()) {
+            try { new DAO.KhuVucSanDAO().update(sel); } catch (Exception ignored) {}
+        }
         reload();
         JOptionPane.showMessageDialog(this,
                 "Kết quả: " + sel.getMaSan() + " → " + sel.getTrangThaiHienThi(),

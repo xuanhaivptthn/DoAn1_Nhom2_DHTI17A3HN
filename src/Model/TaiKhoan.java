@@ -109,27 +109,4 @@ public class TaiKhoan {
         return tenDangNhap + " [" + getQuyenHanHienThi() + "]";
     }
 
-    // ─── Alias backward-compat cho UI/Panel cũ ────────────────────────────────
-    /** @deprecated Không còn trong CSDL. Dùng getTenDangNhap() */
-    public String getHoTen() { return tenDangNhap; }
-    /** @deprecated Không còn trong CSDL. Dùng setTenDangNhap() */
-    public void setHoTen(String hoTen) { /* no-op */ }
-    /** @deprecated Không còn trong CSDL */
-    public String getSoDienThoai() { return ""; }
-    /** @deprecated Không còn trong CSDL */
-    public void setSoDienThoai(String sdt) { /* no-op */ }
-    /** @deprecated Không còn trong CSDL */
-    public String getEmail() { return ""; }
-    /** @deprecated Không còn trong CSDL */
-    public void setEmail(String email) { /* no-op */ }
-    /** @deprecated dùng getQuyenHan() */
-    public String getVaiTro() { return quyenHan; }
-    /** @deprecated dùng setQuyenHan() */
-    public void setVaiTro(String vaiTro) { this.quyenHan = vaiTro; }
-    /** @deprecated dùng getQuyenHanHienThi() */
-    public String getVaiTroHienThi() { return getQuyenHanHienThi(); }
-    /** @deprecated id nội bộ, dùng getMaTaiKhoan() */
-    public int getId() { return maTaiKhoan != null ? maTaiKhoan.hashCode() & 0x7FFFFFFF : 0; }
-    /** @deprecated */
-    public void setId(int id) { /* no-op */ }
 }

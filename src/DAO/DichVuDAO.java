@@ -30,7 +30,7 @@ public class DichVuDAO {
     }
 
     public boolean insert(DichVu d) {
-        String sql = "INSERT INTO dich_vu (maDichVu, tenDichVu, loaiDichVu, gia, moTa) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO dich_vu (maDichVu, tenDichVu, loaiDichVu, gia, moTa, soLuongTon, donVi) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBConnect.getConnection()) {
             if (conn == null) return false;
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -39,6 +39,8 @@ public class DichVuDAO {
                 pstmt.setString(3, d.getLoaiDichVu());
                 pstmt.setDouble(4, d.getGia());
                 pstmt.setString(5, d.getMoTa());
+                pstmt.setInt(6, d.getSoLuongTon());
+                pstmt.setString(7, d.getDonVi());
                 return pstmt.executeUpdate() > 0;
             }
         } catch (SQLException ex) {
@@ -48,7 +50,7 @@ public class DichVuDAO {
     }
 
     public boolean update(DichVu d) {
-        String sql = "UPDATE dich_vu SET tenDichVu = ?, loaiDichVu = ?, gia = ?, moTa = ? WHERE maDichVu = ?";
+        String sql = "UPDATE dich_vu SET tenDichVu = ?, loaiDichVu = ?, gia = ?, moTa = ?, soLuongTon = ?, donVi = ? WHERE maDichVu = ?";
         try (Connection conn = DBConnect.getConnection()) {
             if (conn == null) return false;
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -56,7 +58,9 @@ public class DichVuDAO {
                 pstmt.setString(2, d.getLoaiDichVu());
                 pstmt.setDouble(3, d.getGia());
                 pstmt.setString(4, d.getMoTa());
-                pstmt.setString(5, d.getMaDichVu());
+                pstmt.setInt(5, d.getSoLuongTon());
+                pstmt.setString(6, d.getDonVi());
+                pstmt.setString(7, d.getMaDichVu());
                 return pstmt.executeUpdate() > 0;
             }
         } catch (SQLException ex) {
@@ -80,12 +84,15 @@ public class DichVuDAO {
     }
 
     private DichVu mapResultSet(ResultSet rs) throws SQLException {
-        return new DichVu(
+        DichVu d = new DichVu(
                 rs.getString("maDichVu"),
                 rs.getString("tenDichVu"),
                 rs.getString("loaiDichVu"),
                 rs.getDouble("gia"),
                 rs.getString("moTa")
         );
+        d.setSoLuongTon(rs.getInt("soLuongTon"));
+        d.setDonVi(rs.getString("donVi"));
+        return d;
     }
 }

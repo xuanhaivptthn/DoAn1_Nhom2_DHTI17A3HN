@@ -220,12 +220,22 @@ public class DashboardPanel extends javax.swing.JPanel {
         KhuVucSan selectedSan = dialog.getSelectedSan();
         if (selectedSan == null) return;
 
-        int nextId = DataStore.get().getDatLichs().stream().mapToInt(DatLich::getId).max().orElse(0) + 1;
-        String ma = String.format("DL%03d", nextId);
-        String nv = SessionManager.get().getCurrentUser() != null ? SessionManager.get().getCurrentUser().getHoTen() : "Hệ thống";
+        String ma = Utils.CodeGen.next("DL", DataStore.get().getDatLichs().stream().map(DatLich::getMaLichDat).toList(), 3);
+        String nv = SessionManager.get().getCurrentUser() != null ? SessionManager.get().getCurrentUser().getTenDangNhap() : "Hệ thống";
 
-        DatLich phieu = new DatLich(nextId, ma, selectedSan.getId(), selectedSan.getTenSan(), form.getTenKhach(), form.getSoDienThoai(),
-                form.getNgayDat(), form.getGioBatDau(), form.getGioKetThuc(), form.getTongTien(), "ChoXacNhan", nv, form.getGhiChu());
+        DatLich phieu = new DatLich();
+        phieu.setMaLichDat(ma);
+        phieu.setMaSan(selectedSan.getMaSan());
+        phieu.setTenSan(selectedSan.getTenSan());
+        phieu.setMaKhachHang(form.getMaKhachHang());
+        phieu.setTenKhach(form.getTenKhach());
+        phieu.setSoDienThoaiKhach(form.getSoDienThoaiKhach());
+        phieu.setNgayDat(form.getNgayDat());
+        phieu.setGioBatDau(form.getGioBatDau());
+        phieu.setGioKetThuc(form.getGioKetThuc());
+        phieu.setTrangThai("ChoXacNhan");
+        phieu.setMaTaiKhoan(nv);
+        phieu.setGhiChu(form.getGhiChu());
         phieu.setTienSan(form.getTienSan());
         phieu.setTienDichVu(form.getTienDichVu());
         phieu.setDichVuKem(form.getDichVuKem());
@@ -276,7 +286,7 @@ public class DashboardPanel extends javax.swing.JPanel {
 
         for (DatLich d : todayUpcomingList) {
             todayUpcomingBookingsModel.addRow(new Object[]{
-                    d.getMaPhieu(), d.getTenSan(), d.getTenKhach(), d.getSoDienThoai(),
+                    d.getMaLichDat(), d.getTenSan(), d.getTenKhach(), d.getSoDienThoaiKhach(),
                     d.getKhungGio(), String.format("%,.0f VNĐ", (double) (d.getTongTien())), d.getTrangThaiHienThi()
             });
         }
@@ -295,9 +305,9 @@ public class DashboardPanel extends javax.swing.JPanel {
             row[0] = san.getTenSan();
 
             BaoTri maint = DataStore.get().getBaoTris().stream()
-                    .filter(b -> b.getKhuVucId() == san.getId()
-                            && !"DaHuy".equalsIgnoreCase(b.getTrangThai())
-                            && !"Huy".equalsIgnoreCase(b.getTrangThai())
+                    .filter(b -> san.getMaSan() != null && san.getMaSan().equals(b.getMaSan())
+                            && !"DaHuy".equalsIgnoreCase(b.getTrangThaiPhieu())
+                            && !"Huy".equalsIgnoreCase(b.getTrangThaiPhieu())
                             && isDateInMaintenanceRange(todayStr, b.getNgayBatDau(), b.getNgayKetThuc()))
                     .findFirst().orElse(null);
 
@@ -312,7 +322,7 @@ public class DashboardPanel extends javax.swing.JPanel {
 
                     DatLich found = null;
                     for (DatLich d : datLichs) {
-                        if (d.getKhuVucId() == san.getId()
+                        if (san.getMaSan() != null && san.getMaSan().equals(d.getMaSan())
                                 && todayStr.equalsIgnoreCase(d.getNgayDat().trim())
                                 && !"DaHuy".equalsIgnoreCase(d.getTrangThai())) {
                             int bStart = toMinutes(d.getGioBatDau());
@@ -375,12 +385,22 @@ public class DashboardPanel extends javax.swing.JPanel {
         KhuVucSan san = dialog.getSelectedSan();
         if (san == null) return;
 
-        int nextId = DataStore.get().getDatLichs().stream().mapToInt(DatLich::getId).max().orElse(0) + 1;
-        String ma = String.format("DL%03d", nextId);
-        String nv = SessionManager.get().getCurrentUser() != null ? SessionManager.get().getCurrentUser().getHoTen() : "Hệ thống";
+        String ma = Utils.CodeGen.next("DL", DataStore.get().getDatLichs().stream().map(DatLich::getMaLichDat).toList(), 3);
+        String nv = SessionManager.get().getCurrentUser() != null ? SessionManager.get().getCurrentUser().getTenDangNhap() : "Hệ thống";
 
-        DatLich phieu = new DatLich(nextId, ma, san.getId(), san.getTenSan(), form.getTenKhach(), form.getSoDienThoai(),
-                form.getNgayDat(), form.getGioBatDau(), form.getGioKetThuc(), form.getTongTien(), "ChoXacNhan", nv, form.getGhiChu());
+        DatLich phieu = new DatLich();
+        phieu.setMaLichDat(ma);
+        phieu.setMaSan(san.getMaSan());
+        phieu.setTenSan(san.getTenSan());
+        phieu.setMaKhachHang(form.getMaKhachHang());
+        phieu.setTenKhach(form.getTenKhach());
+        phieu.setSoDienThoaiKhach(form.getSoDienThoaiKhach());
+        phieu.setNgayDat(form.getNgayDat());
+        phieu.setGioBatDau(form.getGioBatDau());
+        phieu.setGioKetThuc(form.getGioKetThuc());
+        phieu.setTrangThai("ChoXacNhan");
+        phieu.setMaTaiKhoan(nv);
+        phieu.setGhiChu(form.getGhiChu());
         phieu.setTienSan(form.getTienSan());
         phieu.setTienDichVu(form.getTienDichVu());
         phieu.setDichVuKem(form.getDichVuKem());
@@ -419,7 +439,7 @@ public class DashboardPanel extends javax.swing.JPanel {
             selectedBooking.setTongTien(selectedBooking.getTongTien() + addMoney);
 
             refresh();
-            JOptionPane.showMessageDialog(this, "Đã bán " + qty + "x " + dv.getTenDichVu() + " cho phiếu " + selectedBooking.getMaPhieu(),
+            JOptionPane.showMessageDialog(this, "Đã bán " + qty + "x " + dv.getTenDichVu() + " cho phiếu " + selectedBooking.getMaLichDat(),
                     "Thành công", JOptionPane.INFORMATION_MESSAGE);
         }
     }
@@ -438,11 +458,16 @@ public class DashboardPanel extends javax.swing.JPanel {
             BaoTri bt = dialog.getResult();
             KhuVucSan san = dialog.getSelectedSan();
 
-            int nextId = DataStore.get().getBaoTris().stream().mapToInt(BaoTri::getId).max().orElse(0) + 1;
-            String ma = String.format("BT%03d", nextId);
+            String ma = Utils.CodeGen.next("BT", DataStore.get().getBaoTris().stream().map(BaoTri::getMaPhieuBaoTri).toList(), 3);
 
-            BaoTri record = new BaoTri(nextId, ma, san != null ? san.getId() : 1, san != null ? san.getTenSan() : "Sân 1",
-                    bt.getNoiDung(), bt.getNguoiPhuTrach(), bt.getNgayBatDau(), bt.getNgayKetThuc(), bt.getChiPhi(), "ChoXuLy");
+            BaoTri record = new BaoTri();
+            record.setMaPhieuBaoTri(ma);
+            record.setMaSan(san != null ? san.getMaSan() : null);
+            record.setTenSan(san != null ? san.getTenSan() : "Sân 1");
+            record.setNoiDung(bt.getNoiDung());
+            record.setNgayBatDau(bt.getNgayBatDau());
+            record.setNgayKetThuc(bt.getNgayKetThuc());
+            record.setTrangThaiPhieu("DANG_BAO_TRI");
 
             DataStore.get().getBaoTris().add(record);
             if (san != null) san.setTrangThai("BaoTri");

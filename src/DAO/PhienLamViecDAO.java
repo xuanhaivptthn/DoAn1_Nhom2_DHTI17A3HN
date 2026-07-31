@@ -30,7 +30,7 @@ public class PhienLamViecDAO {
     }
 
     public boolean insert(PhienLamViec p) {
-        String sql = "INSERT INTO PhienLamViec (sessionId, tenDangNhap, hoTen, vaiTro, thoiGianDangNhap, thoiGianDangXuat, trangThai) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO PhienLamViec (sessionId, tenDangNhap, hoTen, vaiTro, thoiGianDangNhap, thoiGianDangXuat, trangThai, diaChiIp, thietBi) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBConnect.getConnection()) {
             if (conn == null) return false;
             try (PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -41,6 +41,8 @@ public class PhienLamViecDAO {
                 pstmt.setString(5, p.getThoiGianDangNhap());
                 pstmt.setString(6, p.getThoiGianDangXuat());
                 pstmt.setString(7, p.getTrangThai());
+                pstmt.setString(8, p.getDiaChiIp());
+                pstmt.setString(9, p.getThietBi());
                 int rows = pstmt.executeUpdate();
                 if (rows > 0) {
                     try (ResultSet keys = pstmt.getGeneratedKeys()) {
@@ -57,15 +59,35 @@ public class PhienLamViecDAO {
         return false;
     }
 
+    public boolean update(PhienLamViec p) {
+        String sql = "UPDATE PhienLamViec SET thoiGianDangXuat = ?, trangThai = ? WHERE sessionId = ?";
+        try (Connection conn = DBConnect.getConnection()) {
+            if (conn == null) return false;
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setString(1, p.getThoiGianDangXuat());
+                pstmt.setString(2, p.getTrangThai());
+                pstmt.setString(3, p.getSessionId());
+                return pstmt.executeUpdate() > 0;
+            }
+        } catch (SQLException ex) {
+            System.err.println("Lỗi PhienLamViecDAO.update(): " + ex.getMessage());
+        }
+        return false;
+    }
+
     private PhienLamViec mapResultSet(ResultSet rs) throws SQLException {
-        return new PhienLamViec(
+        PhienLamViec p = new PhienLamViec(
                 rs.getString("sessionId"),
                 rs.getString("tenDangNhap"),
                 rs.getString("hoTen"),
                 rs.getString("vaiTro"),
                 rs.getString("thoiGianDangNhap"),
                 rs.getString("thoiGianDangXuat"),
-                rs.getString("trangThai")
+                rs.getString("trangThai"),
+                rs.getString("diaChiIp"),
+                rs.getString("thietBi")
         );
+        p.setId(rs.getInt("id"));
+        return p;
     }
 }

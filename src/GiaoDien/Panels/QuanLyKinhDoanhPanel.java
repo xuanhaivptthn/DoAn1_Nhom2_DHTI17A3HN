@@ -369,7 +369,7 @@ public class QuanLyKinhDoanhPanel extends javax.swing.JPanel {
             writer.write("Mã phiếu,Sân bóng,Khách hàng,Số điện thoại,Ngày đặt,Khung giờ,Tiền sân,Tiền dịch vụ,Tổng tiền,Đồ kèm,Trạng thái\n");
             for (DatLich d : revenueList) {
                 writer.write(String.format("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
-                        d.getMaPhieu(), d.getTenSan(), d.getTenKhach(), d.getSoDienThoai(),
+                        d.getMaLichDat(), d.getTenSan(), d.getTenKhach(), d.getSoDienThoaiKhach(),
                         d.getNgayDat(), d.getKhungGio(),
                         String.format("%,.0f VNĐ", (double) (d.getTienSan())),
                         String.format("%,.0f VNĐ", (double) (d.getTienDichVu())),

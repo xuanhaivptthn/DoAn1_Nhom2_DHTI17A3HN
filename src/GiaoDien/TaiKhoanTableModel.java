@@ -1,6 +1,7 @@
 package GiaoDien;
 
 import Model.TaiKhoan;
+import Utils.CodeGen;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
@@ -14,8 +15,7 @@ import java.util.stream.Collectors;
 public class TaiKhoanTableModel extends AbstractTableModel {
 
     private static final String[] COLUMNS = {
-            "STT", "Tên đăng nhập", "Họ tên", "Số điện thoại",
-            "Email", "Vai trò", "Trạng thái"
+            "STT", "Tên đăng nhập", "Vai trò", "Trạng thái"
     };
 
     private final List<TaiKhoan> allData = new ArrayList<>();
@@ -34,26 +34,22 @@ public class TaiKhoanTableModel extends AbstractTableModel {
         String kw = keyword == null ? "" : keyword.trim().toLowerCase(Locale.ROOT);
         filteredData = allData.stream()
                 .filter(tk -> {
-                    boolean matchKw = kw.isEmpty()
-                            || contains(tk.getTenDangNhap(), kw)
-                            || contains(tk.getHoTen(), kw)
-                            || contains(tk.getSoDienThoai(), kw)
-                            || contains(tk.getEmail(), kw);
+                    boolean matchKw = kw.isEmpty() || contains(tk.getTenDangNhap(), kw);
                     boolean matchRole = vaiTroFilter == null
                             || vaiTroFilter.isEmpty()
                             || "Tất cả".equalsIgnoreCase(vaiTroFilter)
-                            || vaiTroFilter.equalsIgnoreCase(tk.getVaiTroHienThi())
-                            || vaiTroFilter.equalsIgnoreCase(tk.getVaiTro())
-                            || ("Quản trị viên".equalsIgnoreCase(vaiTroFilter) && ("Admin".equalsIgnoreCase(tk.getVaiTro()) || (tk.getVaiTroHienThi() != null && tk.getVaiTroHienThi().contains("Quản trị"))))
-                            || ("Nhân viên".equalsIgnoreCase(vaiTroFilter) && ("NhanVien".equalsIgnoreCase(tk.getVaiTro()) || "Nhân viên".equalsIgnoreCase(tk.getVaiTroHienThi())));
+                            || vaiTroFilter.equalsIgnoreCase(tk.getQuyenHanHienThi())
+                            || vaiTroFilter.equalsIgnoreCase(tk.getQuyenHan())
+                            || ("Quản trị viên".equalsIgnoreCase(vaiTroFilter) && ("ADMIN".equalsIgnoreCase(tk.getQuyenHan()) || (tk.getQuyenHanHienThi() != null && tk.getQuyenHanHienThi().contains("Quản trị"))))
+                            || ("Nhân viên".equalsIgnoreCase(vaiTroFilter) && ("NHAN_VIEN".equalsIgnoreCase(tk.getQuyenHan()) || "Nhân viên".equalsIgnoreCase(tk.getQuyenHanHienThi())));
                     boolean matchStatus = trangThaiFilter == null
                             || trangThaiFilter.isEmpty()
                             || "Tất cả".equalsIgnoreCase(trangThaiFilter)
                             || trangThaiFilter.equalsIgnoreCase(tk.getTrangThaiHienThi())
                             || trangThaiFilter.equalsIgnoreCase(tk.getTrangThai())
                             || (("Đã khóa".equalsIgnoreCase(trangThaiFilter) || "Bị khóa".equalsIgnoreCase(trangThaiFilter))
-                                && ("Khoa".equalsIgnoreCase(tk.getTrangThai()) || "Đã khóa".equalsIgnoreCase(tk.getTrangThaiHienThi()) || "Bị khóa".equalsIgnoreCase(tk.getTrangThaiHienThi())))
-                            || ("Hoạt động".equalsIgnoreCase(trangThaiFilter) && ("HoatDong".equalsIgnoreCase(tk.getTrangThai()) || "Hoạt động".equalsIgnoreCase(tk.getTrangThaiHienThi())));
+                                && ("KHOA".equalsIgnoreCase(tk.getTrangThai()) || "Đã khóa".equalsIgnoreCase(tk.getTrangThaiHienThi()) || "Bị khóa".equalsIgnoreCase(tk.getTrangThaiHienThi())))
+                            || ("Hoạt động".equalsIgnoreCase(trangThaiFilter) && ("HOAT_DONG".equalsIgnoreCase(tk.getTrangThai()) || "Hoạt động".equalsIgnoreCase(tk.getTrangThaiHienThi())));
                     return matchKw && matchRole && matchStatus;
                 })
                 .collect(Collectors.toList());
@@ -83,7 +79,7 @@ public class TaiKhoanTableModel extends AbstractTableModel {
 
     public void updateTaiKhoan(TaiKhoan tk) {
         for (int i = 0; i < allData.size(); i++) {
-            if (allData.get(i).getId() == tk.getId()) {
+            if (allData.get(i).getMaTaiKhoan().equals(tk.getMaTaiKhoan())) {
                 allData.set(i, tk);
                 break;
             }
@@ -92,19 +88,19 @@ public class TaiKhoanTableModel extends AbstractTableModel {
         fireTableDataChanged();
     }
 
-    public void removeTaiKhoan(int id) {
-        allData.removeIf(tk -> tk.getId() == id);
+    public void removeTaiKhoan(String maTaiKhoan) {
+        allData.removeIf(tk -> tk.getMaTaiKhoan().equals(maTaiKhoan));
         filteredData = new ArrayList<>(allData);
         fireTableDataChanged();
     }
 
-    public int nextId() {
-        return allData.stream().mapToInt(TaiKhoan::getId).max().orElse(0) + 1;
+    public String nextMaTaiKhoan() {
+        return CodeGen.next("TK", allData.stream().map(TaiKhoan::getMaTaiKhoan).toList(), 3);
     }
 
-    public boolean existsUsername(String username, int excludeId) {
+    public boolean existsUsername(String username, String excludeMaTaiKhoan) {
         return allData.stream()
-                .anyMatch(tk -> tk.getTenDangNhap().equalsIgnoreCase(username) && tk.getId() != excludeId);
+                .anyMatch(tk -> tk.getTenDangNhap().equalsIgnoreCase(username) && !tk.getMaTaiKhoan().equals(excludeMaTaiKhoan));
     }
 
     @Override
@@ -128,11 +124,8 @@ public class TaiKhoanTableModel extends AbstractTableModel {
         return switch (columnIndex) {
             case 0 -> rowIndex + 1;
             case 1 -> tk.getTenDangNhap();
-            case 2 -> tk.getHoTen();
-            case 3 -> tk.getSoDienThoai();
-            case 4 -> tk.getEmail();
-            case 5 -> tk.getVaiTroHienThi();
-            case 6 -> tk.getTrangThaiHienThi();
+            case 2 -> tk.getQuyenHanHienThi();
+            case 3 -> tk.getTrangThaiHienThi();
             default -> "";
         };
     }

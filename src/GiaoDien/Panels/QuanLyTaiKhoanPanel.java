@@ -240,11 +240,20 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
             applyFilter();
         });
 
+        JButton btnLichSu = new javax.swing.JButton("Lịch sử đăng nhập");
+        PageUI.styleSecondaryButton(btnLichSu);
+        btnLichSu.setPreferredSize(new Dimension(160, 36));
+        btnLichSu.addActionListener(e -> {
+            JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
+            new GiaoDien.Dialogs.LichSuDangNhapDialog(parent).setVisible(true);
+        });
+
         actions.add(btnAdd);
         actions.add(btnEdit);
         actions.add(btnDelete);
         actions.add(btnLock);
         actions.add(btnRefresh);
+        actions.add(btnLichSu);
 
         gbc.gridx = 0;
         gbc.gridy = 1;
@@ -291,12 +300,9 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
 
         t.getColumnModel().getColumn(0).setPreferredWidth(50);
         t.getColumnModel().getColumn(0).setMaxWidth(60);
-        t.getColumnModel().getColumn(1).setPreferredWidth(120);
-        t.getColumnModel().getColumn(2).setPreferredWidth(160);
-        t.getColumnModel().getColumn(3).setPreferredWidth(110);
-        t.getColumnModel().getColumn(4).setPreferredWidth(180);
-        t.getColumnModel().getColumn(5).setPreferredWidth(110);
-        t.getColumnModel().getColumn(6).setPreferredWidth(100);
+        t.getColumnModel().getColumn(1).setPreferredWidth(180);
+        t.getColumnModel().getColumn(2).setPreferredWidth(140);
+        t.getColumnModel().getColumn(3).setPreferredWidth(120);
 
         DefaultTableCellRenderer renderer = new DefaultTableCellRenderer() {
             @Override
@@ -312,7 +318,7 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
                     c.setForeground(UIConstants.TEXT_PRIMARY);
                 }
 
-                if (column == 6 && value != null) {
+                if (column == 3 && value != null) {
                     setFont(UIConstants.FONT_BOLD);
                     if ("Hoạt động".equals(value.toString())) {
                         if (!isSelected) setForeground(UIConstants.SUCCESS);
@@ -321,7 +327,7 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
                     }
                 }
 
-                if (column == 5 && value != null && !isSelected) {
+                if (column == 2 && value != null && !isSelected) {
                     setFont(UIConstants.FONT_BOLD);
                     String v = value.toString();
                     if ("Quản trị viên".equals(v)) {
@@ -333,7 +339,7 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
                     }
                 }
 
-                if (column == 0 || column == 5 || column == 6) {
+                if (column == 0 || column == 2 || column == 3) {
                     setHorizontalAlignment(CENTER);
                 } else {
                     setHorizontalAlignment(LEFT);
@@ -373,14 +379,20 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
         TaiKhoanFormDialog dialog = new TaiKhoanFormDialog(
                 parent,
                 null,
-                username -> tableModel.existsUsername(username, -1)
+                username -> tableModel.existsUsername(username, null)
         );
         dialog.setVisible(true);
         if (dialog.isConfirmed()) {
             TaiKhoan tk = dialog.getResult();
-            tk.setId(tableModel.nextId());
+            tk.setMaTaiKhoan(tableModel.nextMaTaiKhoan());
             tableModel.addTaiKhoan(tk);
             DataStore.get().getTaiKhoans().add(tk);
+            if (DataStore.isUseDatabase()) {
+                try { new DAO.TaiKhoanDAO().insert(tk); } catch (Exception ignored) {}
+            }
+            if (dialog.isChuSanRole() && (!dialog.getTenChuSan().isBlank() || !dialog.getSoDienThoaiChuSan().isBlank())) {
+                DataStore.get().saveOrUpdateChuSan(tk.getMaTaiKhoan(), dialog.getTenChuSan(), dialog.getSoDienThoaiChuSan());
+            }
             applyFilter();
             JOptionPane.showMessageDialog(this,
                     "Đã thêm tài khoản \"" + tk.getTenDangNhap() + "\" thành công!",
@@ -404,13 +416,19 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
         TaiKhoanFormDialog dialog = new TaiKhoanFormDialog(
                 parent,
                 selected,
-                username -> tableModel.existsUsername(username, selected.getId())
+                username -> tableModel.existsUsername(username, selected.getMaTaiKhoan())
         );
         dialog.setVisible(true);
         if (dialog.isConfirmed()) {
             TaiKhoan updated = dialog.getResult();
             tableModel.updateTaiKhoan(updated);
             syncStoreFromModel();
+            if (DataStore.isUseDatabase()) {
+                try { new DAO.TaiKhoanDAO().update(updated); } catch (Exception ignored) {}
+            }
+            if (dialog.isChuSanRole() && (!dialog.getTenChuSan().isBlank() || !dialog.getSoDienThoaiChuSan().isBlank())) {
+                DataStore.get().saveOrUpdateChuSan(updated.getMaTaiKhoan(), dialog.getTenChuSan(), dialog.getSoDienThoaiChuSan());
+            }
             applyFilter();
             JOptionPane.showMessageDialog(this,
                     "Đã cập nhật tài khoản \"" + updated.getTenDangNhap() + "\"!",
@@ -439,16 +457,18 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
 
         int confirm = JOptionPane.showConfirmDialog(this,
                 "Bạn có chắc muốn xóa tài khoản:\n\n"
-                        + "  • Tên đăng nhập: " + selected.getTenDangNhap() + "\n"
-                        + "  • Họ tên: " + selected.getHoTen() + "\n\n"
+                        + "  • Tên đăng nhập: " + selected.getTenDangNhap() + "\n\n"
                         + "Thao tác này không thể hoàn tác.",
                 "Xác nhận xóa",
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.WARNING_MESSAGE);
 
         if (confirm == JOptionPane.YES_OPTION) {
-            tableModel.removeTaiKhoan(selected.getId());
-            DataStore.get().getTaiKhoans().removeIf(tk -> tk.getId() == selected.getId());
+            tableModel.removeTaiKhoan(selected.getMaTaiKhoan());
+            DataStore.get().getTaiKhoans().removeIf(tk -> tk.getMaTaiKhoan().equals(selected.getMaTaiKhoan()));
+            if (DataStore.isUseDatabase()) {
+                try { new DAO.TaiKhoanDAO().delete(selected.getMaTaiKhoan()); } catch (Exception ignored) {}
+            }
             applyFilter();
             JOptionPane.showMessageDialog(this,
                     "Đã xóa tài khoản \"" + selected.getTenDangNhap() + "\".",
@@ -475,7 +495,7 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
             return;
         }
 
-        boolean isLocked = "Khoa".equals(selected.getTrangThai());
+        boolean isLocked = "KHOA".equalsIgnoreCase(selected.getTrangThai());
         String action = isLocked ? "mở khóa" : "khóa";
         int confirm = JOptionPane.showConfirmDialog(this,
                 "Bạn có chắc muốn " + action + " tài khoản \"" + selected.getTenDangNhap() + "\"?",
@@ -484,9 +504,12 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
                 JOptionPane.QUESTION_MESSAGE);
 
         if (confirm == JOptionPane.YES_OPTION) {
-            selected.setTrangThai(isLocked ? "HoatDong" : "Khoa");
+            selected.setTrangThai(isLocked ? "HOAT_DONG" : "KHOA");
             tableModel.updateTaiKhoan(selected);
             syncStoreFromModel();
+            if (DataStore.isUseDatabase()) {
+                try { new DAO.TaiKhoanDAO().update(selected); } catch (Exception ignored) {}
+            }
             applyFilter();
             if (viewRow < table.getRowCount()) {
                 table.setRowSelectionInterval(viewRow, viewRow);

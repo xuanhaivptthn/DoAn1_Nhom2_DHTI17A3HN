@@ -77,20 +77,6 @@ public class BaoTri {
     public String getTenSan() { return tenSan; }
     public void setTenSan(String tenSan) { this.tenSan = tenSan; }
 
-    // ─── Alias backward-compat cho UI cũ ─────────────────────────────────────
-    /** @deprecated dùng getMaPhieuBaoTri() */
-    public String getMaBaoTri() { return maPhieuBaoTri; }
-    /** @deprecated dùng setMaPhieuBaoTri() */
-    public void setMaBaoTri(String ma) { this.maPhieuBaoTri = ma; }
-    /** @deprecated dùng getMaPhieuBaoTri() */
-    public String getMaPhieu() { return maPhieuBaoTri; }
-    /** @deprecated dùng setMaPhieuBaoTri() */
-    public void setMaPhieu(String ma) { this.maPhieuBaoTri = ma; }
-    /** @deprecated dùng getTrangThaiPhieu() */
-    public String getTrangThai() { return trangThaiPhieu; }
-    /** @deprecated dùng setTrangThaiPhieu() */
-    public void setTrangThai(String tt) { this.trangThaiPhieu = tt; }
-
     // ─── Helper methods ────────────────────────────────────────────────────────
 
     public String getTrangThaiHienThi() {
@@ -107,21 +93,4 @@ public class BaoTri {
         return "DANG_BAO_TRI".equalsIgnoreCase(trangThaiPhieu);
     }
 
-    // ─── Alias backward-compat cho UI/Panel cũ ────────────────────────────────
-    /** @deprecated Không còn trong CSDL */
-    public double getChiPhi() { return 0.0; }
-    /** @deprecated Không còn trong CSDL */
-    public void setChiPhi(double chiPhi) { /* no-op */ }
-    /** @deprecated Không còn trong CSDL */
-    public String getNguoiPhuTrach() { return ""; }
-    /** @deprecated Không còn trong CSDL */
-    public void setNguoiPhuTrach(String nguoiPhuTrach) { /* no-op */ }
-    /** @deprecated dùng getMaSan() */
-    public int getKhuVucId() { return 0; }
-    /** @deprecated dùng setMaSan() */
-    public void setKhuVucId(int khuVucId) { /* no-op */ }
-    /** @deprecated dùng getMaPhieuBaoTri() */
-    public int getId() { return maPhieuBaoTri != null ? maPhieuBaoTri.hashCode() & 0x7FFFFFFF : 0; }
-    /** @deprecated */
-    public void setId(int id) { /* no-op */ }
 }

@@ -107,7 +107,7 @@ public class ThanhToanDialog extends JDialog {
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        lblMaPhieu = new javax.swing.JLabel(datLich != null ? datLich.getMaPhieu() : "-");
+        lblMaPhieu = new javax.swing.JLabel(datLich != null ? datLich.getMaLichDat() : "-");
         lblKhach = new javax.swing.JLabel(datLich != null ? datLich.getTenKhach() : "-");
 
         lblTongTien = new JLabel(datLich != null ? String.format("%,.0f VNĐ", (double) (datLich.getTongTien())) : "0 đ");

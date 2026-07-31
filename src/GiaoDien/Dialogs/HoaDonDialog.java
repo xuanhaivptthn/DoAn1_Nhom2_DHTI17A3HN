@@ -37,7 +37,7 @@ public class HoaDonDialog extends JDialog {
     }
 
     public HoaDonDialog(JFrame parent, DatLich datLich, String phuongThucTT) {
-        super(parent, "Hóa đơn thanh toán - " + (datLich != null ? datLich.getMaPhieu() : ""), true);
+        super(parent, "Hóa đơn thanh toán - " + (datLich != null ? datLich.getMaLichDat() : ""), true);
         this.datLich = datLich;
         this.phuongThucTT = phuongThucTT != null ? phuongThucTT : "Tiền mặt";
 
@@ -97,7 +97,7 @@ public class HoaDonDialog extends JDialog {
         if (datLich == null) return "<html><body><h3>Không có dữ liệu hóa đơn</h3></body></html>";
 
         String nowStr = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
-        String maHd = "HD-" + datLich.getMaPhieu();
+        String maHd = "HD-" + datLich.getMaLichDat();
 
         StringBuilder html = new StringBuilder();
         html.append("<html><head><style>")
@@ -119,10 +119,10 @@ public class HoaDonDialog extends JDialog {
 
         html.append("<table class='info-table'>")
             .append("<tr><td><b>Mã hóa đơn:</b> ").append(maHd).append("</td><td><b>Thời gian lập:</b> ").append(nowStr).append("</td></tr>")
-            .append("<tr><td><b>Khách hàng:</b> ").append(datLich.getTenKhach()).append("</td><td><b>Số điện thoại:</b> ").append(datLich.getSoDienThoai()).append("</td></tr>")
+            .append("<tr><td><b>Khách hàng:</b> ").append(datLich.getTenKhach()).append("</td><td><b>Số điện thoại:</b> ").append(datLich.getSoDienThoaiKhach()).append("</td></tr>")
             .append("<tr><td><b>Sân bóng:</b> ").append(datLich.getTenSan()).append("</td><td><b>Ngày đá:</b> ").append(datLich.getNgayDat()).append("</td></tr>")
             .append("<tr><td><b>Khung giờ:</b> ").append(datLich.getKhungGio()).append("</td><td><b>Hình thức TT:</b> ").append(phuongThucTT).append("</td></tr>")
-            .append("<tr><td><b>Nhân viên lập:</b> ").append(datLich.getNhanVienLap() != null ? datLich.getNhanVienLap() : "Admin").append("</td><td><b>Trạng thái:</b> <span style='color:green;'><b>Đã thanh toán</b></span></td></tr>")
+            .append("<tr><td><b>Nhân viên lập:</b> ").append(datLich.getMaTaiKhoan() != null ? datLich.getMaTaiKhoan() : "Admin").append("</td><td><b>Trạng thái:</b> <span style='color:green;'><b>Đã thanh toán</b></span></td></tr>")
             .append("</table>");
 
         html.append("<h4>Chi tiết khoản thu</h4>");
@@ -164,7 +164,7 @@ public class HoaDonDialog extends JDialog {
         if (datLich == null) return;
         JFileChooser chooser = new JFileChooser();
         chooser.setDialogTitle("Xuất Hóa đơn ra Excel (CSV)");
-        chooser.setSelectedFile(new File("HoaDon_" + datLich.getMaPhieu() + ".csv"));
+        chooser.setSelectedFile(new File("HoaDon_" + datLich.getMaLichDat() + ".csv"));
 
         if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             File saveFile = chooser.getSelectedFile();
@@ -175,15 +175,15 @@ public class HoaDonDialog extends JDialog {
             try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(saveFile), StandardCharsets.UTF_8)) {
                 writer.write("\uFEFF"); // UTF-8 BOM
                 writer.write("HÓA ĐƠN THANH TOÁN SÂN BÓNG\n");
-                writer.write("Mã hóa đơn," + "HD-" + datLich.getMaPhieu() + "\n");
-                writer.write("Mã phiếu đặt," + datLich.getMaPhieu() + "\n");
+                writer.write("Mã hóa đơn," + "HD-" + datLich.getMaLichDat() + "\n");
+                writer.write("Mã phiếu đặt," + datLich.getMaLichDat() + "\n");
                 writer.write("Tên khách hàng," + datLich.getTenKhach() + "\n");
-                writer.write("Số điện thoại," + datLich.getSoDienThoai() + "\n");
+                writer.write("Số điện thoại," + datLich.getSoDienThoaiKhach() + "\n");
                 writer.write("Sân bóng," + datLich.getTenSan() + "\n");
                 writer.write("Ngày đặt," + datLich.getNgayDat() + "\n");
                 writer.write("Khung giờ," + datLich.getKhungGio() + "\n");
                 writer.write("Hình thức thanh toán," + phuongThucTT + "\n");
-                writer.write("Nhân viên lập," + (datLich.getNhanVienLap() != null ? datLich.getNhanVienLap() : "Admin") + "\n\n");
+                writer.write("Nhân viên lập," + (datLich.getMaTaiKhoan() != null ? datLich.getMaTaiKhoan() : "Admin") + "\n\n");
 
                 writer.write("KHOẢN THU,THÀNH TIỀN (VNĐ)\n");
                 writer.write(String.format("Tiền thuê sân bóng,\"%,.0f VNĐ\"\n", (double) datLich.getTienSan()));
@@ -210,7 +210,7 @@ public class HoaDonDialog extends JDialog {
         if (datLich == null) return;
         JFileChooser chooser = new JFileChooser();
         chooser.setDialogTitle("Xuất Hóa đơn ra file HTML");
-        chooser.setSelectedFile(new File("HoaDon_" + datLich.getMaPhieu() + ".html"));
+        chooser.setSelectedFile(new File("HoaDon_" + datLich.getMaLichDat() + ".html"));
 
         if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             File saveFile = chooser.getSelectedFile();

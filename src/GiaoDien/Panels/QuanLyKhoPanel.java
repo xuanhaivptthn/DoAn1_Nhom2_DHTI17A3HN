@@ -289,7 +289,7 @@ public class QuanLyKhoPanel extends javax.swing.JPanel {
 
         DichVu form = dialog.getResult();
         int nextId = DataStore.get().getKhoItems().stream().mapToInt(DichVu::getId).max().orElse(100) + 1;
-        form.setId(nextId);
+        form.setMaDichVu(String.format("HH%03d", nextId));
         DataStore.get().getKhoItems().add(form);
         reload();
 

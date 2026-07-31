@@ -145,28 +145,6 @@ public class DatLich {
         this.selectedDoAnMap = m != null ? m : new java.util.HashMap<>();
     }
 
-    // ─── Alias backward-compat cho UI cũ ─────────────────────────────────────
-    /** @deprecated dùng getSoDienThoaiKhach() */
-    public String getSoDienThoai() { return soDienThoaiKhach; }
-    /** @deprecated dùng setSoDienThoaiKhach() */
-    public void setSoDienThoai(String sdt) { this.soDienThoaiKhach = sdt; }
-    /** @deprecated dùng getMaLichDat() */
-    public String getMaPhieu() { return maLichDat; }
-    /** @deprecated dùng setMaLichDat() */
-    public void setMaPhieu(String ma) { this.maLichDat = ma; }
-    /** @deprecated dùng getMaTaiKhoan() */
-    public String getNhanVienLap() { return maTaiKhoan; }
-    /** @deprecated dùng setMaTaiKhoan() */
-    public void setNhanVienLap(String nv) { this.maTaiKhoan = nv; }
-    /** @deprecated id nội bộ UI, dùng getMaLichDat() */
-    public int getId() { return maLichDat != null ? maLichDat.hashCode() & 0x7FFFFFFF : 0; }
-    /** @deprecated */
-    public void setId(int id) { /* no-op */ }
-    /** @deprecated dùng getMaSan() */
-    public int getKhuVucId() { return maSan != null ? maSan.hashCode() & 0x7FFFFFFF : 0; }
-    /** @deprecated dùng setMaSan() */
-    public void setKhuVucId(int khuVucId) { /* no-op */ }
-
     // ─── Helper methods ───────────────────────────────────────────────────────
 
     public String getKhungGio() {

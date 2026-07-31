@@ -94,7 +94,7 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
 
         // Model Lịch sử bảo trì
         model = new DefaultTableModel(new String[]{
-                "Mã phiếu", "Sân", "Nội dung", "Phụ trách", "Bắt đầu", "Kết thúc", "Chi phí", "Trạng thái"
+                "Mã phiếu", "Sân", "Nội dung", "Bắt đầu", "Kết thúc", "Trạng thái"
         }, 0) {
             @Override
             public boolean isCellEditable(int r, int c) { return false; }
@@ -103,14 +103,14 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
         PageUI.styleTable(table);
         table.getColumnModel().getColumn(0).setMaxWidth(60);
 
-        cboFilter = new JComboBox<>(new String[]{"Tất cả", "Chờ xử lý", "Đang xử lý", "Hoàn thành", "Đã hủy"});
+        cboFilter = new JComboBox<>(new String[]{"Tất cả", "Đang bảo trì", "Hoàn thành", "Đã hủy"});
         lblCount = new JLabel();
         lblCount.setFont(UIConstants.FONT_SMALL);
         lblCount.setForeground(UIConstants.TEXT_SECONDARY);
 
         // Model Bảng Tình trạng cơ sở vật chất (JTable)
         modelCsvc = new DefaultTableModel(new String[]{
-                "Mã sân", "Tên sân bóng", "Loại sân", "Giá/Giờ", "Tình trạng CSVC", "Ghi chú mô tả"
+                "Mã sân", "Tên sân bóng", "Loại sân", "Giá/Giờ", "Tình trạng CSVC"
         }, 0) {
             @Override
             public boolean isCellEditable(int r, int c) { return false; }
@@ -180,11 +180,11 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
 
         JButton btnStart = new javax.swing.JButton("▶ Bắt đầu XL");
         PageUI.styleSecondaryButton(btnStart);
-        btnStart.addActionListener(e -> setStatus("DangXuLy"));
+        btnStart.addActionListener(e -> setStatus("DANG_BAO_TRI"));
 
         JButton btnDone = new javax.swing.JButton("✓ Hoàn thành");
         PageUI.styleSuccessButton(btnDone);
-        btnDone.addActionListener(e -> setStatus("HoanThanh"));
+        btnDone.addActionListener(e -> setStatus("HOAN_THANH"));
 
         pnlBottomRow.add(lblQuickNote);
         pnlBottomRow.add(btnStart);
@@ -239,9 +239,8 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
                     k.getMaSan(),
                     k.getTenSan(),
                     k.getLoaiSanHienThi(),
-                    String.format("%,.0f VNĐ", (double) (k.getGiaTheoGio())),
-                    statusText,
-                    k.getMoTa()
+                    String.format("%,.0f VNĐ", (double) (k.getGiaThueTheoGio())),
+                    statusText
             });
         }
     }
@@ -251,21 +250,19 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
         model.setRowCount(0);
         String sel = cboFilter != null ? (String) cboFilter.getSelectedItem() : "Tất cả";
         String filterCode = switch (sel) {
-            case "Chờ xử lý" -> "ChoXuLy";
-            case "Đang xử lý" -> "DangXuLy";
-            case "Hoàn thành" -> "HoanThanh";
-            case "Đã hủy" -> "DaHuy";
+            case "Đang bảo trì" -> "DANG_BAO_TRI";
+            case "Hoàn thành" -> "HOAN_THANH";
+            case "Đã hủy" -> "HUY";
             default -> null;
         };
 
         List<BaoTri> list = DataStore.get().getBaoTris();
         int c = 0;
         for (BaoTri b : list) {
-            if (filterCode == null || filterCode.equals(b.getTrangThai())) {
+            if (filterCode == null || filterCode.equalsIgnoreCase(b.getTrangThaiPhieu())) {
                 model.addRow(new Object[]{
-                        b.getMaPhieu(), b.getTenSan(), b.getNoiDung(),
-                        b.getNguoiPhuTrach(), b.getNgayBatDau(), b.getNgayKetThuc(),
-                        String.format("%,.0f VNĐ", (double) (b.getChiPhi())), b.getTrangThaiHienThi()
+                        b.getMaPhieuBaoTri(), b.getTenSan(), b.getNoiDung(),
+                        b.getNgayBatDau(), b.getNgayKetThuc(), b.getTrangThaiHienThi()
                 });
                 c++;
             }
@@ -281,12 +278,16 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
             BaoTri form = dialog.getResult();
             KhuVucSan san = dialog.getSelectedSan();
 
-            int nextId = DataStore.get().getBaoTris().stream().mapToInt(BaoTri::getId).max().orElse(0) + 1;
-            String ma = String.format("BT%03d", nextId);
+            String ma = Utils.CodeGen.next("BT", DataStore.get().getBaoTris().stream().map(BaoTri::getMaPhieuBaoTri).toList(), 3);
 
-            BaoTri b = new BaoTri(nextId, ma, san != null ? san.getId() : 1, san != null ? san.getTenSan() : "Sân 1",
-                    form.getNoiDung(), form.getNguoiPhuTrach(), form.getNgayBatDau(), form.getNgayKetThuc(),
-                    form.getChiPhi(), "ChoXuLy");
+            BaoTri b = new BaoTri();
+            b.setMaPhieuBaoTri(ma);
+            b.setMaSan(san != null ? san.getMaSan() : null);
+            b.setTenSan(san != null ? san.getTenSan() : "Sân 1");
+            b.setNoiDung(form.getNoiDung());
+            b.setNgayBatDau(form.getNgayBatDau());
+            b.setNgayKetThuc(form.getNgayKetThuc());
+            b.setTrangThaiPhieu(form.getTrangThaiPhieu());
 
             DataStore.get().getBaoTris().add(b);
 
@@ -305,7 +306,7 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
             return;
         }
         String ma = (String) model.getValueAt(r, 0);
-        BaoTri target = DataStore.get().getBaoTris().stream().filter(b -> ma.equals(b.getMaPhieu())).findFirst().orElse(null);
+        BaoTri target = DataStore.get().getBaoTris().stream().filter(b -> ma.equals(b.getMaPhieuBaoTri())).findFirst().orElse(null);
         if (target == null) return;
 
         JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
@@ -314,11 +315,9 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
         if (dialog.isConfirmed() && dialog.getResult() != null) {
             BaoTri form = dialog.getResult();
             target.setNoiDung(form.getNoiDung());
-            target.setNguoiPhuTrach(form.getNguoiPhuTrach());
             target.setNgayBatDau(form.getNgayBatDau());
             target.setNgayKetThuc(form.getNgayKetThuc());
-            target.setChiPhi(form.getChiPhi());
-            target.setTrangThai(form.getTrangThai());
+            target.setTrangThaiPhieu(form.getTrangThaiPhieu());
 
             reload();
             JOptionPane.showMessageDialog(this, "Đã cập nhật thông tin phiếu " + ma, "Thông báo", JOptionPane.INFORMATION_MESSAGE);
@@ -337,13 +336,13 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
             return;
         }
         String ma = (String) model.getValueAt(r, 0);
-        BaoTri target = DataStore.get().getBaoTris().stream().filter(b -> ma.equals(b.getMaPhieu())).findFirst().orElse(null);
+        BaoTri target = DataStore.get().getBaoTris().stream().filter(b -> ma.equals(b.getMaPhieuBaoTri())).findFirst().orElse(null);
         if (target != null) {
-            target.setTrangThai(status);
+            target.setTrangThaiPhieu(status);
 
-            if ("HoanThanh".equals(status) || "DaHuy".equals(status)) {
+            if ("HOAN_THANH".equals(status) || "HUY".equals(status)) {
                 KhuVucSan san = DataStore.get().getKhuVucs().stream()
-                        .filter(k -> k.getId() == target.getKhuVucId())
+                        .filter(k -> k.getMaSan() != null && k.getMaSan().equals(target.getMaSan()))
                         .findFirst().orElse(null);
                 if (san != null && "BaoTri".equals(san.getTrangThai())) {
                     san.setTrangThai("SanSang");
@@ -361,17 +360,15 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
             return;
         }
         String ma = (String) model.getValueAt(r, 0);
-        BaoTri target = DataStore.get().getBaoTris().stream().filter(b -> ma.equals(b.getMaPhieu())).findFirst().orElse(null);
+        BaoTri target = DataStore.get().getBaoTris().stream().filter(b -> ma.equals(b.getMaPhieuBaoTri())).findFirst().orElse(null);
         if (target == null) return;
 
         String details = "===== CHI TIẾT PHIẾU BẢO TRÌ =====\n\n"
-                + "• Mã phiếu     : " + target.getMaPhieu() + "\n"
+                + "• Mã phiếu     : " + target.getMaPhieuBaoTri() + "\n"
                 + "• Sân bảo trì  : " + target.getTenSan() + "\n"
                 + "• Nội dung     : " + target.getNoiDung() + "\n"
-                + "• Người phụ trách : " + target.getNguoiPhuTrach() + "\n"
                 + "• Ngày bắt đầu : " + target.getNgayBatDau() + "\n"
                 + "• Ngày kết thúc: " + target.getNgayKetThuc() + "\n"
-                + "• Chi phí dự kiến: " + String.format("%,.0f VNĐ", (double) (target.getChiPhi())) + "\n"
                 + "• Trạng thái   : " + target.getTrangThaiHienThi() + "\n";
 
         JOptionPane.showMessageDialog(this, details, "Chi tiết phiếu bảo trì", JOptionPane.INFORMATION_MESSAGE);

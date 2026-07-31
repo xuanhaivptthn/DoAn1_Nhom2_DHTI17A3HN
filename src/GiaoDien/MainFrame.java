@@ -269,9 +269,9 @@ public class MainFrame extends JFrame {
             lblUserInfo.setText("Chưa đăng nhập");
             return;
         }
-        String roleNote = "Admin".equals(u.getVaiTro()) ? "Chủ sân" : u.getVaiTroHienThi();
-        lblUserInfo.setText("<html><b>" + u.getHoTen() + "</b><br>"
-                + roleNote + "<br>@" + u.getTenDangNhap() + "</html>");
+        String roleNote = "ADMIN".equals(u.getQuyenHan()) ? "Chủ sân" : u.getQuyenHanHienThi();
+        lblUserInfo.setText("<html><b>" + u.getTenDangNhap() + "</b><br>"
+                + roleNote + "</html>");
     }
 
     private void doLogout() {
