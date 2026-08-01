@@ -315,6 +315,18 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
             target.setNgayKetThuc(form.getNgayKetThuc());
             target.setTrangThaiPhieu(form.getTrangThaiPhieu());
 
+            KhuVucSan san = DataStore.get().getKhuVucs().stream()
+                    .filter(k -> k.getMaSan() != null && k.getMaSan().equalsIgnoreCase(target.getMaSan()))
+                    .findFirst().orElse(null);
+
+            if (san != null) {
+                if ("HOAN_THANH".equalsIgnoreCase(form.getTrangThaiPhieu()) || "HUY".equalsIgnoreCase(form.getTrangThaiPhieu())) {
+                    san.setTrangThai("SanSang");
+                } else if ("DANG_BAO_TRI".equalsIgnoreCase(form.getTrangThaiPhieu()) || "DangXuLy".equalsIgnoreCase(form.getTrangThaiPhieu())) {
+                    san.setTrangThai("BaoTri");
+                }
+            }
+
             reload();
             JOptionPane.showMessageDialog(this, "Đã cập nhật thông tin phiếu " + ma, "Thông báo", JOptionPane.INFORMATION_MESSAGE);
         }

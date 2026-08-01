@@ -514,7 +514,7 @@ public class DashboardPanel extends JPanel {
         List<KhuVucSan> sans = DataStore.get().getKhuVucs();
         if (courtIndex < 0 || courtIndex >= sans.size()) return;
         KhuVucSan san = sans.get(courtIndex);
-        if ("BaoTri".equalsIgnoreCase(san.getTrangThai())) {
+        if (DataStore.get().isSanBaoTriVoiNgay(san, LocalDate.now().toString())) {
             JOptionPane.showMessageDialog(this,
                     "Sân " + san.getTenSan() + " đang bảo trì, không thể đặt lịch.",
                     "Cảnh báo", JOptionPane.WARNING_MESSAGE);

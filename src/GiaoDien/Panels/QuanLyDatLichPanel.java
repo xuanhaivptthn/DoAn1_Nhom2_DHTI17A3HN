@@ -486,6 +486,9 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         List<BaoTri> dayMaints = DataStore.get().getBaoTris().stream()
                 .filter(b -> !"DaHuy".equalsIgnoreCase(b.getTrangThaiPhieu())
                         && !"Huy".equalsIgnoreCase(b.getTrangThaiPhieu())
+                        && !"HUY".equalsIgnoreCase(b.getTrangThaiPhieu())
+                        && !"HoanThanh".equalsIgnoreCase(b.getTrangThaiPhieu())
+                        && !"HOAN_THANH".equalsIgnoreCase(b.getTrangThaiPhieu())
                         && isDateInMaintenanceRange(curDateStr, b.getNgayBatDau(), b.getNgayKetThuc()))
                 .toList();
 
@@ -498,7 +501,7 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
 
                 // Check maintenance status for court
                 BaoTri maint = dayMaints.stream().filter(b -> court.getMaSan() != null && court.getMaSan().equals(b.getMaSan())).findFirst().orElse(null);
-                if (maint != null || DataStore.get().isSanBaoTri(court)) {
+                if (maint != null || DataStore.get().isSanBaoTriVoiNgay(court, curDateStr)) {
                     rowData[col + 1] = maint != null ? "Bảo trì - " + maint.getNoiDung() : "Đang bảo trì";
                     continue;
                 }
@@ -727,14 +730,15 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         if (courtIdx < 0 || courtIdx >= courtList.size() || timeIdx < 0 || timeIdx >= TIME_SLOTS.length) return;
 
         KhuVucSan court = courtList.get(courtIdx);
-        if ("BaoTri".equalsIgnoreCase(court.getTrangThai())) {
+        String curDateStr = selectedDate.toString();
+
+        if (DataStore.get().isSanBaoTriVoiNgay(court, curDateStr)) {
             JOptionPane.showMessageDialog(this,
                     "[!] SÂN ĐANG BẢO TRÌ!\n\nSân " + court.getTenSan() + " hiện đang trong trạng thái bảo trì cơ sở vật chất.\nKhông thể tạo mới lịch đặt cho sân này!",
                     "Cảnh báo bảo trì sân", JOptionPane.WARNING_MESSAGE);
             return;
         }
         String slotTime = TIME_SLOTS[timeIdx];
-        String curDateStr = selectedDate.toString();
 
         DatLich existing = DataStore.get().getDatLichs().stream()
                 .filter(d -> curDateStr.equals(d.getNgayDat())

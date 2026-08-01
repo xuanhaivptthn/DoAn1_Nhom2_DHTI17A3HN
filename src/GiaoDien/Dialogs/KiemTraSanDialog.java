@@ -177,6 +177,15 @@ public class KiemTraSanDialog extends JDialog {
             return;
         }
 
+        if (DataStore.get().isSanBaoTriVoiNgay(selectedSan, ngay)) {
+            JOptionPane.showMessageDialog(this,
+                    "[!] KHÔNG THỂ ĐẶT SÂN ĐANG BẢO TRÌ!\n\n"
+                            + "Sân " + selectedSan.getTenSan() + " đang trong thời gian bảo trì cơ sở vật chất.\n"
+                            + "Vui lòng chọn ngày khác hoặc chọn sân khác!",
+                    "Cảnh báo bảo trì", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
         confirmed = true;
         dispose();
     }

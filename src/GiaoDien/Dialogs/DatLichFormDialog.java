@@ -277,9 +277,6 @@ public class DatLichFormDialog extends JDialog {
         List<String> times = new ArrayList<>();
         for (int h = 6; h <= 23; h++) {
             times.add(String.format("%02d:00", h));
-            if (h < 23) {
-                times.add(String.format("%02d:30", h));
-            }
         }
         JComboBox<String> combo = new JComboBox<>(times.toArray(new String[0]));
         styleCombo(combo);
@@ -498,7 +495,7 @@ public class DatLichFormDialog extends JDialog {
         int kMin = toMinutes(kt);
         if (bMin >= kMin || bMin == 0 || kMin == 0) {
             JOptionPane.showMessageDialog(this,
-                    "Giờ bắt đầu và giờ kết thúc không hợp lệ (ví dụ: 06:00 đến 07:30 hoặc 17:00 đến 18:30).",
+                    "Giờ bắt đầu và giờ kết thúc không hợp lệ (ví dụ: 06:00 đến 07:00 hoặc 17:00 đến 18:00).",
                     "Thông báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
@@ -514,31 +511,30 @@ public class DatLichFormDialog extends JDialog {
             return;
         }
 
-        // KIỂM TRA SÂN ĐANG BẢO TRÌ
-        if ("BaoTri".equalsIgnoreCase(san.getTrangThai())) {
+        // KIỂM TRA SÂN ĐANG BẢO TRÌ (Trạng thái sân + Phiếu bảo trì + Khoảng ngày bảo trì)
+        if (DataStore.get().isSanBaoTriVoiNgay(san, ng)) {
+            Model.BaoTri activeMaint = DataStore.get().getBaoTris().stream()
+                    .filter(b -> san.getMaSan() != null && san.getMaSan().equals(b.getMaSan())
+                            && !"DaHuy".equalsIgnoreCase(b.getTrangThaiPhieu())
+                            && !"HUY".equalsIgnoreCase(b.getTrangThaiPhieu())
+                            && !"HoanThanh".equalsIgnoreCase(b.getTrangThaiPhieu())
+                            && !"HOAN_THANH".equalsIgnoreCase(b.getTrangThaiPhieu()))
+                    .findFirst().orElse(null);
+
+            String detailInfo = "Trạng thái sân: " + san.getTrangThaiHienThi();
+            if (activeMaint != null) {
+                detailInfo = "• Trạng thái sân : " + san.getTrangThaiHienThi() + "\n"
+                           + "• Mã phiếu BT    : " + activeMaint.getMaPhieuBaoTri() + "\n"
+                           + "• Nội dung BT    : " + activeMaint.getNoiDung() + "\n"
+                           + "• Thời gian BT   : " + activeMaint.getNgayBatDau() + " - " + activeMaint.getNgayKetThuc() + "\n"
+                           + "• Trạng thái BT  : " + activeMaint.getTrangThaiHienThi();
+            }
+
             JOptionPane.showMessageDialog(this,
                     "[!] KHÔNG THỂ ĐẶT SÂN ĐANG BẢO TRÌ!\n\n"
-                            + "• Sân bóng   : " + san.getTenSan() + "\n"
-                            + "• Trạng thái : Đang bảo trì cơ sở vật chất\n\n"
-                            + "Sân này đang tạm dừng hoạt động để bảo trì. Vui lòng chọn sân khác!",
-                    "Cảnh báo bảo trì sân bóng", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        // KIỂM TRA PHIẾU BẢO TRÌ HOẠT ĐỘNG TRÊN SÂN
-        Model.BaoTri activeMaint = DataStore.get().getBaoTris().stream()
-                .filter(b -> san.getMaSan() != null && san.getMaSan().equals(b.getMaSan())
-                        && b.isDangBaoTri())
-                .findFirst().orElse(null);
-
-        if (activeMaint != null) {
-            JOptionPane.showMessageDialog(this,
-                    "[!] KHÔNG THỂ ĐẶT SÂN ĐANG CÓ LỊCH BẢO TRÌ!\n\n"
-                            + "• Sân bóng     : " + san.getTenSan() + "\n"
-                            + "• Mã phiếu BT  : " + activeMaint.getMaPhieuBaoTri() + "\n"
-                            + "• Nội dung BT  : " + activeMaint.getNoiDung() + "\n"
-                            + "• Thời gian BT : " + activeMaint.getNgayBatDau() + " - " + activeMaint.getNgayKetThuc() + "\n\n"
-                            + "Sân bóng này đang có lịch bảo trì cơ sở vật chất. Vui lòng chọn sân khác!",
+                            + "Sân bóng " + san.getTenSan() + " hiện đang trong thời gian bảo trì cơ sở vật chất:\n\n"
+                            + detailInfo + "\n\n"
+                            + "Vui lòng chọn ngày khác hoặc chọn sân khác!",
                     "Cảnh báo bảo trì sân bóng", JOptionPane.WARNING_MESSAGE);
             return;
         }

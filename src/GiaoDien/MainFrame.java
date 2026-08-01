@@ -1,6 +1,7 @@
 package GiaoDien;
 
 import Model.TaiKhoan;
+import Utils.DataStore;
 import Utils.SessionManager;
 import GiaoDien.Panels.*;
 import Utils.UIConstants;
@@ -236,6 +237,7 @@ public class MainFrame extends JFrame {
     }
 
     public void showPage(String key) {
+        DataStore.get().syncTrangThaiSanBaoTri();
         SessionManager sm = SessionManager.get();
 
         if (sm.isNhanVienOnly()) {
@@ -274,6 +276,7 @@ public class MainFrame extends JFrame {
     }
 
     public void refreshDataPanels() {
+        DataStore.get().syncTrangThaiSanBaoTri();
         if (datLichPanel != null) datLichPanel.reloadSchedule();
         if (baoTriPanel != null) baoTriPanel.reload();
         if (dashboardPanel != null) dashboardPanel.refresh();

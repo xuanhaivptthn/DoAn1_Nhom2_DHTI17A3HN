@@ -145,6 +145,8 @@ public final class DataStore {
         if (khuVucs.isEmpty()) seedDefaultKhuVucs();
         if (datLichs.isEmpty()) seedDefaultDatLichs();
         if (baoTris.isEmpty()) seedDefaultBaoTris();
+
+        syncTrangThaiSanBaoTri();
     }
 
     /** Tra cứu tenSan (denormalized) từ maSan trong danh sách khuVucs đã nạp, dùng khi backfill dữ liệu đọc từ CSDL. */
@@ -214,7 +216,7 @@ public final class DataStore {
         dl1.setDichVuKem("Nước suối Aquafina 500ml (x5): 50,000 VNĐ");
         datLichs.add(dl1);
 
-        DatLich dl2 = new DatLich(2, "DL002", 3, "Sân B1 (Sân 7)", "Anh Tuấn (FC Thể Công)", "0987654321", today, "19:00", "20:30", 680000, "DaXacNhan", "Trần Thị Thu", "Thanh toán cọc qua CK");
+        DatLich dl2 = new DatLich(2, "DL002", 3, "Sân B1 (Sân 7)", "Anh Tuấn (FC Thể Công)", "0987654321", today, "19:00", "21:00", 680000, "DaXacNhan", "Trần Thị Thu", "Thanh toán cọc qua CK");
         dl2.setMaSan("B1");
         dl2.setTienSan(600000);
         dl2.setTienDichVu(80000);
@@ -223,7 +225,7 @@ public final class DataStore {
         dl2.setDichVuKem("Nước điện giải Revive (x4): 60,000 VNĐ\nÁo bít tập luyện (Bộ) (x1): 20,000 VNĐ");
         datLichs.add(dl2);
 
-        DatLich dl3 = new DatLich(3, "DL003", 2, "Sân A2 (Sân 5)", "Chị Mai (Công ty FPT)", "0905123456", today, "20:30", "22:00", 375000, "HoanThanh", "Chủ Sân Quản Lý", "Đã chuyển khoản đủ 100%");
+        DatLich dl3 = new DatLich(3, "DL003", 2, "Sân A2 (Sân 5)", "Chị Mai (Công ty FPT)", "0905123456", today, "21:00", "23:00", 375000, "HoanThanh", "Chủ Sân Quản Lý", "Đã chuyển khoản đủ 100%");
         dl3.setMaSan("A2");
         dl3.setTienSan(375000);
         dl3.setDatCoc(375000);
@@ -302,18 +304,77 @@ public final class DataStore {
     }
 
     public List<KhuVucSan> getKhuVucs() { return khuVucs; }
+    public synchronized void syncTrangThaiSanBaoTri() {
+        for (KhuVucSan san : khuVucs) {
+            if ("NGUNG_HOAT_DONG".equalsIgnoreCase(san.getTrangThai())) {
+                continue;
+            }
+            boolean hasActiveMaint = baoTris.stream().anyMatch(b -> {
+                boolean matchCourt = (san.getMaSan() != null && san.getMaSan().equalsIgnoreCase(b.getMaSan()))
+                        || (b.getTenSan() != null && b.getTenSan().equalsIgnoreCase(san.getTenSan()));
+                if (!matchCourt) return false;
+                String tt = b.getTrangThaiPhieu() != null ? b.getTrangThaiPhieu().trim().toUpperCase() : "";
+                return "DANG_BAO_TRI".equals(tt) || "DANGXULY".equals(tt);
+            });
+
+            if (!hasActiveMaint) {
+                san.setTrangThai("SanSang");
+            } else {
+                san.setTrangThai("BaoTri");
+            }
+        }
+    }
+
     public boolean isSanBaoTri(KhuVucSan k) {
+        return isSanBaoTriVoiNgay(k, null);
+    }
+
+    public boolean isSanBaoTriVoiNgay(KhuVucSan k, String ngayDatStr) {
         if (k == null) return false;
-        if ("BaoTri".equalsIgnoreCase(k.getTrangThai()) || "Bảo trì".equalsIgnoreCase(k.getTrangThai())) {
+
+        // 1. Nếu sân bị ngưng hoạt động thủ công -> chặn
+        if ("NGUNG_HOAT_DONG".equalsIgnoreCase(k.getTrangThai())) {
             return true;
         }
-        return baoTris.stream().anyMatch(b ->
-            !"DaHuy".equalsIgnoreCase(b.getTrangThaiPhieu()) &&
-            !"HUY".equalsIgnoreCase(b.getTrangThaiPhieu()) &&
-            !"HoanThanh".equalsIgnoreCase(b.getTrangThaiPhieu()) &&
-            !"HOAN_THANH".equalsIgnoreCase(b.getTrangThaiPhieu()) &&
-            ((k.getMaSan() != null && k.getMaSan().equals(b.getMaSan())) || (b.getTenSan() != null && b.getTenSan().equalsIgnoreCase(k.getTenSan())))
-        );
+
+        // 2. Kiểm tra danh sách phiếu bảo trì ĐANG HOẠT ĐỘNG (chưa Hoàn thành & chưa Hủy)
+        List<BaoTri> activeMaints = baoTris.stream().filter(b -> {
+            boolean matchCourt = (k.getMaSan() != null && k.getMaSan().equalsIgnoreCase(b.getMaSan()))
+                    || (b.getTenSan() != null && b.getTenSan().equalsIgnoreCase(k.getTenSan()));
+            if (!matchCourt) return false;
+
+            String tt = b.getTrangThaiPhieu() != null ? b.getTrangThaiPhieu().trim().toUpperCase() : "";
+            return !"HOAN_THANH".equals(tt) && !"HOANTHANH".equals(tt) && !"HUY".equals(tt) && !"DAHUY".equals(tt);
+        }).toList();
+
+        if (activeMaints.isEmpty()) {
+            return false;
+        }
+
+        // 3. Nếu có phiếu bảo trì active:
+        // Nếu không truyền ngayDatStr -> xem như bảo trì
+        if (ngayDatStr == null || ngayDatStr.isBlank()) {
+            return true;
+        }
+
+        // Nếu truyền ngayDatStr -> kiểm tra ngayDatStr có rơi vào khoảng [ngayBatDau, ngayKetThuc] của phiếu bảo trì active nào không
+        return activeMaints.stream().anyMatch(b -> isDateInMaintenanceRange(ngayDatStr, b.getNgayBatDau(), b.getNgayKetThuc()));
+    }
+
+    private boolean isDateInMaintenanceRange(String targetDateStr, String startDateStr, String endDateStr) {
+        if (targetDateStr == null || targetDateStr.isBlank()) return false;
+        if (startDateStr == null || startDateStr.isBlank()) return false;
+        try {
+            java.time.LocalDate targetDate = java.time.LocalDate.parse(targetDateStr.trim());
+            java.time.LocalDate startDate = java.time.LocalDate.parse(startDateStr.trim());
+            java.time.LocalDate endDate = (endDateStr != null && !endDateStr.isBlank())
+                    ? java.time.LocalDate.parse(endDateStr.trim())
+                    : startDate;
+            return (!targetDate.isBefore(startDate)) && (!targetDate.isAfter(endDate));
+        } catch (Exception e) {
+            if (targetDateStr.trim().equalsIgnoreCase(startDateStr.trim())) return true;
+            return endDateStr != null && targetDateStr.trim().equalsIgnoreCase(endDateStr.trim());
+        }
     }
 
     public boolean isSanDangThue(KhuVucSan k) {
