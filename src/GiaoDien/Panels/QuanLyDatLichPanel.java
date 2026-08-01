@@ -786,15 +786,27 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
         BanDichVuDialog dialog = new BanDichVuDialog(parent, currentlySelectedBooking);
         dialog.setVisible(true);
-        if (!dialog.isConfirmed()) return;
+        if (!dialog.isConfirmed() || dialog.getSelectedItems().isEmpty()) return;
 
-        DichVu dv = dialog.getSelectedDichVu();
-        int qty = dialog.getSoLuong();
-        if (dv.xuatKho(qty)) {
-            currentlySelectedBooking.addDichVuKem(dv.getTenDichVu(), qty, dv.getDonGia() * qty);
-            reloadSchedule();
-            JOptionPane.showMessageDialog(this, "Đã thêm dịch vụ vào phiếu!", "Bán dịch vụ", JOptionPane.INFORMATION_MESSAGE);
+        StringBuilder soldInfo = new StringBuilder();
+        double totalAdded = 0;
+
+        for (ChonDichVuDialog.SelectedItem item : dialog.getSelectedItems()) {
+            DichVu dv = item.getDichVu();
+            int qty   = item.getSoLuong();
+            dv.xuatKho(qty);
+            double cost = dv.getDonGia() * qty;
+            totalAdded += cost;
+            currentlySelectedBooking.addDichVuKem(dv.getTenDichVu(), qty, cost);
+            if (soldInfo.length() > 0) soldInfo.append(", ");
+            soldInfo.append(qty).append("x ").append(dv.getTenDichVu());
         }
+
+        reloadSchedule();
+        JOptionPane.showMessageDialog(this,
+                "Đã bán thành công cho phiếu " + currentlySelectedBooking.getMaLichDat() + ":\n"
+                + soldInfo + "\nPhát sinh thêm: " + String.format("%,.0f VNĐ", totalAdded),
+                "Bán dịch vụ thành công", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void onChangeSchedule() {

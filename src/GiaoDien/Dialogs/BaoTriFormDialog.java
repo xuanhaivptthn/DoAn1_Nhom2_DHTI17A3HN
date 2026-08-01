@@ -83,6 +83,8 @@ public class BaoTriFormDialog extends JDialog {
         lblHeaderTitle.setFont(UIConstants.FONT_TITLE);
         lblHeaderTitle.setForeground(java.awt.Color.WHITE);
         lblHeaderTitle.setText("Thông tin phiếu bảo trì");
+        lblHeaderTitle.setIcon(Utils.IconUtils.getBallWhiteIcon(24));
+        lblHeaderTitle.setIconTextGap(10);
         pnlHeader.add(lblHeaderTitle, java.awt.BorderLayout.WEST);
 
         getContentPane().add(pnlHeader, java.awt.BorderLayout.NORTH);

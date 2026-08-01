@@ -41,6 +41,7 @@ public class DoAn1_Nhom2_DHTI17A3HN {
 
     public static void showLogin() {
         JFrame loginFrame = new JFrame(MainFrame.SYSTEM_NAME);
+        loginFrame.setIconImage(Utils.IconUtils.getBallIcon(32).getImage());
         loginFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         loginFrame.setMinimumSize(new Dimension(840, 580));
         loginFrame.setSize(940, 660);
@@ -48,6 +49,7 @@ public class DoAn1_Nhom2_DHTI17A3HN {
         loginFrame.setContentPane(new LoginPanel(v -> {
             loginFrame.dispose();
             MainFrame main = new MainFrame();
+            main.setIconImage(Utils.IconUtils.getBallIcon(32).getImage());
             main.setVisible(true);
         }));
         loginFrame.setVisible(true);

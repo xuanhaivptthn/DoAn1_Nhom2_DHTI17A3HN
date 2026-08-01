@@ -23,6 +23,8 @@ public final class PageUI {
         JLabel t = new JLabel(title);
         t.setFont(UIConstants.FONT_TITLE);
         t.setForeground(Color.WHITE);
+        t.setIcon(IconUtils.getBallWhiteIcon(24));
+        t.setIconTextGap(10);
 
         JLabel s = new JLabel(subtitle);
         s.setFont(UIConstants.FONT_SMALL);

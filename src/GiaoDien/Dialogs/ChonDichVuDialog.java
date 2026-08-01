@@ -28,7 +28,7 @@ import java.util.Map;
 
 /**
  * Dialog chọn Dịch vụ đi kèm đặt sân (Trọng tài, Huấn luyện viên, Quay phim...).
- * Tách biệt chuẩn UIConstants.
+ * Hiển thị thông tin cơ bản rõ ràng, dễ sử dụng.
  */
 public class ChonDichVuDialog extends JDialog {
 
@@ -68,14 +68,14 @@ public class ChonDichVuDialog extends JDialog {
     }
 
     private void initComponents(JFrame parent) {
-        setSize(700, 480);
+        setSize(680, 460);
         setResizable(false);
         if (parent != null) setLocationRelativeTo(parent);
 
         // Header Panel
         JPanel pnlHeader = PageUI.createPageHeader(
-                "Chọn Dịch vụ đi kèm đặt sân",
-                "Chọn các dịch vụ như Trọng tài, Huấn luyện viên, Đèn chiếu sáng, Quay phim..."
+                "Chọn Dịch vụ đi kèm",
+                "Chọn các dịch vụ sân bóng: Trọng tài, Huấn luyện viên, Đèn chiếu sáng..."
         );
         getContentPane().add(pnlHeader, BorderLayout.NORTH);
 
@@ -83,7 +83,7 @@ public class ChonDichVuDialog extends JDialog {
         JPanel pnlCenter = new JPanel(new BorderLayout(0, 10));
         pnlCenter.setBorder(javax.swing.BorderFactory.createEmptyBorder(12, 16, 12, 16));
 
-        // Search Bar
+        // Search Bar & Action Buttons
         JPanel pnlSearch = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         pnlSearch.setOpaque(false);
 
@@ -92,8 +92,8 @@ public class ChonDichVuDialog extends JDialog {
         lblSearch.setFont(UIConstants.FONT_BOLD);
         pnlSearch.add(lblSearch);
 
-        txtSearch = new JTextField(18);
-        txtSearch.setPreferredSize(new Dimension(200, 32));
+        txtSearch = new JTextField(16);
+        txtSearch.setPreferredSize(new Dimension(190, 32));
         txtSearch.setFont(UIConstants.FONT_NORMAL);
         txtSearch.getDocument().addDocumentListener(new SimpleDocListener(this::reloadTable));
         pnlSearch.add(txtSearch);
@@ -111,35 +111,33 @@ public class ChonDichVuDialog extends JDialog {
 
         pnlCenter.add(pnlSearch, BorderLayout.NORTH);
 
-        // Table
+        // Table với thông tin cơ bản: Mã DV, Tên dịch vụ, Đơn giá, Đơn vị, Số lượng chọn
         modelDichVu = new DefaultTableModel(
-                new String[]{"ID", "Tên dịch vụ", "Mô tả", "Đơn giá", "Đơn vị", "Số lượng chọn"}, 0) {
+                new String[]{"Mã DV", "Tên dịch vụ", "Đơn giá", "Đơn vị tính", "Số lượng chọn"}, 0) {
             @Override
-            public boolean isCellEditable(int r, int c) { return c == 5; }
+            public boolean isCellEditable(int r, int c) { return c == 4; }
             @Override
             public Class<?> getColumnClass(int columnIndex) {
-                if (columnIndex == 5) return Integer.class;
+                if (columnIndex == 4) return Integer.class;
                 return String.class;
             }
         };
 
         tableDichVu = new JTable(modelDichVu);
         PageUI.styleTable(tableDichVu);
-        tableDichVu.getColumnModel().getColumn(0).setPreferredWidth(40);
-        tableDichVu.getColumnModel().getColumn(1).setPreferredWidth(75);
-        tableDichVu.getColumnModel().getColumn(2).setPreferredWidth(170);
-        tableDichVu.getColumnModel().getColumn(3).setPreferredWidth(85);
-        tableDichVu.getColumnModel().getColumn(4).setPreferredWidth(100);
-        tableDichVu.getColumnModel().getColumn(5).setPreferredWidth(90);
-        tableDichVu.getColumnModel().getColumn(5).setPreferredWidth(75);
-        tableDichVu.getColumnModel().getColumn(6).setPreferredWidth(110);
+        tableDichVu.getColumnModel().getColumn(0).setPreferredWidth(60);
+        tableDichVu.getColumnModel().getColumn(1).setPreferredWidth(240);
+        tableDichVu.getColumnModel().getColumn(2).setPreferredWidth(120);
+        tableDichVu.getColumnModel().getColumn(3).setPreferredWidth(100);
+        tableDichVu.getColumnModel().getColumn(4).setPreferredWidth(110);
 
         modelDichVu.addTableModelListener(e -> {
-            if (e.getType() == TableModelEvent.UPDATE && e.getColumn() == 5) {
+            if (e.getType() == TableModelEvent.UPDATE && e.getColumn() == 4) {
                 int r = e.getFirstRow();
                 if (r >= 0 && r < modelDichVu.getRowCount()) {
-                    int id = (Integer) modelDichVu.getValueAt(r, 0);
-                    Object val = modelDichVu.getValueAt(r, 5);
+                    String maStr = modelDichVu.getValueAt(r, 0).toString();
+                    int id = parseIdFromMaStr(maStr);
+                    Object val = modelDichVu.getValueAt(r, 4);
                     int qty = (val instanceof Integer num) ? num : 0;
                     selectedQtyMap.put(id, Math.max(0, qty));
                 }
@@ -149,7 +147,7 @@ public class ChonDichVuDialog extends JDialog {
         pnlCenter.add(new JScrollPane(tableDichVu), BorderLayout.CENTER);
         getContentPane().add(pnlCenter, BorderLayout.CENTER);
 
-        // Footer
+        // Footer Panel
         JPanel pnlFooter = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 12));
         pnlFooter.setBackground(UIConstants.BG);
         pnlFooter.setBorder(javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, UIConstants.BORDER));
@@ -175,6 +173,14 @@ public class ChonDichVuDialog extends JDialog {
         reloadTable();
     }
 
+    private int parseIdFromMaStr(String maStr) {
+        try {
+            return Integer.parseInt(maStr.replaceAll("\\D", ""));
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
     private void reloadTable() {
         String kw = txtSearch.getText().trim().toLowerCase();
         modelDichVu.setRowCount(0);
@@ -184,12 +190,12 @@ public class ChonDichVuDialog extends JDialog {
             boolean matchDesc = dv.getMoTa() != null && dv.getMoTa().toLowerCase().contains(kw);
             if (kw.isEmpty() || matchName || matchDesc) {
                 int currentQty = selectedQtyMap.getOrDefault(dv.getId(), 0);
+                String maStr = String.format("DV%02d", dv.getId());
                 modelDichVu.addRow(new Object[]{
-                        dv.getId(),
+                        maStr,
                         dv.getTenDichVu(),
-                        dv.getMoTa() != null ? dv.getMoTa() : "",
                         String.format("%,.0f đ", dv.getDonGia()),
-                        dv.getDonVi() != null ? dv.getDonVi() : "lần",
+                        dv.getDonVi() != null ? dv.getDonVi() : "Lần",
                         currentQty
                 });
             }
@@ -202,11 +208,12 @@ public class ChonDichVuDialog extends JDialog {
             JOptionPane.showMessageDialog(this, "Vui lòng chọn 1 dịch vụ trong bảng trước!", "Thông báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        int id = (Integer) modelDichVu.getValueAt(selectedRow, 0);
+        String maStr = modelDichVu.getValueAt(selectedRow, 0).toString();
+        int id = parseIdFromMaStr(maStr);
         int oldVal = selectedQtyMap.getOrDefault(id, 0);
         int newVal = Math.max(0, oldVal + delta);
         selectedQtyMap.put(id, newVal);
-        modelDichVu.setValueAt(newVal, selectedRow, 5);
+        modelDichVu.setValueAt(newVal, selectedRow, 4);
     }
 
     private void onConfirm() {

@@ -27,8 +27,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Dialog chọn Đồ ăn & Cho thuê Vật phẩm Kho hàng (Bóng, Giày, Áo lưới, Nước suối...).
- * Hỗ trợ cho thuê vật phẩm trong kho khi tạo phiếu đặt sân.
+ * Dialog chọn Đồ ăn & Cho thuê Vật phẩm kho (Bóng, Giày, Áo lưới, Nước suối...).
+ * Hiển thị thông tin cơ bản rõ ràng, dễ sử dụng.
  */
 public class ChonVatPhamKhoDialog extends JDialog {
 
@@ -68,14 +68,14 @@ public class ChonVatPhamKhoDialog extends JDialog {
     }
 
     private void initComponents(JFrame parent) {
-        setSize(760, 500);
+        setSize(700, 460);
         setResizable(false);
         if (parent != null) setLocationRelativeTo(parent);
 
         // Header Panel
         JPanel pnlHeader = PageUI.createPageHeader(
-                "Chọn Đồ ăn & Cho thuê Vật phẩm Kho hàng",
-                "Chọn Đồ ăn/Nước giải khát hoặc Cho thuê vật phẩm kho (Áo lưới, Bóng đá, Giày thi đấu...)"
+                "Chọn Đồ ăn & Vật phẩm kho",
+                "Chọn Nước giải khát / Đồ ăn hoặc Cho thuê vật phẩm kho (Áo lưới, Bóng đá, Giày...)"
         );
         getContentPane().add(pnlHeader, BorderLayout.NORTH);
 
@@ -83,17 +83,17 @@ public class ChonVatPhamKhoDialog extends JDialog {
         JPanel pnlCenter = new JPanel(new BorderLayout(0, 10));
         pnlCenter.setBorder(javax.swing.BorderFactory.createEmptyBorder(12, 16, 12, 16));
 
-        // Search Bar
+        // Search Bar & Action Buttons
         JPanel pnlSearch = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         pnlSearch.setOpaque(false);
 
-        JLabel lblSearch = new JLabel("Tìm hàng kho / vật phẩm:");
+        JLabel lblSearch = new JLabel("Tìm sản phẩm:");
         lblSearch.setIcon(Utils.IconUtils.getSearchIcon(16));
         lblSearch.setFont(UIConstants.FONT_BOLD);
         pnlSearch.add(lblSearch);
 
-        txtSearch = new JTextField(18);
-        txtSearch.setPreferredSize(new Dimension(200, 32));
+        txtSearch = new JTextField(16);
+        txtSearch.setPreferredSize(new Dimension(190, 32));
         txtSearch.setFont(UIConstants.FONT_NORMAL);
         txtSearch.getDocument().addDocumentListener(new SimpleDocListener(this::reloadTable));
         pnlSearch.add(txtSearch);
@@ -111,36 +111,34 @@ public class ChonVatPhamKhoDialog extends JDialog {
 
         pnlCenter.add(pnlSearch, BorderLayout.NORTH);
 
-        // Table
+        // Table hiển thị thông tin cơ bản: Mã SP, Tên sản phẩm/vật phẩm, Hình thức, Đơn giá, Tồn kho, Số lượng chọn
         modelKho = new DefaultTableModel(
-                new String[]{"ID", "Tên đồ ăn / vật phẩm", "Hình thức", "Đơn giá", "Đơn vị", "Tồn kho", "Số lượng chọn"}, 0) {
+                new String[]{"Mã SP", "Tên đồ ăn / vật phẩm", "Đơn giá", "Đơn vị", "Tồn kho", "Số lượng chọn"}, 0) {
             @Override
-            public boolean isCellEditable(int r, int c) { return c == 6; }
+            public boolean isCellEditable(int r, int c) { return c == 5; }
             @Override
             public Class<?> getColumnClass(int columnIndex) {
-                if (columnIndex == 6) return Integer.class;
+                if (columnIndex == 5) return Integer.class;
                 return String.class;
             }
         };
 
         tableKho = new JTable(modelKho);
         PageUI.styleTable(tableKho);
-        tableKho.getColumnModel().getColumn(0).setPreferredWidth(40);
-        tableKho.getColumnModel().getColumn(1).setPreferredWidth(75);
-        tableKho.getColumnModel().getColumn(2).setPreferredWidth(170);
+        tableKho.getColumnModel().getColumn(0).setPreferredWidth(60);
+        tableKho.getColumnModel().getColumn(1).setPreferredWidth(230);
+        tableKho.getColumnModel().getColumn(2).setPreferredWidth(110);
         tableKho.getColumnModel().getColumn(3).setPreferredWidth(80);
-        tableKho.getColumnModel().getColumn(4).setPreferredWidth(95);
-        tableKho.getColumnModel().getColumn(5).setPreferredWidth(95);
-        tableKho.getColumnModel().getColumn(6).setPreferredWidth(90);
-        tableKho.getColumnModel().getColumn(6).setPreferredWidth(75);
-        tableKho.getColumnModel().getColumn(7).setPreferredWidth(110);
+        tableKho.getColumnModel().getColumn(4).setPreferredWidth(80);
+        tableKho.getColumnModel().getColumn(5).setPreferredWidth(110);
 
         modelKho.addTableModelListener(e -> {
-            if (e.getType() == TableModelEvent.UPDATE && e.getColumn() == 6) {
+            if (e.getType() == TableModelEvent.UPDATE && e.getColumn() == 5) {
                 int r = e.getFirstRow();
                 if (r >= 0 && r < modelKho.getRowCount()) {
-                    int id = (Integer) modelKho.getValueAt(r, 0);
-                    Object val = modelKho.getValueAt(r, 6);
+                    String maStr = modelKho.getValueAt(r, 0).toString();
+                    int id = parseIdFromMaStr(maStr);
+                    Object val = modelKho.getValueAt(r, 5);
                     int qty = (val instanceof Integer num) ? num : 0;
                     
                     DichVu item = DataStore.get().getKhoItems().stream()
@@ -152,7 +150,7 @@ public class ChonVatPhamKhoDialog extends JDialog {
                                 "Số lượng chọn (" + qty + ") vượt quá số lượng tồn kho (" + item.getSoLuongTon() + ")!",
                                 "Cảnh báo tồn kho", JOptionPane.WARNING_MESSAGE);
                         qty = item.getSoLuongTon();
-                        modelKho.setValueAt(qty, r, 6);
+                        modelKho.setValueAt(qty, r, 5);
                     }
 
                     selectedQtyMap.put(id, Math.max(0, qty));
@@ -189,6 +187,14 @@ public class ChonVatPhamKhoDialog extends JDialog {
         reloadTable();
     }
 
+    private int parseIdFromMaStr(String maStr) {
+        try {
+            return Integer.parseInt(maStr.replaceAll("\\D", ""));
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
     private void reloadTable() {
         String kw = txtSearch.getText().trim().toLowerCase();
         modelKho.setRowCount(0);
@@ -198,11 +204,10 @@ public class ChonVatPhamKhoDialog extends JDialog {
             boolean matchDesc = item.getMoTa() != null && item.getMoTa().toLowerCase().contains(kw);
             if (kw.isEmpty() || matchName || matchDesc) {
                 int currentQty = selectedQtyMap.getOrDefault(item.getId(), 0);
-                String hinhThuc = isRentalItem(item) ? "Cho thuê" : "Bán giải khát";
+                String maStr = String.format("HH%02d", item.getId());
                 modelKho.addRow(new Object[]{
-                        item.getId(),
+                        maStr,
                         item.getTenDichVu(),
-                        hinhThuc,
                         String.format("%,.0f đ", item.getDonGia()),
                         item.getDonVi() != null ? item.getDonVi() : "cái",
                         item.getSoLuongTon(),
@@ -212,19 +217,14 @@ public class ChonVatPhamKhoDialog extends JDialog {
         }
     }
 
-    private boolean isRentalItem(DichVu item) {
-        if (item == null || item.getTenDichVu() == null) return false;
-        String name = item.getTenDichVu().toLowerCase();
-        return name.contains("áo") || name.contains("bóng") || name.contains("găng") || name.contains("giày") || name.contains("thuê");
-    }
-
     private void changeQty(int delta) {
         int selectedRow = tableKho.getSelectedRow();
         if (selectedRow < 0) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn 1 hàng kho / vật phẩm trong bảng trước!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn 1 sản phẩm / vật phẩm trong bảng trước!", "Thông báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        int id = (Integer) modelKho.getValueAt(selectedRow, 0);
+        String maStr = modelKho.getValueAt(selectedRow, 0).toString();
+        int id = parseIdFromMaStr(maStr);
         DichVu item = DataStore.get().getKhoItems().stream().filter(k -> k.getId() == id).findFirst().orElse(null);
         if (item == null) return;
 
@@ -238,7 +238,7 @@ public class ChonVatPhamKhoDialog extends JDialog {
         }
 
         selectedQtyMap.put(id, newVal);
-        modelKho.setValueAt(newVal, selectedRow, 6);
+        modelKho.setValueAt(newVal, selectedRow, 5);
     }
 
     private void onConfirm() {

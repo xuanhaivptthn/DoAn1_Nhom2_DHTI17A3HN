@@ -110,7 +110,7 @@ public class LoginPanel extends javax.swing.JPanel {
         pnlTop.setLayout(new java.awt.BorderLayout(0, 4));
 
         lblIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        javax.swing.ImageIcon ballIcon = Utils.IconUtils.getBallBlackIcon(42);
+        javax.swing.ImageIcon ballIcon = Utils.IconUtils.getBallIcon(48);
         if (ballIcon != null) {
             lblIcon.setIcon(ballIcon);
             lblIcon.setText("");

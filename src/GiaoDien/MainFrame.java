@@ -131,6 +131,9 @@ public class MainFrame extends JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void customInit() {
+//        setIconImage(Utils.IconUtils.getBallIcon(32).getImage());
+        lblLogo.setIcon(Utils.IconUtils.getBallWhiteIcon(28));
+        lblLogo.setIconTextGap(8);
         rebuildSidebar();
         buildPages();
         refreshUserBar();
