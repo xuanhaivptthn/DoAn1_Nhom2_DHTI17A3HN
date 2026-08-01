@@ -109,7 +109,7 @@ public class QuanLyKhoPanel extends javax.swing.JPanel {
         pnlToolbar.setLayout(new BorderLayout());
         pnlToolbar.setOpaque(false);
 
-        // Bên TRÁI: Thêm mới mặt hàng / Thêm mặt hàng đã có / Sửa / Xóa
+        // Bên TRÁI: Nhập kho / Kiểm tra tồn kho
         JPanel pnlLeft = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         pnlLeft.setOpaque(false);
 
@@ -123,20 +123,8 @@ public class QuanLyKhoPanel extends javax.swing.JPanel {
         PageUI.styleSecondaryButton(btnKiemTra);
         btnKiemTra.addActionListener(e -> onKiemTraTon());
 
-        JButton btnEdit = new javax.swing.JButton(" Sửa");
-        btnEdit.setIcon(Utils.IconUtils.getEditIcon(16));
-        PageUI.styleSecondaryButton(btnEdit);
-        btnEdit.addActionListener(e -> onEdit());
-
-        JButton btnDel = new javax.swing.JButton(" Xóa");
-        btnDel.setIcon(Utils.IconUtils.getDeleteIcon(16));
-        PageUI.styleDangerButton(btnDel);
-        btnDel.addActionListener(e -> onDelete());
-
         pnlLeft.add(btnNhap);
         pnlLeft.add(btnKiemTra);
-        pnlLeft.add(btnEdit);
-        pnlLeft.add(btnDel);
 
         // Bên PHẢI: Xuất kho | Làm mới dữ liệu
         JPanel pnlRight = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
@@ -363,42 +351,6 @@ public class QuanLyKhoPanel extends javax.swing.JPanel {
                 "CẬP NHẬT THÀNH CÔNG\n• " + sel.getTenDichVu()
                         + "\n• Đã cộng thêm: +" + sl + " " + sel.getDonVi()
                         + "\n• Tổng số lượng hiện tại: " + sel.getSoLuongTon() + " " + sel.getDonVi(),
-                "Kết quả cập nhật kho", JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    private void onEdit() {
-        DichVu sel = selected();
-        if (sel == null) {
-            JOptionPane.showMessageDialog(this, "Chọn mặt hàng để cập nhật.");
-            return;
-        }
-        JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
-        KhoFormDialog dialog = new KhoFormDialog(parent, sel);
-        dialog.setVisible(true);
-        if (!dialog.isConfirmed()) return;
-
-        DichVu form = dialog.getResult();
-        sel.setTenDichVu(form.getTenDichVu());
-        sel.setMoTa(form.getMoTa());
-        sel.setDonGia(form.getDonGia());
-        sel.setSoLuongTon(form.getSoLuongTon());
-        reload();
-        JOptionPane.showMessageDialog(this,
-                "CẬP NHẬT KHO — ĐÃ LƯU THÔNG TIN\n• " + sel.getTenDichVu(),
-                "Kết quả cập nhật kho", JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    private void onDelete() {
-        DichVu sel = selected();
-        if (sel == null) {
-            JOptionPane.showMessageDialog(this, "Chọn mặt hàng để xóa.");
-            return;
-        }
-        if (JOptionPane.showConfirmDialog(this, "Xóa \"" + sel.getTenDichVu() + "\" khỏi kho?",
-                "Xác nhận", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) return;
-        DataStore.get().getKhoItems().remove(sel);
-        reload();
-        JOptionPane.showMessageDialog(this, "Đã xóa khỏi kho.",
                 "Kết quả cập nhật kho", JOptionPane.INFORMATION_MESSAGE);
     }
 }
