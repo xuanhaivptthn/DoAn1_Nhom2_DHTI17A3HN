@@ -158,12 +158,14 @@ public class MainFrame extends JFrame {
         }
         addNav(pnlNav, "baotri", "Quản lý bảo trì sân bóng");
 
-        // NHÓM 3: DỊCH VỤ & KHO HÀNG VẬT TƯ
-        addSectionLabel(pnlNav, "— DỊCH VỤ & KHO HÀNG —");
-        addNav(pnlNav, "dichvu", "Quản lý dịch vụ");
-        addNav(pnlNav, "kho", "Quản lý kho hàng & vật tư");
+        // NHÓM 3: DỊCH VỤ & KHO HÀNG VẬT TƯ — chỉ chủ sân
+        if (sm.isAdmin()) {
+            addSectionLabel(pnlNav, "— DỊCH VỤ & KHO HÀNG —");
+            addNav(pnlNav, "dichvu", "Quản lý dịch vụ");
+            addNav(pnlNav, "kho", "Quản lý kho hàng & vật tư");
+        }
 
-        // NHÓM 4: TÀI CHÍNH & QUẢN TRỊ HỆ THỐNG
+        // NHÓM 4: TÀI CHÍNH & QUẢN TRỊ HỆ THỐNG — chỉ chủ sân
         if (sm.isAdmin()) {
             addSectionLabel(pnlNav, "— TÀI CHÍNH & QUẢN TRỊ —");
             addNav(pnlNav, "kinhdoanh", "Quản lý tài chính & báo cáo");
@@ -237,9 +239,15 @@ public class MainFrame extends JFrame {
         SessionManager sm = SessionManager.get();
 
         if (sm.isNhanVienOnly()) {
-            if ("kinhdoanh".equals(key) || "khuvuc".equals(key) || "taikhoan".equals(key)) {
+            if ("kinhdoanh".equals(key) || "khuvuc".equals(key) || "taikhoan".equals(key)
+                    || "dichvu".equals(key) || "kho".equals(key)) {
                 JOptionPane.showMessageDialog(this,
-                        "Tài khoản Nhân viên không được phép truy cập chức năng này.\nChỉ được phép truy cập:\n  • Quản lý dịch vụ\n  • Quản lý kho\n  • Quản lý đặt lịch\n  • Quản lý bảo trì",
+                        "Tài khoản Nhân viên không được phép truy cập chức năng này.\n"
+                        + "Nhân viên chỉ có quyền:\n"
+                        + "  • Dashboard & Hành động nhanh\n"
+                        + "  • Quản lý đặt lịch sân\n"
+                        + "  • Quản lý bảo trì sân\n"
+                        + "  • Bán dịch vụ / đồ ăn qua giao diện đặt sân",
                         "Phân quyền hệ thống", JOptionPane.WARNING_MESSAGE);
                 return;
             }

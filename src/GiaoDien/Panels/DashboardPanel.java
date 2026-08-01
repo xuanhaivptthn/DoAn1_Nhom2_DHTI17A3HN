@@ -351,8 +351,11 @@ public class DashboardPanel extends JPanel {
         if (pageNavigator != null) {
             pnlBtns.add(Box.createHorizontalStrut(8));
             pnlBtns.add(plainBtn("→ Đặt lịch", e -> pageNavigator.accept("datlich")));
-            pnlBtns.add(plainBtn("→ Dịch vụ", e -> pageNavigator.accept("dichvu")));
-            pnlBtns.add(plainBtn("→ Kho hàng", e -> pageNavigator.accept("kho")));
+            // Chỉ chủ sân (admin) mới thấy shortcut vào Quản lý dịch vụ & kho
+            if (SessionManager.get().isAdmin()) {
+                pnlBtns.add(plainBtn("→ Dịch vụ", e -> pageNavigator.accept("dichvu")));
+                pnlBtns.add(plainBtn("→ Kho hàng", e -> pageNavigator.accept("kho")));
+            }
         }
 
         card.add(pnlBtns, BorderLayout.CENTER);
