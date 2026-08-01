@@ -117,7 +117,7 @@ public class QuanLyKhoPanel extends javax.swing.JPanel {
         JButton btnNhap = new javax.swing.JButton(" Nhập kho");
         btnNhap.setIcon(Utils.IconUtils.getAddIcon(16));
         PageUI.stylePrimaryButton(btnNhap);
-        btnNhap.addActionListener(e -> onAddMoi());
+        btnNhap.addActionListener(e -> onNhapKho());
 
         JButton btnKiemTra = new javax.swing.JButton(" Kiểm tra tồn kho");
         btnKiemTra.setIcon(Utils.IconUtils.getCheckIcon(16));
@@ -284,6 +284,26 @@ public class QuanLyKhoPanel extends javax.swing.JPanel {
         }
         sb.append("\n==================================");
         JOptionPane.showMessageDialog(this, sb.toString(), "Kiểm tra tồn kho", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void onNhapKho() {
+        String[] options = {"➕ Nhập mới mặt hàng", "📦 Nhập thêm số lượng (Hàng có sẵn)", "Hủy"};
+        int choice = JOptionPane.showOptionDialog(
+                this,
+                "Vui lòng chọn hình thức nhập kho:",
+                "Tùy chọn nhập kho",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                options,
+                options[0]
+        );
+
+        if (choice == 0) {
+            onAddMoi();
+        } else if (choice == 1) {
+            onAddDaCo();
+        }
     }
 
     private void onAddMoi() {
