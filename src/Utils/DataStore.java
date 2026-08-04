@@ -265,13 +265,17 @@ public final class DataStore {
         if (existing != null) {
             existing.setTenChuSan(tenChuSan);
             existing.setSoDienThoaiChuSan(soDienThoaiChuSan);
-            new DAO.ChuSanDAO().update(existing);
+            if (isUseDatabase()) {
+                new DAO.ChuSanDAO().update(existing);
+            }
             return existing;
         } else {
             String ma = CodeGen.next("CS", chuSans.stream().map(ChuSan::getMaChuSan).toList(), 3);
             ChuSan cs = new ChuSan(ma, maTaiKhoan, tenChuSan, soDienThoaiChuSan);
             chuSans.add(cs);
-            new DAO.ChuSanDAO().insert(cs);
+            if (isUseDatabase()) {
+                new DAO.ChuSanDAO().insert(cs);
+            }
             return cs;
         }
     }
@@ -292,13 +296,17 @@ public final class DataStore {
             existing.setHoTenNhanVien(hoTen);
             existing.setSoDienThoaiNhanVien(sdt);
             existing.setDiaChi(diaChi);
-            new DAO.NhanVienDAO().update(existing);
+            if (isUseDatabase()) {
+                new DAO.NhanVienDAO().update(existing);
+            }
             return existing;
         } else {
             String ma = CodeGen.next("NV", nhanViens.stream().map(NhanVien::getMaNhanVien).toList(), 3);
             NhanVien nv = new NhanVien(ma, maTaiKhoan, hoTen, sdt, diaChi);
             nhanViens.add(nv);
-            new DAO.NhanVienDAO().insert(nv);
+            if (isUseDatabase()) {
+                new DAO.NhanVienDAO().insert(nv);
+            }
             return nv;
         }
     }
@@ -442,14 +450,18 @@ public final class DataStore {
         if (existing != null) {
             if (tenKhachHang != null && !tenKhachHang.isBlank())
                 existing.setTenKhachHang(tenKhachHang.trim());
-            new DAO.KhachHangDAO().update(existing);
+            if (isUseDatabase()) {
+                new DAO.KhachHangDAO().update(existing);
+            }
             return existing;
         } else {
             int nextId = khachHangs.size() + 1;
             KhachHang newKh = new KhachHang(nextId,
                     tenKhachHang != null ? tenKhachHang.trim() : "", cleanSdt);
             khachHangs.add(newKh);
-            new DAO.KhachHangDAO().insert(newKh);
+            if (isUseDatabase()) {
+                new DAO.KhachHangDAO().insert(newKh);
+            }
             return newKh;
         }
     }
