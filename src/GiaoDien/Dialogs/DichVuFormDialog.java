@@ -3,6 +3,7 @@ package GiaoDien.Dialogs;
 import GiaoDien.Panels.*;
 
 import Model.DichVu;
+import Utils.DataStore;
 import Utils.UIConstants;
 
 import javax.swing.JButton;
@@ -25,7 +26,6 @@ import java.awt.Insets;
  */
 public class DichVuFormDialog extends JDialog {
 
-    private JTextField txtMaDichVu;
     private JTextField txtTenDichVu;
     private JComboBox<String> cboLoaiDichVu;
     private JTextField txtDonGia;
@@ -36,13 +36,13 @@ public class DichVuFormDialog extends JDialog {
     private DichVu result;
     private boolean confirmed;
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
+    // Variables declaration - do not modify
     private javax.swing.JLabel lblHeaderTitle;
     private javax.swing.JPanel pnlCenterWrap;
     private javax.swing.JPanel pnlFooter;
     private javax.swing.JPanel pnlFormCard;
     private javax.swing.JPanel pnlHeader;
-    // End of variables declaration//GEN-END:variables
+    // End of variables declaration
 
     public DichVuFormDialog() {
         this(null, null);
@@ -57,12 +57,7 @@ public class DichVuFormDialog extends JDialog {
         customInit(parent);
     }
 
-    /**
-     * NetBeans GUI Builder generated code initialization.
-     */
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
-
         pnlHeader = new javax.swing.JPanel();
         lblHeaderTitle = new javax.swing.JLabel();
         pnlCenterWrap = new javax.swing.JPanel();
@@ -102,10 +97,10 @@ public class DichVuFormDialog extends JDialog {
 
         pack();
         setLocationRelativeTo(null);
-    }// </editor-fold>//GEN-END:initComponents
+    }
 
     private void customInit(JFrame parent) {
-        setSize(460, 420);
+        setSize(460, 360);
         if (parent != null) setLocationRelativeTo(parent);
 
         lblHeaderTitle.setText(isEdit ? "Sửa dịch vụ" : "Thêm dịch vụ mới");
@@ -116,10 +111,6 @@ public class DichVuFormDialog extends JDialog {
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         int row = 0;
-        txtMaDichVu = new javax.swing.JTextField(16);
-        txtMaDichVu.setEditable(false);
-        row = addField(pnlFormCard, gbc, row, "Mã dịch vụ", txtMaDichVu);
-
         txtTenDichVu = new javax.swing.JTextField(16);
         row = addField(pnlFormCard, gbc, row, "Tên dịch vụ *", txtTenDichVu);
 
@@ -149,8 +140,6 @@ public class DichVuFormDialog extends JDialog {
 
         if (isEdit && original != null) {
             fillForm(original);
-        } else {
-            txtMaDichVu.setText("(Tự động tạo)");
         }
 
         getRootPane().setDefaultButton(btnSave);
@@ -177,7 +166,6 @@ public class DichVuFormDialog extends JDialog {
     }
 
     private void fillForm(DichVu d) {
-        txtMaDichVu.setText(d.getMaDichVu());
         txtTenDichVu.setText(d.getTenDichVu());
         cboLoaiDichVu.setSelectedItem(d.getLoaiDichVu());
         txtDonGia.setText(String.valueOf((long) d.getDonGia()));
@@ -191,6 +179,17 @@ public class DichVuFormDialog extends JDialog {
 
         if (ten.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Vui lòng nhập Tên dịch vụ.", "Thông báo", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        boolean duplicateName = DataStore.get().getDichVus().stream()
+                .anyMatch(d -> d.getTenDichVu() != null && d.getTenDichVu().equalsIgnoreCase(ten)
+                        && (!isEdit || (original != null && !d.getMaDichVu().equalsIgnoreCase(original.getMaDichVu()))));
+        if (duplicateName) {
+            JOptionPane.showMessageDialog(this,
+                    "Tên dịch vụ '" + ten + "' đã tồn tại trong hệ thống. Vui lòng nhập tên khác!",
+                    "Cảnh báo trùng tên dịch vụ", JOptionPane.WARNING_MESSAGE);
+            txtTenDichVu.requestFocus();
             return;
         }
 

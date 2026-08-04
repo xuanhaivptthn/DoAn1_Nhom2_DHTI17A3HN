@@ -108,7 +108,8 @@ public class TaiKhoanTableModel extends AbstractTableModel {
     }
 
     public String nextMaTaiKhoan() {
-        return CodeGen.next("TK", allData.stream().map(TaiKhoan::getMaTaiKhoan).toList(), 3);
+        List<String> allCodes = Utils.DataStore.get().getTaiKhoans().stream().map(TaiKhoan::getMaTaiKhoan).toList();
+        return CodeGen.next("TK", allCodes, 3);
     }
 
     public boolean existsUsername(String username, String excludeMaTaiKhoan) {

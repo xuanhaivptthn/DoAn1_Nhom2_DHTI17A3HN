@@ -23,11 +23,10 @@ import java.awt.Insets;
 
 /**
  * Dialog thêm / sửa khu vực sân bóng.
- * Tương thích Apache NetBeans GUI Builder Drag & Drop.
+ * Mã sân bóng tự động phát sinh và ẩn khỏi giao diện nhập liệu.
  */
 public class KhuVucFormDialog extends JDialog {
 
-    private JTextField txtMaSan;
     private JTextField txtTenSan;
     private JComboBox<String> cboLoaiSan;
     private JTextField txtGiaTheoGio;
@@ -38,13 +37,13 @@ public class KhuVucFormDialog extends JDialog {
     private KhuVucSan result;
     private boolean confirmed;
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
+    // Variables declaration - do not modify
     private javax.swing.JLabel lblHeaderTitle;
     private javax.swing.JPanel pnlCenterWrap;
     private javax.swing.JPanel pnlFooter;
     private javax.swing.JPanel pnlFormCard;
     private javax.swing.JPanel pnlHeader;
-    // End of variables declaration//GEN-END:variables
+    // End of variables declaration
 
     public KhuVucFormDialog() {
         this(null, null);
@@ -59,12 +58,7 @@ public class KhuVucFormDialog extends JDialog {
         customInit(parent);
     }
 
-    /**
-     * NetBeans GUI Builder generated code initialization.
-     */
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
-
         pnlHeader = new javax.swing.JPanel();
         lblHeaderTitle = new javax.swing.JLabel();
         pnlCenterWrap = new javax.swing.JPanel();
@@ -104,10 +98,10 @@ public class KhuVucFormDialog extends JDialog {
 
         pack();
         setLocationRelativeTo(null);
-    }// </editor-fold>//GEN-END:initComponents
+    }
 
     private void customInit(JFrame parent) {
-        setSize(460, 420);
+        setSize(460, 360);
         if (parent != null) setLocationRelativeTo(parent);
 
         lblHeaderTitle.setText(isEdit ? "Cập nhật khu vực sân" : "Thêm khu vực sân mới");
@@ -118,9 +112,6 @@ public class KhuVucFormDialog extends JDialog {
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         int row = 0;
-        txtMaSan = new javax.swing.JTextField(16);
-        row = addField(pnlFormCard, gbc, row, "Mã sân *", txtMaSan);
-
         txtTenSan = new javax.swing.JTextField(16);
         row = addField(pnlFormCard, gbc, row, "Tên sân *", txtTenSan);
 
@@ -175,7 +166,6 @@ public class KhuVucFormDialog extends JDialog {
     }
 
     private void fillForm(KhuVucSan k) {
-        txtMaSan.setText(k.getMaSan());
         txtTenSan.setText(k.getTenSan());
         cboLoaiSan.setSelectedItem(k.getLoaiSanHienThi());
         txtGiaTheoGio.setText(String.valueOf((long) k.getGiaThueTheoGio()));
@@ -183,12 +173,24 @@ public class KhuVucFormDialog extends JDialog {
     }
 
     private void onSave() {
-        String ma = txtMaSan.getText().trim();
         String ten = txtTenSan.getText().trim();
         String giaStr = txtGiaTheoGio.getText().trim().replace(",", "").replace(".", "");
 
-        if (ma.isEmpty() || ten.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Mã sân và tên sân không được để trống.", "Thông báo", JOptionPane.WARNING_MESSAGE);
+        if (ten.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Tên sân không được để trống.", "Thông báo", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String ma = isEdit ? original.getMaSan() : Utils.CodeGen.next("SAN", DataStore.get().getKhuVucs().stream().map(KhuVucSan::getMaSan).toList(), 3);
+
+        boolean tenExists = DataStore.get().getKhuVucs().stream()
+                .anyMatch(k -> k.getTenSan() != null && k.getTenSan().equalsIgnoreCase(ten)
+                        && (isEdit ? !k.getMaSan().equalsIgnoreCase(original.getMaSan()) : true));
+        if (tenExists) {
+            JOptionPane.showMessageDialog(this,
+                    "Tên sân '" + ten + "' đã tồn tại trong hệ thống. Vui lòng nhập tên khác!",
+                    "Cảnh báo trùng tên sân", JOptionPane.WARNING_MESSAGE);
+            txtTenSan.requestFocus();
             return;
         }
 

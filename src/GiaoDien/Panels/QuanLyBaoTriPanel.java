@@ -285,6 +285,9 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
             b.setTrangThaiPhieu(form.getTrangThaiPhieu());
 
             DataStore.get().getBaoTris().add(b);
+            if (DataStore.isUseDatabase()) {
+                try { new DAO.BaoTriDAO().insert(b); } catch (Exception ignored) {}
+            }
 
             if (san != null) {
                 san.setTrangThai("BaoTri");

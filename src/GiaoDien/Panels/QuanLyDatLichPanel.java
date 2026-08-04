@@ -721,6 +721,9 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         phieu.setSelectedDvMap(form.getSelectedDvMap());
         phieu.setSelectedDoAnMap(form.getSelectedDoAnMap());
         DataStore.get().getDatLichs().add(phieu);
+        if (DataStore.isUseDatabase()) {
+            try { new DAO.DatLichDAO().insert(phieu); } catch (Exception ignored) {}
+        }
         reloadSchedule();
         JOptionPane.showMessageDialog(this, "Đã tạo mới lịch đặt sân " + ma + " thành công!", "Kết quả đặt lịch", JOptionPane.INFORMATION_MESSAGE);
     }
@@ -777,6 +780,9 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
             phieu.setSelectedDvMap(form.getSelectedDvMap());
             phieu.setSelectedDoAnMap(form.getSelectedDoAnMap());
             DataStore.get().getDatLichs().add(phieu);
+            if (DataStore.isUseDatabase()) {
+                try { new DAO.DatLichDAO().insert(phieu); } catch (Exception ignored) {}
+            }
             reloadSchedule();
             JOptionPane.showMessageDialog(this, "Đã tạo mới lịch đặt sân " + ma + " (" + san.getTenSan() + " - " + form.getKhungGio() + ") thành công!", "Kết quả đặt lịch", JOptionPane.INFORMATION_MESSAGE);
         }

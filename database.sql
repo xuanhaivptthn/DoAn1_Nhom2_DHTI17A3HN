@@ -81,11 +81,11 @@ CREATE TABLE `san_bong` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `san_bong` (`maSan`, `tenSan`, `loaiSan`, `giaThueTheoGio`, `trangThai`) VALUES
-('A1', 'Sân A1 (Sân 5)', 'San5', 250000, 'SanSang'),
-('A2', 'Sân A2 (Sân 5)', 'San5', 250000, 'SanSang'),
-('B1', 'Sân B1 (Sân 7)', 'San7', 400000, 'SanSang'),
-('B2', 'Sân B2 (Sân 7)', 'San7', 400000, 'SanSang'),
-('C1', 'Sân C1 (Sân 11)', 'San11', 800000, 'BaoTri');
+('SAN001', 'Sân A1 (Sân 5)', 'San5', 250000, 'SanSang'),
+('SAN002', 'Sân A2 (Sân 5)', 'San5', 250000, 'SanSang'),
+('SAN003', 'Sân B1 (Sân 7)', 'San7', 400000, 'SanSang'),
+('SAN004', 'Sân B2 (Sân 7)', 'San7', 400000, 'SanSang'),
+('SAN005', 'Sân C1 (Sân 11)', 'San11', 800000, 'BaoTri');
 
 
 -- ------------------------------------------------------------
@@ -153,9 +153,9 @@ CREATE TABLE `lich_dat_san` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `lich_dat_san` (`maLichDat`, `maSan`, `maTaiKhoan`, `maKhachHang`, `tenKhach`, `soDienThoaiKhach`, `ngayDat`, `gioBatDau`, `gioKetThuc`, `trangThai`, `ghiChu`) VALUES
-('DL001', 'A1', 'TK002', 'KH001', 'Anh Đức (FC Anh Em)', '0912345678', CURDATE(), '17:30', '19:00', 'DaXacNhan', 'Đặt cọc trước 100k'),
-('DL002', 'B1', 'TK003', 'KH002', 'Anh Tuấn (FC Thể Công)', '0987654321', CURDATE(), '19:00', '20:30', 'DaXacNhan', 'Thanh toán cọc qua CK'),
-('DL003', 'A2', 'TK001', 'KH003', 'Chị Mai (Công ty FPT)', '0905123456', CURDATE(), '20:30', '22:00', 'HoanThanh', 'Đã chuyển khoản đủ 100%');
+('DL001', 'SAN001', 'TK002', 'KH001', 'Anh Đức (FC Anh Em)', '0912345678', CURDATE(), '17:30', '19:00', 'DaXacNhan', 'Đặt cọc trước 100k'),
+('DL002', 'SAN003', 'TK003', 'KH002', 'Anh Tuấn (FC Thể Công)', '0987654321', CURDATE(), '19:00', '20:30', 'DaXacNhan', 'Thanh toán cọc qua CK'),
+('DL003', 'SAN002', 'TK001', 'KH003', 'Chị Mai (Công ty FPT)', '0905123456', CURDATE(), '20:30', '22:00', 'HoanThanh', 'Đã chuyển khoản đủ 100%');
 
 
 -- ------------------------------------------------------------
@@ -172,8 +172,8 @@ CREATE TABLE `bao_tri` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `bao_tri` (`maPhieuBaoTri`, `maSan`, `noiDung`, `ngayBatDau`, `ngayKetThuc`, `trangThaiPhieu`) VALUES
-('BT001', 'C1', 'Thay lại thảm cỏ nhân tạo vùng cấm địa & kiểm tra hệ thống đèn pha LED', '2026-07-25', '2026-08-05', 'DANG_BAO_TRI'),
-('BT002', 'B2', 'Bảo dưỡng định kỳ lưới chắn bóng xung quanh', '2026-07-20', '2026-07-22', 'HOAN_THANH');
+('BT001', 'SAN005', 'Thay lại thảm cỏ nhân tạo vùng cấm địa & kiểm tra hệ thống đèn pha LED', '2026-07-25', '2026-08-05', 'DANG_BAO_TRI'),
+('BT002', 'SAN004', 'Bảo dưỡng định kỳ lưới chắn bóng xung quanh', '2026-07-20', '2026-07-22', 'HOAN_THANH');
 
 
 -- ------------------------------------------------------------

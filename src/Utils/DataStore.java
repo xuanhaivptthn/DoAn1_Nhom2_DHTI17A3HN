@@ -198,17 +198,17 @@ public final class DataStore {
     }
 
     private void seedDefaultKhuVucs() {
-        khuVucs.add(new KhuVucSan("A1", "Sân A1 (Sân 5)", "San5", 250000, "SanSang"));
-        khuVucs.add(new KhuVucSan("A2", "Sân A2 (Sân 5)", "San5", 250000, "SanSang"));
-        khuVucs.add(new KhuVucSan("B1", "Sân B1 (Sân 7)", "San7", 400000, "SanSang"));
-        khuVucs.add(new KhuVucSan("B2", "Sân B2 (Sân 7)", "San7", 400000, "SanSang"));
-        khuVucs.add(new KhuVucSan("C1", "Sân C1 (Sân 11)", "San11", 800000, "BaoTri"));
+        khuVucs.add(new KhuVucSan("SAN001", "Sân A1 (Sân 5)", "San5", 250000, "SanSang"));
+        khuVucs.add(new KhuVucSan("SAN002", "Sân A2 (Sân 5)", "San5", 250000, "SanSang"));
+        khuVucs.add(new KhuVucSan("SAN003", "Sân B1 (Sân 7)", "San7", 400000, "SanSang"));
+        khuVucs.add(new KhuVucSan("SAN004", "Sân B2 (Sân 7)", "San7", 400000, "SanSang"));
+        khuVucs.add(new KhuVucSan("SAN005", "Sân C1 (Sân 11)", "San11", 800000, "BaoTri"));
     }
 
     private void seedDefaultDatLichs() {
         String today = java.time.LocalDate.now().toString();
         DatLich dl1 = new DatLich(1, "DL001", 1, "Sân A1 (Sân 5)", "Anh Đức (FC Anh Em)", "0912345678", today, "08:00", "10:00", 425000, "ChoXacNhan", "TK002", "Đặt cọc trước 100k");
-        dl1.setMaSan("A1");
+        dl1.setMaSan("SAN001");
         dl1.setTienSan(375000);
         dl1.setTienDichVu(50000);
         dl1.setDatCoc(100000);
@@ -217,7 +217,7 @@ public final class DataStore {
         datLichs.add(dl1);
 
         DatLich dl2 = new DatLich(2, "DL002", 3, "Sân B1 (Sân 7)", "Anh Tuấn (FC Thể Công)", "0987654321", today, "19:00", "21:00", 680000, "DaXacNhan", "Trần Thị Thu", "Thanh toán cọc qua CK");
-        dl2.setMaSan("B1");
+        dl2.setMaSan("SAN003");
         dl2.setTienSan(600000);
         dl2.setTienDichVu(80000);
         dl2.setDatCoc(200000);
@@ -226,7 +226,7 @@ public final class DataStore {
         datLichs.add(dl2);
 
         DatLich dl3 = new DatLich(3, "DL003", 2, "Sân A2 (Sân 5)", "Chị Mai (Công ty FPT)", "0905123456", today, "21:00", "23:00", 375000, "HoanThanh", "Chủ Sân Quản Lý", "Đã chuyển khoản đủ 100%");
-        dl3.setMaSan("A2");
+        dl3.setMaSan("SAN002");
         dl3.setTienSan(375000);
         dl3.setDatCoc(375000);
         dl3.setTrangThaiTT("DaThanhToan");
@@ -235,11 +235,11 @@ public final class DataStore {
 
     private void seedDefaultBaoTris() {
         BaoTri bt1 = new BaoTri(1, "BT001", 5, "Sân C1 (Sân 11)", "Thay lại thảm cỏ nhân tạo vùng cấm địa & kiểm tra hệ thống đèn pha LED", "Lê Minh Tuấn", "2026-07-25", "2026-08-05", 4500000, "DangXuLy");
-        bt1.setMaSan("C1");
+        bt1.setMaSan("SAN005");
         baoTris.add(bt1);
 
         BaoTri bt2 = new BaoTri(2, "BT002", 4, "Sân B2 (Sân 7)", "Bảo dưỡng định kỳ lưới chắn bóng xung quanh", "Trần Thị Lan", "2026-07-20", "2026-07-22", 800000, "HoanThanh");
-        bt2.setMaSan("B2");
+        bt2.setMaSan("SAN004");
         baoTris.add(bt2);
     }
 

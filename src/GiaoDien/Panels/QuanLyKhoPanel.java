@@ -300,14 +300,20 @@ public class QuanLyKhoPanel extends javax.swing.JPanel {
         if (!dialog.isConfirmed()) return;
 
         DichVu form = dialog.getResult();
-        int nextId = DataStore.get().getKhoItems().stream().mapToInt(DichVu::getId).max().orElse(100) + 1;
-        form.setMaDichVu(String.format("HH%03d", nextId));
+        List<String> existingCodes = DataStore.get().getKhoItems().stream().map(d -> "HH" + d.getMaHangHoa()).toList();
+        String maCode = Utils.CodeGen.next("HH", existingCodes, 3);
+        form.setMaDichVu(maCode);
+        form.setLoaiDichVu("Vật tư kho");
         DataStore.get().getKhoItems().add(form);
+        if (DataStore.isUseDatabase()) {
+            try { new DAO.DichVuDAO().insert(form); } catch (Exception ignored) {}
+        }
         reload();
 
         JOptionPane.showMessageDialog(this,
                 "THÊM MẶT HÀNG MỚI THÀNH CÔNG\n"
-                        + "• " + form.getTenDichVu() + "\n"
+                        + "• Mã hàng: " + form.getMaDichVu() + "\n"
+                        + "• Tên hàng: " + form.getTenDichVu() + "\n"
                         + "• Giá: " + String.format("%,.0f VNĐ", (double) form.getDonGia()) + "\n"
                         + "• Số lượng: " + form.getSoLuongTon(),
                 "Kết quả cập nhật kho", JOptionPane.INFORMATION_MESSAGE);

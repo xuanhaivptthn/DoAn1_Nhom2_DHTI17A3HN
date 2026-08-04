@@ -224,9 +224,13 @@ public class QuanLyDichVuPanel extends javax.swing.JPanel {
         if (!dialog.isConfirmed()) return;
 
         DichVu form = dialog.getResult();
-        int nextId = DataStore.get().getDichVus().stream().mapToInt(DichVu::getId).max().orElse(0) + 1;
-        form.setMaDichVu(String.format("DV%03d", nextId));
+        List<String> existingCodes = DataStore.get().getDichVus().stream().map(DichVu::getMaDichVu).toList();
+        String ma = Utils.CodeGen.next("DV", existingCodes, 3);
+        form.setMaDichVu(ma);
         DataStore.get().getDichVus().add(form);
+        if (DataStore.isUseDatabase()) {
+            try { new DAO.DichVuDAO().insert(form); } catch (Exception ignored) {}
+        }
         reload();
         JOptionPane.showMessageDialog(this,
                 "THÊM DỊCH VỤ THÀNH CÔNG\n"
@@ -253,6 +257,9 @@ public class QuanLyDichVuPanel extends javax.swing.JPanel {
         sel.setLoaiDichVu(form.getLoaiDichVu());
         sel.setDonGia(form.getDonGia());
         sel.setMoTa(form.getMoTa());
+        if (DataStore.isUseDatabase()) {
+            try { new DAO.DichVuDAO().update(sel); } catch (Exception ignored) {}
+        }
         reload();
         JOptionPane.showMessageDialog(this,
                 "CẬP NHẬT DỊCH VỤ THÀNH CÔNG\n• Mã dịch vụ: " + sel.getMaDichVu() + "\n• Tên dịch vụ: " + sel.getTenDichVu(),

@@ -3,6 +3,7 @@ package GiaoDien.Dialogs;
 import GiaoDien.Panels.*;
 
 import Model.DichVu;
+import Utils.DataStore;
 import Utils.UIConstants;
 
 import javax.swing.JButton;
@@ -25,7 +26,6 @@ import java.awt.Insets;
  */
 public class KhoFormDialog extends JDialog {
 
-    private JTextField txtMaHangHoa;
     private JTextField txtTenHangHoa;
     private JTextField txtSoLuongTon;
     private JTextField txtDonGia;
@@ -36,13 +36,13 @@ public class KhoFormDialog extends JDialog {
     private DichVu result;
     private boolean confirmed;
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
+    // Variables declaration - do not modify
     private javax.swing.JLabel lblHeaderTitle;
     private javax.swing.JPanel pnlCenterWrap;
     private javax.swing.JPanel pnlFooter;
     private javax.swing.JPanel pnlFormCard;
     private javax.swing.JPanel pnlHeader;
-    // End of variables declaration//GEN-END:variables
+    // End of variables declaration
 
     public KhoFormDialog() {
         this(null, null);
@@ -57,12 +57,7 @@ public class KhoFormDialog extends JDialog {
         customInit(parent);
     }
 
-    /**
-     * NetBeans GUI Builder generated code initialization.
-     */
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
-
         pnlHeader = new javax.swing.JPanel();
         lblHeaderTitle = new javax.swing.JLabel();
         pnlCenterWrap = new javax.swing.JPanel();
@@ -102,10 +97,10 @@ public class KhoFormDialog extends JDialog {
 
         pack();
         setLocationRelativeTo(null);
-    }// </editor-fold>//GEN-END:initComponents
+    }
 
     private void customInit(JFrame parent) {
-        setSize(460, 420);
+        setSize(460, 360);
         if (parent != null) setLocationRelativeTo(parent);
 
         lblHeaderTitle.setText(isEdit ? "Sửa mặt hàng kho" : "Thêm mặt hàng kho mới");
@@ -116,10 +111,6 @@ public class KhoFormDialog extends JDialog {
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         int row = 0;
-        txtMaHangHoa = new javax.swing.JTextField(16);
-        txtMaHangHoa.setEditable(false);
-        row = addField(pnlFormCard, gbc, row, "Mã hàng hóa", txtMaHangHoa);
-
         txtTenHangHoa = new javax.swing.JTextField(16);
         row = addField(pnlFormCard, gbc, row, "Tên hàng hóa *", txtTenHangHoa);
 
@@ -148,7 +139,6 @@ public class KhoFormDialog extends JDialog {
         if (isEdit && original != null) {
             fillForm(original);
         } else {
-            txtMaHangHoa.setText("(Tự động tạo)");
             txtSoLuongTon.setText("0");
         }
 
@@ -176,7 +166,6 @@ public class KhoFormDialog extends JDialog {
     }
 
     private void fillForm(DichVu d) {
-        txtMaHangHoa.setText("HH" + d.getMaHangHoa());
         txtTenHangHoa.setText(d.getTenHangHoa());
         txtSoLuongTon.setText(String.valueOf(d.getSoLuongTon()));
         txtDonGia.setText(String.valueOf((long) d.getDonGia()));
@@ -191,6 +180,17 @@ public class KhoFormDialog extends JDialog {
 
         if (ten.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Tên hàng hóa không được để trống.", "Thông báo", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        boolean duplicateName = DataStore.get().getKhoItems().stream()
+                .anyMatch(d -> d.getTenHangHoa() != null && d.getTenHangHoa().equalsIgnoreCase(ten)
+                        && (!isEdit || (original != null && d.getId() != original.getId())));
+        if (duplicateName) {
+            JOptionPane.showMessageDialog(this,
+                    "Mặt hàng kho '" + ten + "' đã tồn tại trong kho hàng. Vui lòng chọn tên khác hoặc chọn 'Nhập thêm số lượng'!",
+                    "Cảnh báo trùng tên mặt hàng", JOptionPane.WARNING_MESSAGE);
+            txtTenHangHoa.requestFocus();
             return;
         }
 
