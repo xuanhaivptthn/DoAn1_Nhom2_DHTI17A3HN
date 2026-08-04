@@ -48,6 +48,24 @@ public class TaiKhoanDAO {
         return null;
     }
 
+    public TaiKhoan findByUsername(String username) {
+        String sql = "SELECT * FROM tai_khoan WHERE tenDangNhap = ?";
+        try (Connection conn = DBConnect.getConnection()) {
+            if (conn == null) return null;
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setString(1, username);
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        return mapResultSet(rs);
+                    }
+                }
+            }
+        } catch (SQLException ex) {
+            System.err.println("Lỗi TaiKhoanDAO.findByUsername(): " + ex.getMessage());
+        }
+        return null;
+    }
+
     public boolean insert(TaiKhoan tk) {
         String sql = "INSERT INTO tai_khoan (maTaiKhoan, tenDangNhap, matKhau, quyenHan, trangThai) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = DBConnect.getConnection()) {

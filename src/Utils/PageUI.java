@@ -88,7 +88,7 @@ public final class PageUI {
                     } else if (strVal.contains("Bảo trì") || strVal.equals("Đang thuê") || strVal.equals("Đang đá") || strVal.equals("Đang đặt") || strVal.contains("[Đã đặt]")) {
                         setFont(UIConstants.FONT_BOLD);
                         if (!isSelected) setForeground(new Color(217, 119, 6)); // Amber / Orange
-                    } else if (strVal.equals("Đã khóa") || strVal.equals("Bị khóa") || strVal.equals("Đã hủy") || strVal.startsWith("[!]")) {
+                    } else if (strVal.equals("Đã khóa") || strVal.equals("Đã khoá") || strVal.equals("Bị khóa") || strVal.equals("Đã hủy") || strVal.startsWith("[!]")) {
                         setFont(UIConstants.FONT_BOLD);
                         if (!isSelected) setForeground(UIConstants.DANGER);
                     } else if (strVal.equals("Quản trị viên") || strVal.equals("Chủ sân")) {

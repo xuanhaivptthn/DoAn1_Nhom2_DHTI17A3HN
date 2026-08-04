@@ -60,8 +60,8 @@ public class TaiKhoanTableModel extends AbstractTableModel {
                             || "Tất cả".equalsIgnoreCase(trangThaiFilter)
                             || trangThaiFilter.equalsIgnoreCase(tk.getTrangThaiHienThi())
                             || trangThaiFilter.equalsIgnoreCase(tk.getTrangThai())
-                            || (("Đã khóa".equalsIgnoreCase(trangThaiFilter) || "Bị khóa".equalsIgnoreCase(trangThaiFilter))
-                                && ("KHOA".equalsIgnoreCase(tk.getTrangThai()) || "Đã khóa".equalsIgnoreCase(tk.getTrangThaiHienThi()) || "Bị khóa".equalsIgnoreCase(tk.getTrangThaiHienThi())))
+                            || (("Đã khóa".equalsIgnoreCase(trangThaiFilter) || "Đã khoá".equalsIgnoreCase(trangThaiFilter) || "Bị khóa".equalsIgnoreCase(trangThaiFilter))
+                                && ("KHOA".equalsIgnoreCase(tk.getTrangThai()) || "Đã khóa".equalsIgnoreCase(tk.getTrangThaiHienThi()) || "Đã khoá".equalsIgnoreCase(tk.getTrangThaiHienThi()) || "Bị khóa".equalsIgnoreCase(tk.getTrangThaiHienThi())))
                             || ("Hoạt động".equalsIgnoreCase(trangThaiFilter) && ("HOAT_DONG".equalsIgnoreCase(tk.getTrangThai()) || "Hoạt động".equalsIgnoreCase(tk.getTrangThaiHienThi())));
                     return matchKw && matchRole && matchStatus;
                 })

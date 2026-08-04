@@ -61,5 +61,5 @@ public final class UIConstants {
     public static final String[] VAI_TRO_HIEN_THI = {"Quản trị viên", "Nhân viên"};
 
     public static final String[] TRANG_THAI = {"HoatDong", "Khoa"};
-    public static final String[] TRANG_THAI_HIEN_THI = {"Hoạt động", "Đã khóa"};
+    public static final String[] TRANG_THAI_HIEN_THI = {"Hoạt động", "Đã khoá"};
 }

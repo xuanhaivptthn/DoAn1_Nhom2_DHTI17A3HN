@@ -99,7 +99,7 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
         table = createTable();
         txtSearch = new javax.swing.JTextField(22);
         cboVaiTro = new JComboBox<>(new String[]{"Tất cả", "Quản trị viên", "Nhân viên"});
-        cboTrangThai = new JComboBox<>(new String[]{"Tất cả", "Hoạt động", "Đã khóa"});
+        cboTrangThai = new JComboBox<>(new String[]{"Tất cả", "Hoạt động", "Đã khoá"});
         lblCount = new JLabel("0 tài khoản");
 
         buildUI();

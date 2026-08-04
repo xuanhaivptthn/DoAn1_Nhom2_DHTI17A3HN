@@ -99,7 +99,7 @@ public class TaiKhoan {
         if (trangThai == null) return "";
         return switch (trangThai.toUpperCase()) {
             case "HOAT_DONG" -> "Hoạt động";
-            case "KHOA"      -> "Đã khóa";
+            case "KHOA"      -> "Đã khoá";
             default          -> trangThai;
         };
     }
