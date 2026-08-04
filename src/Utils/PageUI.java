@@ -112,7 +112,10 @@ public final class PageUI {
         };
 
         for (int i = 0; i < table.getColumnCount(); i++) {
-            table.getColumnModel().getColumn(i).setCellRenderer(standardCellRenderer);
+            Class<?> colClass = table.getColumnClass(i);
+            if (colClass != Boolean.class && colClass != boolean.class) {
+                table.getColumnModel().getColumn(i).setCellRenderer(standardCellRenderer);
+            }
         }
     }
 

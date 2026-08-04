@@ -326,37 +326,30 @@ public class QuanLyKhoPanel extends javax.swing.JPanel {
             return;
         }
 
-        DichVu sel = selected();
-        if (sel == null) {
-            sel = (DichVu) JOptionPane.showInputDialog(this,
-                    "Chọn mặt hàng đã có để thêm số lượng:",
-                    "Thêm mặt hàng đã có", JOptionPane.QUESTION_MESSAGE,
-                    null, list.toArray(), list.get(0));
-        }
-        if (sel == null) return;
+        JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
+        DichVu preSelected = selected();
+        ChonNhapKhoDialog dialog = new ChonNhapKhoDialog(parent, preSelected);
+        dialog.setVisible(true);
 
-        String input = JOptionPane.showInputDialog(this,
-                "Mặt hàng: " + sel.getTenDichVu()
-                        + "\nSố lượng hiện tại: " + sel.getSoLuongTon() + " " + sel.getDonVi()
-                        + "\nNhập số lượng muốn thêm vào kho:",
-                "Thêm số lượng — " + sel.getTenDichVu(), JOptionPane.QUESTION_MESSAGE);
-        if (input == null || input.isBlank()) return;
+        if (!dialog.isConfirmed()) return;
 
-        int sl;
-        try {
-            sl = Integer.parseInt(input.trim());
-            if (sl <= 0) throw new NumberFormatException();
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Số lượng không hợp lệ.");
-            return;
-        }
+        DichVu sel = dialog.getSelectedVatPham();
+        int sl = dialog.getSoLuongNhap();
+
+        if (sel == null || sl <= 0) return;
 
         sel.nhapKho(sl);
+        if (DataStore.isUseDatabase()) {
+            try { new DAO.DichVuDAO().update(sel); } catch (Exception ignored) {}
+        }
         reload();
+
         JOptionPane.showMessageDialog(this,
-                "CẬP NHẬT THÀNH CÔNG\n• " + sel.getTenDichVu()
-                        + "\n• Đã cộng thêm: +" + sl + " " + sel.getDonVi()
-                        + "\n• Tổng số lượng hiện tại: " + sel.getSoLuongTon() + " " + sel.getDonVi(),
+                "CẬP NHẬT NHẬP KHO THÀNH CÔNG\n"
+                        + "• Mặt hàng: " + sel.getTenDichVu() + "\n"
+                        + "• Mã hàng: HH" + sel.getMaHangHoa() + "\n"
+                        + "• Đã cộng thêm: +" + sl + " " + sel.getDonVi() + "\n"
+                        + "• Tổng tồn kho hiện tại: " + sel.getSoLuongTon() + " " + sel.getDonVi(),
                 "Kết quả cập nhật kho", JOptionPane.INFORMATION_MESSAGE);
     }
 }
