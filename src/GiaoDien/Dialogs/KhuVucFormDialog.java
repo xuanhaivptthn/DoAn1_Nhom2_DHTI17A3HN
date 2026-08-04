@@ -122,7 +122,7 @@ public class KhuVucFormDialog extends JDialog {
         txtGiaTheoGio = new javax.swing.JTextField(16);
         row = addField(pnlFormCard, gbc, row, "Giá/giờ (VNĐ) *", txtGiaTheoGio);
 
-        cboTrangThai = new JComboBox<>(new String[]{"Sẵn sàng", "Đang thuê", "Bảo trì"});
+        cboTrangThai = new JComboBox<>(new String[]{"Sẵn sàng", "Đang Bảo trì"});
         styleCombo(cboTrangThai);
         addField(pnlFormCard, gbc, row, "Trạng thái *", cboTrangThai);
 
@@ -169,7 +169,12 @@ public class KhuVucFormDialog extends JDialog {
         txtTenSan.setText(k.getTenSan());
         cboLoaiSan.setSelectedItem(k.getLoaiSanHienThi());
         txtGiaTheoGio.setText(String.valueOf((long) k.getGiaThueTheoGio()));
-        cboTrangThai.setSelectedItem(k.getTrangThaiHienThi());
+        String tt = k.getTrangThaiHienThi();
+        if ("Đang thuê".equals(tt)) {
+            cboTrangThai.setSelectedItem("Sẵn sàng");
+        } else {
+            cboTrangThai.setSelectedItem(tt);
+        }
     }
 
     private void onSave() {
@@ -215,9 +220,8 @@ public class KhuVucFormDialog extends JDialog {
             default -> "San5";
         };
         String ttCode = switch ((String) cboTrangThai.getSelectedItem()) {
-            case "Đang thuê" -> "DangThue";
-            case "Bảo trì" -> "BaoTri";
-            default -> "SanSang";
+            case "Đang Bảo trì" -> "BAO_TRI";
+            default -> "HOAT_DONG";
         };
 
         result = new KhuVucSan(ma, ten, loaiCode, price, ttCode);

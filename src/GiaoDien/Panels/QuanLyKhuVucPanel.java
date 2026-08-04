@@ -131,12 +131,12 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
         JButton btnQuickReady = new javax.swing.JButton(" Sẵn sàng");
         btnQuickReady.setIcon(Utils.IconUtils.getCheckIcon(16));
         PageUI.styleSuccessButton(btnQuickReady);
-        btnQuickReady.addActionListener(e -> onQuickSetStatus("SanSang"));
+        btnQuickReady.addActionListener(e -> onQuickSetStatus("HOAT_DONG"));
 
         JButton btnQuickMaint = new javax.swing.JButton(" Bảo trì");
         btnQuickMaint.setIcon(Utils.IconUtils.getWarningIcon(16));
         PageUI.styleDangerButton(btnQuickMaint);
-        btnQuickMaint.addActionListener(e -> onQuickSetStatus("BaoTri"));
+        btnQuickMaint.addActionListener(e -> onQuickSetStatus("BAO_TRI"));
 
         pnlRight.add(lblQuickNote);
         pnlRight.add(btnQuickReady);
@@ -217,9 +217,9 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
 
         KhuVucSan form = dialog.getResult();
 
-        boolean isSwitchingToBaoTri = !wasBaoTri && "BaoTri".equalsIgnoreCase(form.getTrangThai());
+        boolean isSwitchingToBaoTri = !wasBaoTri && ("BaoTri".equalsIgnoreCase(form.getTrangThai()) || "BAO_TRI".equalsIgnoreCase(form.getTrangThai()));
 
-        if (wasBaoTri && "SanSang".equalsIgnoreCase(form.getTrangThai())) {
+        if (wasBaoTri && ("SanSang".equalsIgnoreCase(form.getTrangThai()) || "HOAT_DONG".equalsIgnoreCase(form.getTrangThai()))) {
             checkAndUpdateRelatedMaintenance(sel);
         }
 
@@ -248,11 +248,42 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
     private void onDelete() {
         KhuVucSan sel = selected();
         if (sel == null) {
-            JOptionPane.showMessageDialog(this, "Chọn một khu vực để xóa.");
+            JOptionPane.showMessageDialog(this, "Chọn một khu vực sân bóng để xóa.", "Thông báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        if (JOptionPane.showConfirmDialog(this, "Xóa sân " + sel.getMaSan() + "?",
-                "Xác nhận", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) return;
+
+        // KIỂM TRA LỊCH ĐẶT SÂN ĐANG DIỄN RA / CHỜ PHỤC VỤ (CHƯA HOÀN THÀNH VÀ CHƯA HỦY)
+        List<Model.DatLich> activeBookings = DataStore.get().getDatLichs().stream()
+                .filter(d -> (d.getMaSan() != null && d.getMaSan().equalsIgnoreCase(sel.getMaSan()))
+                        || (d.getTenSan() != null && d.getTenSan().toLowerCase().contains(sel.getTenSan().toLowerCase())))
+                .filter(d -> !"DaHuy".equalsIgnoreCase(d.getTrangThai())
+                        && !"DA_HUY".equalsIgnoreCase(d.getTrangThai())
+                        && !"HoanThanh".equalsIgnoreCase(d.getTrangThai())
+                        && !"HOAN_THANH".equalsIgnoreCase(d.getTrangThai()))
+                .toList();
+
+        if (!activeBookings.isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("[!] KHÔNG THỂ XÓA SÂN BÓNG!\n\n");
+            sb.append("Sân bóng '").append(sel.getTenSan()).append("' (Mã: ").append(sel.getMaSan())
+                    .append(") hiện đang có ").append(activeBookings.size()).append(" lịch đặt đang diễn ra / chờ phục vụ:\n\n");
+
+            for (Model.DatLich d : activeBookings) {
+                sb.append("• Mã lịch đặt : ").append(d.getMaLichDat()).append("\n")
+                  .append("  - Khách hàng   : ").append(d.getTenKhach() != null ? d.getTenKhach() : "-")
+                  .append(" (SĐT: ").append(d.getSoDienThoaiKhach() != null ? d.getSoDienThoaiKhach() : "").append(")\n")
+                  .append("  - Ngày đặt     : ").append(d.getNgayDat()).append(" (Khung giờ: ").append(d.getKhungGio()).append(")\n")
+                  .append("  - Trạng thái   : ").append(d.getTrangThaiHienThi()).append("\n\n");
+            }
+            sb.append("Vui lòng hoàn tất hoặc hủy các lịch đặt liên quan trước khi xóa sân bóng!");
+
+            JOptionPane.showMessageDialog(this, sb.toString(), "Cảnh báo lịch đặt đang diễn ra", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        if (JOptionPane.showConfirmDialog(this, "Xóa sân " + sel.getMaSan() + " (" + sel.getTenSan() + ")?",
+                "Xác nhận xóa sân", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) return;
+
         DataStore.get().getKhuVucs().remove(sel);
         if (DataStore.isUseDatabase()) {
             try { new DAO.KhuVucSanDAO().delete(sel.getMaSan()); } catch (Exception ignored) {}
@@ -264,7 +295,7 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
             mf.refreshDataPanels();
         }
 
-        JOptionPane.showMessageDialog(this, "Đã xóa khu vực.", "Kết quả cập nhật khu vực", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(this, "Đã xóa khu vực sân bóng thành công.", "Kết quả cập nhật khu vực", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void checkAndUpdateRelatedMaintenance(KhuVucSan sel) {
@@ -353,7 +384,7 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
 
         boolean wasBaoTri = DataStore.get().isSanBaoTri(sel);
 
-        if (wasBaoTri && "SanSang".equalsIgnoreCase(targetStatus)) {
+        if (wasBaoTri && ("SanSang".equalsIgnoreCase(targetStatus) || "HOAT_DONG".equalsIgnoreCase(targetStatus))) {
             checkAndUpdateRelatedMaintenance(sel);
         }
 
@@ -369,12 +400,12 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
             mf.refreshDataPanels();
         }
 
-        String label = "SanSang".equalsIgnoreCase(targetStatus) ? "Sẵn sàng" : "Bảo trì";
+        String label = ("SanSang".equalsIgnoreCase(targetStatus) || "HOAT_DONG".equalsIgnoreCase(targetStatus)) ? "Hoạt động" : "Bảo trì";
         JOptionPane.showMessageDialog(this,
                 "Đã chuyển nhanh trạng thái sân " + sel.getMaSan() + " (" + sel.getTenSan() + ") sang: " + label,
                 "Thông báo", JOptionPane.INFORMATION_MESSAGE);
 
-        if (!wasBaoTri && "BaoTri".equalsIgnoreCase(targetStatus)) {
+        if (!wasBaoTri && ("BaoTri".equalsIgnoreCase(targetStatus) || "BAO_TRI".equalsIgnoreCase(targetStatus))) {
             promptCreateMaintenanceTicket(sel);
         }
     }

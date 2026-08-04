@@ -269,14 +269,64 @@ public class QuanLyDichVuPanel extends javax.swing.JPanel {
     private void onDelete() {
         DichVu sel = selected();
         if (sel == null) {
-            JOptionPane.showMessageDialog(this, "Chọn dịch vụ để xóa.");
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn dịch vụ cần xóa.", "Thông báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
+
+        // KIỂM TRA LỊCH ĐẶT SÂN ĐANG DIỄN RA / CHỜ PHỤC VỤ (CHƯA HOÀN THÀNH VÀ CHƯA HỦY) DÙNG DỊCH VỤ NÀY
+        List<Model.DatLich> activeBookings = DataStore.get().getDatLichs().stream()
+                .filter(d -> !"DaHuy".equalsIgnoreCase(d.getTrangThai())
+                        && !"DA_HUY".equalsIgnoreCase(d.getTrangThai())
+                        && !"HoanThanh".equalsIgnoreCase(d.getTrangThai())
+                        && !"HOAN_THANH".equalsIgnoreCase(d.getTrangThai()))
+                .filter(d -> isServiceInBooking(sel, d))
+                .toList();
+
+        if (!activeBookings.isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("[!] KHÔNG THỂ XÓA DỊCH VỤ!\n\n");
+            sb.append("Dịch vụ '").append(sel.getTenDichVu()).append("' (Mã: ").append(sel.getMaDichVu())
+                    .append(") hiện đang được sử dụng trong ").append(activeBookings.size()).append(" lịch đặt đang diễn ra / chờ phục vụ:\n\n");
+
+            for (Model.DatLich d : activeBookings) {
+                sb.append("• Mã lịch đặt : ").append(d.getMaLichDat()).append("\n")
+                  .append("  - Sân bóng     : ").append(d.getTenSan() != null ? d.getTenSan() : "-").append("\n")
+                  .append("  - Khách hàng   : ").append(d.getTenKhach() != null ? d.getTenKhach() : "-")
+                  .append(" (SĐT: ").append(d.getSoDienThoaiKhach() != null ? d.getSoDienThoaiKhach() : "").append(")\n")
+                  .append("  - Ngày đặt     : ").append(d.getNgayDat()).append(" (Khung giờ: ").append(d.getKhungGio()).append(")\n")
+                  .append("  - Dịch vụ kèm  : ").append(d.getDichVuKem() != null ? d.getDichVuKem().replace("\n", ", ") : "-").append("\n")
+                  .append("  - Trạng thái   : ").append(d.getTrangThaiHienThi()).append("\n\n");
+            }
+            sb.append("Vui lòng hoàn tất hoặc hủy các lịch đặt có sử dụng dịch vụ này trước khi xóa!");
+
+            JOptionPane.showMessageDialog(this, sb.toString(), "Cảnh báo lịch đặt đang diễn ra", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         if (JOptionPane.showConfirmDialog(this, "Xóa dịch vụ \"" + sel.getTenDichVu() + "\"?",
-                "Xác nhận", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) return;
+                "Xác nhận xóa dịch vụ", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) return;
+
         DataStore.get().getDichVus().remove(sel);
+        if (DataStore.isUseDatabase()) {
+            try { new DAO.DichVuDAO().delete(sel.getMaDichVu()); } catch (Exception ignored) {}
+        }
         reload();
-        JOptionPane.showMessageDialog(this, "Đã xóa khỏi danh sách dịch vụ.",
-                "Kết quả dịch vụ", JOptionPane.INFORMATION_MESSAGE);
+
+        JOptionPane.showMessageDialog(this, "Đã xóa khỏi danh sách dịch vụ thành công.",
+                "Kết quả cập nhật dịch vụ", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private boolean isServiceInBooking(DichVu dv, Model.DatLich booking) {
+        if (dv == null || booking == null) return false;
+        String dvKem = booking.getDichVuKem();
+        if (dvKem == null || dvKem.isBlank()) return false;
+        String name = dv.getTenDichVu() != null ? dv.getTenDichVu().toLowerCase() : "";
+        String code = dv.getMaDichVu() != null ? dv.getMaDichVu().toLowerCase() : "";
+        String hangHoa = dv.getTenHangHoa() != null ? dv.getTenHangHoa().toLowerCase() : "";
+        String lowerKem = dvKem.toLowerCase();
+
+        return (!name.isEmpty() && lowerKem.contains(name))
+                || (!code.isEmpty() && lowerKem.contains(code))
+                || (!hangHoa.isEmpty() && lowerKem.contains(hangHoa));
     }
 }

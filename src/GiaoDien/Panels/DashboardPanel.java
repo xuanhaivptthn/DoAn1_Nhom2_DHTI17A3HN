@@ -663,7 +663,7 @@ public class DashboardPanel extends JPanel {
             if (!isSelected) {
                 if      (str.startsWith("Đang đá")) { c.setBackground(new Color(219, 234, 254)); c.setForeground(new Color(37,  99,  235)); }
                 else if (str.startsWith("Đã đặt"))  { c.setBackground(new Color(254, 243, 199)); c.setForeground(new Color(217, 119, 6));   }
-                else if (str.startsWith("Bảo trì")) { c.setBackground(new Color(241, 245, 249)); c.setForeground(new Color(100, 116, 139)); }
+                else if (str.contains("Bảo trì")) { c.setBackground(new Color(241, 245, 249)); c.setForeground(new Color(100, 116, 139)); }
                 else                                 { c.setBackground(new Color(240, 253, 244)); c.setForeground(new Color(22,  163, 74));  }
             }
             return c;

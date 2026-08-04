@@ -318,9 +318,9 @@ public final class DataStore {
             });
 
             if (!hasActiveMaint) {
-                san.setTrangThai("SanSang");
+                san.setTrangThai("HOAT_DONG");
             } else {
-                san.setTrangThai("BaoTri");
+                san.setTrangThai("BAO_TRI");
             }
         }
     }
@@ -333,7 +333,7 @@ public final class DataStore {
         if (k == null) return false;
 
         // 1. Nếu sân bị ngưng hoạt động thủ công -> chặn
-        if ("NGUNG_HOAT_DONG".equalsIgnoreCase(k.getTrangThai())) {
+        if ("NGUNG_HOAT_DONG".equalsIgnoreCase(k.getTrangThai()) || "BAO_TRI".equalsIgnoreCase(k.getTrangThai()) || "BaoTri".equalsIgnoreCase(k.getTrangThai())) {
             return true;
         }
 
@@ -413,7 +413,7 @@ public final class DataStore {
 
     public String getTrangThaiSanHienTai(KhuVucSan k) {
         if (k == null) return "";
-        if (isSanBaoTri(k)) return "Bảo trì";
+        if (isSanBaoTri(k)) return "Đang Bảo trì";
         if (isSanDangThue(k)) return "Đang thuê";
         return "Sẵn sàng";
     }

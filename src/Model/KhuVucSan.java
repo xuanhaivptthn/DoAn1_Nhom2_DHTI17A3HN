@@ -72,13 +72,9 @@ public class KhuVucSan {
     public String getTrangThaiHienThi() {
         if (trangThai == null) return "";
         return switch (trangThai.toUpperCase()) {
-            case "HOAT_DONG"       -> "Hoạt động";
-            case "BAO_TRI"         -> "Bảo trì";
-            case "NGUNG_HOAT_DONG" -> "Ngừng hoạt động";
-            // Backward-compat với seed data cũ
-            case "SANSAN", "SANSANG" -> "Sẵn sàng";
-            case "DANGTHUE"          -> "Đang thuê";
-            case "BAOTRI"            -> "Bảo trì";
+            case "HOAT_DONG", "SANSAN", "SANSANG" -> "Sẵn sàng";
+            case "DANGTHUE", "DANG_THUE"          -> "Đang thuê";
+            case "BAO_TRI", "BAOTRI", "DANG_BAO_TRI" -> "Đang Bảo trì";
             default -> trangThai;
         };
     }
