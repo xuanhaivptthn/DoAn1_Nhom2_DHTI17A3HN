@@ -455,9 +455,9 @@ public class DatLichFormDialog extends JDialog {
             return;
         }
 
-        if (!sdt.matches("^\\d{10,11}$")) {
+        if (!sdt.matches("^\\d{10}$")) {
             JOptionPane.showMessageDialog(this,
-                    "Số điện thoại không hợp lệ! Vui lòng nhập từ 10 đến 11 chữ số (ví dụ: 0912345678).",
+                    "Số điện thoại không hợp lệ! Vui lòng nhập đúng 10 chữ số (ví dụ: 0912345678).",
                     "Thông báo", JOptionPane.WARNING_MESSAGE);
             txtSoDienThoai.requestFocus();
             return;

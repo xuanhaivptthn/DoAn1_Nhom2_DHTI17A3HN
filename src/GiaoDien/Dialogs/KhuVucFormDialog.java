@@ -176,8 +176,9 @@ public class KhuVucFormDialog extends JDialog {
         String ten = txtTenSan.getText().trim();
         String giaStr = txtGiaTheoGio.getText().trim().replace(",", "").replace(".", "");
 
-        if (ten.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Tên sân không được để trống.", "Thông báo", JOptionPane.WARNING_MESSAGE);
+        if (ten.isEmpty() || ten.length() < 2) {
+            JOptionPane.showMessageDialog(this, "Tên sân không hợp lệ! Vui lòng nhập từ 2 ký tự trở lên.", "Thông báo", JOptionPane.WARNING_MESSAGE);
+            txtTenSan.requestFocus();
             return;
         }
 
@@ -197,9 +198,14 @@ public class KhuVucFormDialog extends JDialog {
         double price;
         try {
             price = Double.parseDouble(giaStr);
-            if (price < 0) throw new NumberFormatException();
+            if (price <= 0) {
+                JOptionPane.showMessageDialog(this, "Giá theo giờ phải là số dương lớn hơn 0 (VNĐ).", "Thông báo", JOptionPane.WARNING_MESSAGE);
+                txtGiaTheoGio.requestFocus();
+                return;
+            }
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Giá theo giờ không hợp lệ.", "Thông báo", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Giá theo giờ không hợp lệ! Vui lòng nhập số hợp lệ.", "Thông báo", JOptionPane.WARNING_MESSAGE);
+            txtGiaTheoGio.requestFocus();
             return;
         }
 

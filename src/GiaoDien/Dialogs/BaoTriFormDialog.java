@@ -201,12 +201,53 @@ public class BaoTriFormDialog extends JDialog {
         String nd = txtNoiDung.getText().trim();
         String nbd = txtNgayBatDau.getText().trim();
 
-        if (san == null || nd.isEmpty() || nbd.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin bắt buộc.", "Thông báo", JOptionPane.WARNING_MESSAGE);
+        if (san == null) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn khu vực sân bóng cần bảo trì.", "Thông báo", JOptionPane.WARNING_MESSAGE);
+            cboSan.requestFocus();
+            return;
+        }
+
+        if (nd.isEmpty() || nd.length() < 3) {
+            JOptionPane.showMessageDialog(this, "Nội dung bảo trì không hợp lệ! Vui lòng nhập từ 3 ký tự trở lên.", "Thông báo", JOptionPane.WARNING_MESSAGE);
+            txtNoiDung.requestFocus();
+            return;
+        }
+
+        if (nbd.isEmpty() || !nbd.matches("^\\d{4}-\\d{2}-\\d{2}$")) {
+            JOptionPane.showMessageDialog(this, "Ngày bắt đầu bảo trì không hợp lệ! Vui lòng nhập theo định dạng YYYY-MM-DD (ví dụ: 2026-08-05).", "Thông báo", JOptionPane.WARNING_MESSAGE);
+            txtNgayBatDau.requestFocus();
+            return;
+        }
+
+        java.time.LocalDate sDate;
+        try {
+            sDate = java.time.LocalDate.parse(nbd);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Ngày bắt đầu bảo trì không đúng định dạng ngày hợp lệ (YYYY-MM-DD).", "Thông báo", JOptionPane.WARNING_MESSAGE);
+            txtNgayBatDau.requestFocus();
             return;
         }
 
         String nkt = txtNgayKetThuc.getText().trim();
+        if (!nkt.isEmpty()) {
+            if (!nkt.matches("^\\d{4}-\\d{2}-\\d{2}$")) {
+                JOptionPane.showMessageDialog(this, "Ngày kết thúc bảo trì không hợp lệ! Vui lòng nhập theo định dạng YYYY-MM-DD.", "Thông báo", JOptionPane.WARNING_MESSAGE);
+                txtNgayKetThuc.requestFocus();
+                return;
+            }
+            try {
+                java.time.LocalDate eDate = java.time.LocalDate.parse(nkt);
+                if (eDate.isBefore(sDate)) {
+                    JOptionPane.showMessageDialog(this, "Ngày kết thúc bảo trì không thể trước ngày bắt đầu bảo trì!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+                    txtNgayKetThuc.requestFocus();
+                    return;
+                }
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Ngày kết thúc bảo trì không đúng định dạng ngày hợp lệ (YYYY-MM-DD).", "Thông báo", JOptionPane.WARNING_MESSAGE);
+                txtNgayKetThuc.requestFocus();
+                return;
+            }
+        }
 
         // KIỂM TRA LỊCH ĐẶT SÂN ĐÃ CÓ TRONG THỜI GIAN BẢO TRÌ NÀY
         List<Model.DatLich> conflictingBookings = DataStore.get().getDatLichs().stream()

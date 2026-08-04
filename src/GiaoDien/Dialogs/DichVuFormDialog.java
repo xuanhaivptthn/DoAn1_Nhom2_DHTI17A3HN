@@ -177,8 +177,15 @@ public class DichVuFormDialog extends JDialog {
         String giaStr = txtDonGia.getText().trim().replace(",", "").replace(".", "");
         String loaiStr = cboLoaiDichVu.getSelectedItem() != null ? cboLoaiDichVu.getSelectedItem().toString().trim() : "Cho thuê";
 
-        if (ten.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng nhập Tên dịch vụ.", "Thông báo", JOptionPane.WARNING_MESSAGE);
+        if (ten.isEmpty() || ten.length() < 2) {
+            JOptionPane.showMessageDialog(this, "Tên dịch vụ không hợp lệ! Vui lòng nhập từ 2 ký tự trở lên.", "Thông báo", JOptionPane.WARNING_MESSAGE);
+            txtTenDichVu.requestFocus();
+            return;
+        }
+
+        if (loaiStr.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn hoặc nhập loại dịch vụ.", "Thông báo", JOptionPane.WARNING_MESSAGE);
+            cboLoaiDichVu.requestFocus();
             return;
         }
 
@@ -199,6 +206,7 @@ public class DichVuFormDialog extends JDialog {
             if (price < 0) throw new NumberFormatException();
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Đơn giá không hợp lệ (phải là số không âm).", "Thông báo", JOptionPane.WARNING_MESSAGE);
+            txtDonGia.requestFocus();
             return;
         }
 

@@ -251,8 +251,8 @@ public class TaiKhoanFormDialog extends JDialog {
             txtTenDangNhap.requestFocus();
             return;
         }
-        if (tenDangNhap.length() < 3) {
-            showError("Tên đăng nhập phải có ít nhất 3 ký tự.");
+        if (!tenDangNhap.matches("^[a-zA-Z0-9_]{3,30}$")) {
+            showError("Tên đăng nhập không hợp lệ! Vui lòng chỉ dùng chữ cái, chữ số, dấu gạch dưới và dài từ 3-30 ký tự.");
             txtTenDangNhap.requestFocus();
             return;
         }
@@ -292,13 +292,18 @@ public class TaiKhoanFormDialog extends JDialog {
             }
         }
 
-        if (hTen.isEmpty()) {
-            showError("Vui lòng nhập họ và tên.");
+        if (hTen.isEmpty() || hTen.length() < 2) {
+            showError("Họ và tên không hợp lệ! Vui lòng nhập từ 2 ký tự trở lên.");
             txtHoTen.requestFocus();
             return;
         }
         if (sdt.isEmpty()) {
             showError("Vui lòng nhập số điện thoại.");
+            txtSoDienThoai.requestFocus();
+            return;
+        }
+        if (!sdt.matches("^\\d{10}$")) {
+            showError("Số điện thoại không hợp lệ! Vui lòng nhập đúng 10 chữ số (ví dụ: 0912345678).");
             txtSoDienThoai.requestFocus();
             return;
         }

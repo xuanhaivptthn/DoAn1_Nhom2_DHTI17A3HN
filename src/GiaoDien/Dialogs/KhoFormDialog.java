@@ -178,8 +178,9 @@ public class KhoFormDialog extends JDialog {
         String slStr = txtSoLuongTon.getText().trim();
         String ncc = txtNhaCungCap.getText().trim();
 
-        if (ten.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Tên hàng hóa không được để trống.", "Thông báo", JOptionPane.WARNING_MESSAGE);
+        if (ten.isEmpty() || ten.length() < 2) {
+            JOptionPane.showMessageDialog(this, "Tên hàng hóa không hợp lệ! Vui lòng nhập từ 2 ký tự trở lên.", "Thông báo", JOptionPane.WARNING_MESSAGE);
+            txtTenHangHoa.requestFocus();
             return;
         }
 
@@ -194,14 +195,31 @@ public class KhoFormDialog extends JDialog {
             return;
         }
 
-        double price;
         int tonVal;
         try {
-            price = Double.parseDouble(giaStr);
             tonVal = Integer.parseInt(slStr);
-            if (price < 0 || tonVal < 0) throw new NumberFormatException();
+            if (tonVal < 0) {
+                JOptionPane.showMessageDialog(this, "Số lượng tồn phải là số nguyên không âm (>= 0).", "Thông báo", JOptionPane.WARNING_MESSAGE);
+                txtSoLuongTon.requestFocus();
+                return;
+            }
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Đơn giá hoặc số lượng tồn không hợp lệ.", "Thông báo", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Số lượng tồn không hợp lệ! Vui lòng nhập số nguyên.", "Thông báo", JOptionPane.WARNING_MESSAGE);
+            txtSoLuongTon.requestFocus();
+            return;
+        }
+
+        double price;
+        try {
+            price = Double.parseDouble(giaStr);
+            if (price < 0) {
+                JOptionPane.showMessageDialog(this, "Đơn giá phải là số không âm (>= 0).", "Thông báo", JOptionPane.WARNING_MESSAGE);
+                txtDonGia.requestFocus();
+                return;
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Đơn giá không hợp lệ! Vui lòng nhập số hợp lệ.", "Thông báo", JOptionPane.WARNING_MESSAGE);
+            txtDonGia.requestFocus();
             return;
         }
 
