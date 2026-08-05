@@ -152,24 +152,7 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
         pnlLeft.add(btnUpdate);
         pnlLeft.add(btnView);
 
-        // Bên PHẢI: Nút thay đổi nhanh trạng thái phiếu bảo trì
-        JPanel pnlRight = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
-        pnlRight.setOpaque(false);
-
-        JLabel lblQuickNote = new JLabel("Cập nhật nhanh trạng thái:");
-        lblQuickNote.setFont(UIConstants.FONT_SMALL);
-        lblQuickNote.setForeground(UIConstants.TEXT_SECONDARY);
-
-        JButton btnDone = new javax.swing.JButton(" Hoàn thành");
-        btnDone.setIcon(Utils.IconUtils.getCheckIcon(16));
-        PageUI.styleSuccessButton(btnDone);
-        btnDone.addActionListener(e -> setStatus("HOAN_THANH"));
-
-        pnlRight.add(lblQuickNote);
-        pnlRight.add(btnDone);
-
         pnlToolbar.add(pnlLeft, BorderLayout.WEST);
-        pnlToolbar.add(pnlRight, BorderLayout.EAST);
     }
 
     private JPanel createCsvcCard() {

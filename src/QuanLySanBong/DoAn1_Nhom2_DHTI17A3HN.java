@@ -15,20 +15,9 @@ import java.awt.Dimension;
 public class DoAn1_Nhom2_DHTI17A3HN {
 
     public static void main(String[] args) {
-        // Cấu hình giao diện Nimbus mặc định của Java Swing
         try {
-            for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (Exception ex) {
-            try {
-                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            } catch (Exception ignored) {
-                // Fallback nếu không hỗ trợ System Look & Feel
-            }
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception ignored) {
         }
 
         UIManager.put("Table.alternateRowColor", UIConstants.TABLE_ROW_ALT);

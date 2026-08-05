@@ -1,5 +1,7 @@
 package Model;
 
+import Utils.DataStore;
+
 /**
  * Bảng: dich_vu
  * Lưu trữ các dịch vụ đi kèm khi đặt sân bóng.
@@ -127,5 +129,75 @@ public class DichVu {
     @Override
     public String toString() {
         return tenDichVu + " (" + String.format("%,.0f", gia) + " VNĐ)";
+    }
+
+    // ─── Phương thức theo sơ đồ lớp e_DichVu & e_Kho ─────────────────────────
+
+    public static java.util.List<DichVu> truyVanDanhSach() {
+        return DataStore.get().getDichVus();
+    }
+
+    public static DichVu layThongTinDichVu(String maDichVu) {
+        return DataStore.get().findDichVuById(maDichVu != null ? maDichVu.hashCode() & 0x7FFFFFFF : 0);
+    }
+
+    public boolean kiemTraTrungTen(String ten) {
+        if (ten == null) return false;
+        return DataStore.get().getDichVus().stream().anyMatch(d -> ten.equalsIgnoreCase(d.getTenDichVu()));
+    }
+
+    public boolean luuDichVu() {
+        if (!DataStore.get().getDichVus().contains(this)) {
+            DataStore.get().getDichVus().add(this);
+        }
+        if (DataStore.isUseDatabase()) {
+            try { new DAO.DichVuDAO().insert(this); } catch (Exception ignored) {}
+        }
+        return true;
+    }
+
+    public boolean capNhatDuLieu() {
+        if (DataStore.isUseDatabase()) {
+            try { new DAO.DichVuDAO().update(this); } catch (Exception ignored) {}
+        }
+        return true;
+    }
+
+    public boolean xoaDichVu(String maDichVu) {
+        DataStore.get().getDichVus().removeIf(d -> d.getMaDichVu() != null && d.getMaDichVu().equals(maDichVu));
+        if (DataStore.isUseDatabase()) {
+            try { new DAO.DichVuDAO().delete(maDichVu); } catch (Exception ignored) {}
+        }
+        return true;
+    }
+
+    public static java.util.List<DichVu> truyVanTonKho() {
+        return DataStore.get().getKhoItems();
+    }
+
+    public static int truyVanSoLuongTon(String maHangHoa) {
+        DichVu item = DataStore.get().getKhoItems().stream().filter(d -> ("HH" + d.getMaHangHoa()).equalsIgnoreCase(maHangHoa)).findFirst().orElse(null);
+        return item != null ? item.getSoLuongTon() : 0;
+    }
+
+    public boolean luuPhieuNhap() {
+        return luuDichVu();
+    }
+
+    public boolean capNhatSoLuongTon(String maHangHoa, int sl) {
+        setSoLuongTon(sl);
+        return capNhatDuLieu();
+    }
+
+    public boolean xoaHangHoa(String maHangHoa) {
+        return xoaDichVu(maHangHoa);
+    }
+
+    public boolean luuPhieuXuat() {
+        return capNhatDuLieu();
+    }
+
+    public boolean giamSoLuongTon(String maHangHoa, int sl) {
+        return xuatKho(sl) && capNhatDuLieu();
     }
 }

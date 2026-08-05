@@ -121,29 +121,7 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
         pnlLeft.add(btnEdit);
         pnlLeft.add(btnDelete);
 
-        JPanel pnlRight = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
-        pnlRight.setOpaque(false);
-
-        JLabel lblQuickNote = new JLabel("Chuyển nhanh trạng thái:");
-        lblQuickNote.setFont(UIConstants.FONT_SMALL);
-        lblQuickNote.setForeground(UIConstants.TEXT_SECONDARY);
-
-        JButton btnQuickReady = new javax.swing.JButton(" Sẵn sàng");
-        btnQuickReady.setIcon(Utils.IconUtils.getCheckIcon(16));
-        PageUI.styleSuccessButton(btnQuickReady);
-        btnQuickReady.addActionListener(e -> onQuickSetStatus("HOAT_DONG"));
-
-        JButton btnQuickMaint = new javax.swing.JButton(" Bảo trì");
-        btnQuickMaint.setIcon(Utils.IconUtils.getWarningIcon(16));
-        PageUI.styleDangerButton(btnQuickMaint);
-        btnQuickMaint.addActionListener(e -> onQuickSetStatus("BAO_TRI"));
-
-        pnlRight.add(lblQuickNote);
-        pnlRight.add(btnQuickReady);
-        pnlRight.add(btnQuickMaint);
-
         pnlToolbar.add(pnlLeft, BorderLayout.WEST);
-        pnlToolbar.add(pnlRight, BorderLayout.EAST);
     }
 
     private void buildTableCard() {
