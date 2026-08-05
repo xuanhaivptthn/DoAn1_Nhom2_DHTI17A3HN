@@ -181,8 +181,8 @@ INSERT INTO `bao_tri` (`maPhieuBaoTri`, `maSan`, `noiDung`, `ngayBatDau`, `ngayK
 -- ------------------------------------------------------------
 CREATE TABLE `hoa_don` (
   `maHoaDon` VARCHAR(20) NOT NULL PRIMARY KEY,
-  `maLichDat` VARCHAR(20) NOT NULL UNIQUE,
-  `maNhanVien` VARCHAR(20) NOT NULL,
+  `maLichDat` VARCHAR(20) NOT NULL,
+  `maNhanVien` VARCHAR(50) DEFAULT 'Admin',
   `ngayThanhToan` VARCHAR(50) NOT NULL,
   `chiPhiSan` DECIMAL(12,2) NOT NULL DEFAULT 0,
   `tongTienDichVu` DECIMAL(12,2) NOT NULL DEFAULT 0,
@@ -190,12 +190,12 @@ CREATE TABLE `hoa_don` (
   `giamGia` DECIMAL(12,2) NOT NULL DEFAULT 0,
   `tongTien` DECIMAL(12,2) NOT NULL DEFAULT 0,
   `phuongThucThanhToan` VARCHAR(100) NOT NULL,
-  FOREIGN KEY (`maLichDat`) REFERENCES `lich_dat_san`(`maLichDat`) ON DELETE CASCADE,
-  FOREIGN KEY (`maNhanVien`) REFERENCES `nhan_vien`(`maNhanVien`) ON DELETE CASCADE
+  `dichVuKem` TEXT DEFAULT NULL,
+  FOREIGN KEY (`maLichDat`) REFERENCES `lich_dat_san`(`maLichDat`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO `hoa_don` (`maHoaDon`, `maLichDat`, `maNhanVien`, `ngayThanhToan`, `chiPhiSan`, `tongTienDichVu`, `tongTienKho`, `giamGia`, `tongTien`, `phuongThucThanhToan`) VALUES
-('HD001', 'DL003', 'NV001', '2026-08-05 22:05:00', 375000.00, 0.00, 50000.00, 0.00, 425000.00, 'Chuyển khoản');
+INSERT INTO `hoa_don` (`maHoaDon`, `maLichDat`, `maNhanVien`, `ngayThanhToan`, `chiPhiSan`, `tongTienDichVu`, `tongTienKho`, `giamGia`, `tongTien`, `phuongThucThanhToan`, `dichVuKem`) VALUES
+('HD001', 'DL003', 'admin', '2026-08-05 22:05:00', 375000.00, 0.00, 50000.00, 0.00, 425000.00, 'Chuyển khoản', '[Vật phẩm kho] Nước suối Aquafina 500ml (x2): 20,000 VNĐ');
 
 -- ------------------------------------------------------------
 -- 10. BẢNG KHO HÀNG (kho) — Model.Kho
@@ -207,6 +207,14 @@ CREATE TABLE `kho` (
   `donGia` DECIMAL(15,0) NOT NULL DEFAULT 0,
   `nhaCungCap` VARCHAR(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO `kho` (`maHangHoa`, `tenHangHoa`, `soLuongTon`, `donGia`, `nhaCungCap`) VALUES
+('HH101', 'Nước suối Aquafina 500ml', 120, 10000, 'Công ty Nước khoáng Aquafina'),
+('HH102', 'Nước điện giải Revive 500ml', 85, 15000, 'Công ty Pocari Sweat Việt Nam'),
+('HH103', 'Áo bib tập luyện phân đội', 25, 30000, 'Xưởng may Trang phục Thể thao'),
+('HH104', 'Bóng thi đấu Động Lực', 15, 50000, 'Tập đoàn Thể thao Động Lực'),
+('HH105', 'Găng tay thủ môn cao cấp', 8, 40000, 'Adidas Việt Nam'),
+('HH106', 'Giày đá bóng sân cỏ nhân tạo', 12, 50000, 'NCS Sports Việt Nam');
 
 -- ============================================================
 -- HOÀN TẤT TẠO CSDL

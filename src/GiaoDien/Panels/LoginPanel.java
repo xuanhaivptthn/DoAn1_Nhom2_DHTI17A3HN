@@ -212,6 +212,7 @@ public class LoginPanel extends javax.swing.JPanel {
         pnlForm.add(lblError, gridBagConstraints);
 
         btnLogin.setPreferredSize(new java.awt.Dimension(0, 38));
+        Utils.PageUI.stylePrimaryButton(btnLogin);
         btnLogin.addActionListener(e -> doLogin());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;

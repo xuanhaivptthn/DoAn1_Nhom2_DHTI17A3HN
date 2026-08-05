@@ -267,6 +267,22 @@ public final class DataStore {
         khos.add(new Kho(maHH, tenHH, slTon, donGia, ncc));
     }
 
+    public synchronized void giamKhoStock(DichVu dv, int count) {
+        if (dv == null || count <= 0) return;
+        dv.xuatKho(count);
+        dv.capNhatDuLieu();
+        for (Kho k : khos) {
+            if (dv.getMaDichVu() != null && dv.getMaDichVu().equalsIgnoreCase(k.getMaHangHoa())) {
+                k.setSoLuongTon(dv.getSoLuongTon());
+                break;
+            }
+            if (dv.getTenDichVu() != null && dv.getTenDichVu().equalsIgnoreCase(k.getTenHangHoa())) {
+                k.setSoLuongTon(dv.getSoLuongTon());
+                break;
+            }
+        }
+    }
+
     public List<TaiKhoan> getTaiKhoans() { return taiKhoans; }
     public List<ChuSan> getChuSans() { return chuSans; }
 
@@ -569,5 +585,78 @@ public final class DataStore {
         return hoaDons.stream()
                 .filter(h -> cleanMa.equalsIgnoreCase(h.getMaHoaDon()))
                 .findFirst().orElse(null);
+    }
+
+    public synchronized HoaDon saveOrUpdateHoaDonForBooking(DatLich d, String phuongThucTT) {
+        if (d == null || d.getMaLichDat() == null) return null;
+
+        double tienSvcOnly = d.getTongTienDichVuOnly();
+        double tienKhoOnly = d.getTongTienKhoOnly();
+        double tienSan = d.getTienSan();
+        double giamGia = d.getDatCoc();
+
+        HoaDon hd = hoaDons.stream()
+                .filter(h -> d.getMaLichDat().equalsIgnoreCase(h.getMaLichDat()))
+                .findFirst().orElse(null);
+
+        String nowStr = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        String maNhanVien = d.getMaTaiKhoan() != null ? d.getMaTaiKhoan() : "Admin";
+
+        StringBuilder dvStr = new StringBuilder();
+        if (d.getSelectedDvMap() != null && !d.getSelectedDvMap().isEmpty()) {
+            for (java.util.Map.Entry<Integer, Integer> entry : d.getSelectedDvMap().entrySet()) {
+                DichVu dv = findDichVuById(entry.getKey());
+                if (dv != null && entry.getValue() > 0) {
+                    if (dvStr.length() > 0) dvStr.append("\n");
+                    dvStr.append("[Dịch vụ thuê] ").append(dv.getTenDichVu()).append(" (x").append(entry.getValue()).append("): ")
+                         .append(String.format("%,.0f VNĐ", dv.getDonGia() * entry.getValue()));
+                }
+            }
+        }
+        if (d.getSelectedDoAnMap() != null && !d.getSelectedDoAnMap().isEmpty()) {
+            for (java.util.Map.Entry<Integer, Integer> entry : d.getSelectedDoAnMap().entrySet()) {
+                DichVu dv = findDichVuById(entry.getKey());
+                if (dv != null && entry.getValue() > 0) {
+                    if (dvStr.length() > 0) dvStr.append("\n");
+                    dvStr.append("[Vật phẩm kho] ").append(dv.getTenDichVu()).append(" (x").append(entry.getValue()).append("): ")
+                         .append(String.format("%,.0f VNĐ", dv.getDonGia() * entry.getValue()));
+                }
+            }
+        }
+        if (d.getDichVuKem() != null && !d.getDichVuKem().isBlank()) {
+            String[] lines = d.getDichVuKem().split("\n");
+            for (String line : lines) {
+                if (!line.isBlank() && !dvStr.toString().contains(line.trim())) {
+                    if (dvStr.length() > 0) dvStr.append("\n");
+                    dvStr.append(line.trim());
+                }
+            }
+        }
+        String dichVuDetails = dvStr.toString();
+
+        if (hd == null) {
+            String maHd = "HD" + d.getMaLichDat().replaceAll("\\D", "");
+            if (maHd.equals("HD")) maHd = "HD" + (hoaDons.size() + 1);
+            hd = new HoaDon(maHd, d.getMaLichDat(), maNhanVien, nowStr, tienSan, tienSvcOnly, tienKhoOnly, giamGia, 0, phuongThucTT != null ? phuongThucTT : "Tiền mặt");
+            hd.setDichVuKem(dichVuDetails);
+            hd.tinhTien();
+            hoaDons.add(hd);
+            if (isUseDatabase()) {
+                try { new DAO.HoaDonDAO().insert(hd); } catch (Exception ignored) {}
+            }
+        } else {
+            hd.setChiPhiSan(tienSan);
+            hd.setTongTienDichVu(tienSvcOnly);
+            hd.setTongTienKho(tienKhoOnly);
+            hd.setGiamGia(giamGia);
+            hd.setDichVuKem(dichVuDetails);
+            hd.setNgayThanhToan(nowStr);
+            if (phuongThucTT != null) hd.setPhuongThucThanhToan(phuongThucTT);
+            hd.tinhTien();
+            if (isUseDatabase()) {
+                try { new DAO.HoaDonDAO().update(hd); } catch (Exception ignored) {}
+            }
+        }
+        return hd;
     }
 }

@@ -134,6 +134,15 @@ public class MainFrame extends JFrame {
 //        setIconImage(Utils.IconUtils.getBallIcon(32).getImage());
         lblLogo.setIcon(Utils.IconUtils.getBallWhiteIcon(28));
         lblLogo.setIconTextGap(8);
+
+        String modeTag = DataStore.isUseDatabase() ? "CSDL MySQL (XAMPP)" : "Dữ liệu mẫu (DataStore)";
+        setTitle(SYSTEM_NAME + " — [" + modeTag + "]");
+
+        String modeHtml = DataStore.isUseDatabase()
+                ? "<span style='color:#81C784; font-weight:bold;'>● CSDL MySQL (XAMPP)</span>"
+                : "<span style='color:#FFB74D; font-weight:bold;'>● Dữ liệu mẫu (DataStore)</span>";
+        lblTag.setText("<html>Quản lý hoạt động sân bóng<br>Nguồn: " + modeHtml + "</html>");
+
         rebuildSidebar();
         buildPages();
         refreshUserBar();
@@ -280,8 +289,12 @@ public class MainFrame extends JFrame {
             return;
         }
         String roleNote = "ADMIN".equals(u.getQuyenHan()) ? "Chủ sân" : u.getQuyenHanHienThi();
+        String dbNote = DataStore.isUseDatabase()
+                ? "<br><span style='color:#81C784; font-size:10px;'>● CSDL: MySQL</span>"
+                : "<br><span style='color:#FFB74D; font-size:10px;'>● CSDL: DataStore (Memory)</span>";
+
         lblUserInfo.setText("<html><b>" + u.getTenDangNhap() + "</b><br>"
-                + roleNote + "</html>");
+                + roleNote + dbNote + "</html>");
     }
 
     private void doLogout() {

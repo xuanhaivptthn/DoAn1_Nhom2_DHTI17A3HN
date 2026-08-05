@@ -198,31 +198,23 @@ public final class PageUI {
     }
 
     public static void stylePrimaryButton(javax.swing.JButton btn) {
+        if (btn == null) return;
         btn.setFont(UIConstants.FONT_BUTTON);
-        btn.setBackground(null);
-        btn.setForeground(null);
-        btn.setFocusPainted(false);
     }
 
     public static void styleSecondaryButton(javax.swing.JButton btn) {
+        if (btn == null) return;
         btn.setFont(UIConstants.FONT_BUTTON);
-        btn.setBackground(null);
-        btn.setForeground(null);
-        btn.setFocusPainted(false);
     }
 
     public static void styleSuccessButton(javax.swing.JButton btn) {
+        if (btn == null) return;
         btn.setFont(UIConstants.FONT_BUTTON);
-        btn.setBackground(null);
-        btn.setForeground(null);
-        btn.setFocusPainted(false);
     }
 
     public static void styleDangerButton(javax.swing.JButton btn) {
+        if (btn == null) return;
         btn.setFont(UIConstants.FONT_BUTTON);
-        btn.setBackground(null);
-        btn.setForeground(null);
-        btn.setFocusPainted(false);
     }
 
     public static JPanel createStatCard(String label, String value, Color accent) {

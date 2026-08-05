@@ -41,6 +41,10 @@ public class HoaDonDialog extends JDialog {
         this.datLich = datLich;
         this.phuongThucTT = phuongThucTT != null ? phuongThucTT : "Tiền mặt";
 
+        if (datLich != null) {
+            Utils.DataStore.get().saveOrUpdateHoaDonForBooking(datLich, this.phuongThucTT);
+        }
+
         initUI(parent);
     }
 
@@ -96,8 +100,17 @@ public class HoaDonDialog extends JDialog {
     private String generateInvoiceHtml() {
         if (datLich == null) return "<html><body><h3>Không có dữ liệu hóa đơn</h3></body></html>";
 
+        Model.HoaDon hd = Utils.DataStore.get().saveOrUpdateHoaDonForBooking(datLich, phuongThucTT);
         String nowStr = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
-        String maHd = "HD-" + datLich.getMaLichDat();
+        String maHd = hd != null ? hd.getMaHoaDon() : "HD-" + datLich.getMaLichDat();
+
+        double tienSan = datLich.getTienSan();
+        double tienDichVu = datLich.getTongTienDichVuOnly();
+        double tienKho = datLich.getTongTienKhoOnly();
+        double tongCong = tienSan + tienDichVu + tienKho - datLich.getDatCoc();
+
+        String dvDetails = (hd != null && hd.getDichVuKem() != null && !hd.getDichVuKem().isBlank())
+                ? hd.getDichVuKem() : datLich.getDichVuKem();
 
         StringBuilder html = new StringBuilder();
         html.append("<html><head><style>")
@@ -130,28 +143,36 @@ public class HoaDonDialog extends JDialog {
             .append("<tr><th>Mục thanh toán</th><th style='text-align:right;'>Số tiền (VNĐ)</th></tr>");
 
         html.append("<tr><td>Tiền thuê sân bóng (").append(datLich.getKhungGio()).append(")</td>")
-            .append("<td style='text-align:right;'>").append(String.format("%,.0f VNĐ", (double) datLich.getTienSan())).append("</td></tr>");
+            .append("<td style='text-align:right;'>").append(String.format("%,.0f VNĐ", tienSan)).append("</td></tr>");
 
-        if (datLich.getDichVuKem() != null && !datLich.getDichVuKem().isBlank()) {
-            String[] lines = datLich.getDichVuKem().split("\n");
+        if (tienDichVu > 0) {
+            html.append("<tr><td>Tiền dịch vụ đi kèm</td><td style='text-align:right;'>")
+                .append(String.format("%,.0f VNĐ", tienDichVu)).append("</td></tr>");
+        }
+
+        if (tienKho > 0) {
+            html.append("<tr><td>Tiền sản phẩm kho / đồ ăn</td><td style='text-align:right;'>")
+                .append(String.format("%,.0f VNĐ", tienKho)).append("</td></tr>");
+        }
+
+        if (dvDetails != null && !dvDetails.isBlank()) {
+            String[] lines = dvDetails.split("\n");
             for (String line : lines) {
                 if (!line.trim().isEmpty()) {
-                    html.append("<tr><td>• ").append(line.trim()).append("</td><td style='text-align:right;'>—</td></tr>");
+                    html.append("<tr><td colspan='2' style='font-size:11px; color:#555;'>• ").append(line.trim()).append("</td></tr>");
                 }
             }
-            html.append("<tr><td><b>Tổng tiền Dịch vụ & Đồ ăn</b></td><td style='text-align:right;'><b>")
-                .append(String.format("%,.0f VNĐ", (double) datLich.getTienDichVu())).append("</b></td></tr>");
         }
 
         if (datLich.getDatCoc() > 0) {
             html.append("<tr><td>Tiền cọc đã thanh toán trước</td><td style='text-align:right; color:red;'>-")
-                .append(String.format("%,.0f VNĐ", (double) datLich.getDatCoc())).append("</td></tr>");
+                .append(String.format("%,.0f VNĐ", datLich.getDatCoc())).append("</td></tr>");
         }
 
         html.append("</table>");
 
         html.append("<div class='total-box'>")
-            .append("<div class='total-row'>TỔNG THỰC THU: ").append(String.format("%,.0f VNĐ", (double) datLich.getTongTien())).append("</div>")
+            .append("<div class='total-row'>TỔNG THỰC THU: ").append(String.format("%,.0f VNĐ", tongCong)).append("</div>")
             .append("</div>");
 
         html.append("<div class='footer-text'>Cảm ơn quý khách đã sử dụng dịch vụ sân bóng! Hẹn gặp lại quý khách.</div>");
@@ -162,6 +183,11 @@ public class HoaDonDialog extends JDialog {
 
     private void onExportCsv() {
         if (datLich == null) return;
+        Model.HoaDon hd = Utils.DataStore.get().saveOrUpdateHoaDonForBooking(datLich, phuongThucTT);
+        String maHd = hd != null ? hd.getMaHoaDon() : "HD-" + datLich.getMaLichDat();
+        String dvDetails = (hd != null && hd.getDichVuKem() != null && !hd.getDichVuKem().isBlank())
+                ? hd.getDichVuKem() : datLich.getDichVuKem();
+
         JFileChooser chooser = new JFileChooser();
         chooser.setDialogTitle("Xuất Hóa đơn ra Excel (CSV)");
         chooser.setSelectedFile(new File("HoaDon_" + datLich.getMaLichDat() + ".csv"));
@@ -177,7 +203,7 @@ public class HoaDonDialog extends JDialog {
             try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(saveFile), StandardCharsets.UTF_8)) {
                 writer.write("\uFEFF"); // UTF-8 BOM
                 writer.write("HÓA ĐƠN THANH TOÁN SÂN BÓNG\n");
-                writer.write("Mã hóa đơn," + "HD-" + datLich.getMaLichDat() + "\n");
+                writer.write("Mã hóa đơn," + maHd + "\n");
                 writer.write("Mã phiếu đặt," + datLich.getMaLichDat() + "\n");
                 writer.write("Tên khách hàng," + datLich.getTenKhach() + "\n");
                 writer.write("Số điện thoại," + datLich.getSoDienThoaiKhach() + "\n");
@@ -187,17 +213,23 @@ public class HoaDonDialog extends JDialog {
                 writer.write("Hình thức thanh toán," + phuongThucTT + "\n");
                 writer.write("Nhân viên lập," + (datLich.getMaTaiKhoan() != null ? datLich.getMaTaiKhoan() : "Admin") + "\n\n");
 
-                writer.write("KHOẢN THU,THÀNH TIỀN (VNĐ)\n");
-                writer.write(String.format("Tiền thuê sân bóng,\"%,.0f VNĐ\"\n", (double) datLich.getTienSan()));
-                writer.write(String.format("Tiền dịch vụ & đồ ăn,\"%,.0f VNĐ\"\n", (double) datLich.getTienDichVu()));
-                if (datLich.getDatCoc() > 0) {
-                    writer.write(String.format("Tiền cọc đã trả,\"-,.0f VNĐ\"\n", (double) datLich.getDatCoc()));
-                }
-                writer.write(String.format("TỔNG CỘNG THỰC THU,\"%,.0f VNĐ\"\n", (double) datLich.getTongTien()));
+                double tienSan = datLich.getTienSan();
+                double tienDichVu = datLich.getTongTienDichVuOnly();
+                double tienKho = datLich.getTongTienKhoOnly();
+                double tongCong = tienSan + tienDichVu + tienKho - datLich.getDatCoc();
 
-                if (datLich.getDichVuKem() != null && !datLich.getDichVuKem().isBlank()) {
+                writer.write("KHOẢN THU,THÀNH TIỀN (VNĐ)\n");
+                writer.write(String.format("Tiền thuê sân bóng,\"%,.0f VNĐ\"\n", tienSan));
+                writer.write(String.format("Tiền dịch vụ đi kèm,\"%,.0f VNĐ\"\n", tienDichVu));
+                writer.write(String.format("Tiền sản phẩm kho / đồ ăn,\"%,.0f VNĐ\"\n", tienKho));
+                if (datLich.getDatCoc() > 0) {
+                    writer.write(String.format("Tiền cọc đã trả,\"-,.0f VNĐ\"\n", datLich.getDatCoc()));
+                }
+                writer.write(String.format("TỔNG CỘNG THỰC THU,\"%,.0f VNĐ\"\n", tongCong));
+
+                if (dvDetails != null && !dvDetails.isBlank()) {
                     writer.write("\nCHI TIẾT ĐỒ ĂN & DỊCH VỤ:\n");
-                    writer.write("\"" + datLich.getDichVuKem().replace("\n", " | ") + "\"\n");
+                    writer.write("\"" + dvDetails.replace("\n", " | ") + "\"\n");
                 }
 
                 writer.flush();

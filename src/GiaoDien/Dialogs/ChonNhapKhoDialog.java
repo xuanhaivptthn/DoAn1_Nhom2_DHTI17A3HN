@@ -170,7 +170,7 @@ public class ChonNhapKhoDialog extends JDialog {
         pnlFooter.setBackground(UIConstants.BG);
 
         JButton btnCancel = new JButton("Hủy");
-        btnCancel.setFont(UIConstants.FONT_BUTTON);
+        Utils.PageUI.styleSecondaryButton(btnCancel);
         btnCancel.addActionListener(e -> {
             confirmed = false;
             dispose();
@@ -178,9 +178,7 @@ public class ChonNhapKhoDialog extends JDialog {
 
         JButton btnConfirm = new JButton("Xác nhận nhập kho");
         btnConfirm.setIcon(Utils.IconUtils.getCheckIcon(16));
-        btnConfirm.setFont(UIConstants.FONT_BUTTON);
-        btnConfirm.setBackground(UIConstants.PRIMARY);
-        btnConfirm.setForeground(Color.WHITE);
+        Utils.PageUI.stylePrimaryButton(btnConfirm);
         btnConfirm.addActionListener(e -> onConfirm());
 
         pnlFooter.add(btnCancel);

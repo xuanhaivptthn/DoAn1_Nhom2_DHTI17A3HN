@@ -32,6 +32,12 @@ public class DatLichDAO {
     }
 
     public boolean insert(DatLich d) {
+        if (d.getMaKhachHang() == null || d.getMaKhachHang().isBlank()) {
+            Model.KhachHang kh = Utils.DataStore.get().saveOrUpdateKhachHang(d.getTenKhach(), d.getSoDienThoaiKhach());
+            if (kh != null) {
+                d.setMaKhachHang(kh.getMaKhachHang());
+            }
+        }
         String sql = "INSERT INTO lich_dat_san (maLichDat, maSan, maTaiKhoan, maKhachHang, ngayDat, gioBatDau, gioKetThuc, trangThai, ghiChu) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBConnect.getConnection()) {
             if (conn == null) return false;
@@ -54,6 +60,12 @@ public class DatLichDAO {
     }
 
     public boolean update(DatLich d) {
+        if (d.getMaKhachHang() == null || d.getMaKhachHang().isBlank()) {
+            Model.KhachHang kh = Utils.DataStore.get().saveOrUpdateKhachHang(d.getTenKhach(), d.getSoDienThoaiKhach());
+            if (kh != null) {
+                d.setMaKhachHang(kh.getMaKhachHang());
+            }
+        }
         String sql = "UPDATE lich_dat_san SET maSan = ?, maTaiKhoan = ?, maKhachHang = ?, ngayDat = ?, gioBatDau = ?, gioKetThuc = ?, trangThai = ?, ghiChu = ? WHERE maLichDat = ?";
         try (Connection conn = DBConnect.getConnection()) {
             if (conn == null) return false;

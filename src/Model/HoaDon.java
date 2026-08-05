@@ -27,6 +27,8 @@ public class HoaDon {
     private double tongTien;
     /** NOT NULL, varchar(100) */
     private String phuongThucThanhToan;
+    /** Danh sách chi tiết các dịch vụ kèm theo & sản phẩm kho */
+    private String dichVuKem;
 
     public HoaDon() {
     }
@@ -89,6 +91,9 @@ public class HoaDon {
 
     public String getPhuongThucThanhToan() { return phuongThucThanhToan; }
     public void setPhuongThucThanhToan(String phuongThucThanhToan) { this.phuongThucThanhToan = phuongThucThanhToan; }
+
+    public String getDichVuKem() { return dichVuKem; }
+    public void setDichVuKem(String dichVuKem) { this.dichVuKem = dichVuKem; }
 
     public DatLich getDatLich() {
         if (maLichDat != null) {

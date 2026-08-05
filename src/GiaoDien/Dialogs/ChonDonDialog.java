@@ -133,7 +133,7 @@ public class ChonDonDialog extends JDialog {
         pnlFooter.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, UIConstants.BORDER));
 
         JButton btnCancel = new JButton("Hủy bỏ");
-        btnCancel.setFont(UIConstants.FONT_BUTTON);
+        Utils.PageUI.styleSecondaryButton(btnCancel);
         btnCancel.addActionListener(e -> {
             confirmed = false;
             dispose();
@@ -141,9 +141,7 @@ public class ChonDonDialog extends JDialog {
 
         JButton btnSelect = new JButton(" Chọn phiếu này");
         btnSelect.setIcon(Utils.IconUtils.getCheckIcon(16));
-        btnSelect.setFont(UIConstants.FONT_BUTTON);
-        btnSelect.setBackground(UIConstants.PRIMARY);
-        btnSelect.setForeground(Color.WHITE);
+        Utils.PageUI.stylePrimaryButton(btnSelect);
         btnSelect.addActionListener(e -> onConfirm());
 
         pnlFooter.add(btnCancel);

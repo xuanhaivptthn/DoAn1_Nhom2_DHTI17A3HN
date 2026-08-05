@@ -194,7 +194,7 @@ public class BanDichVuDialog extends JDialog {
         pnlFooterRight.setOpaque(false);
 
         JButton btnCancel = new JButton("Hủy");
-        btnCancel.setFont(UIConstants.FONT_BUTTON);
+        Utils.PageUI.styleSecondaryButton(btnCancel);
         btnCancel.addActionListener(e -> {
             confirmed = false;
             dispose();
@@ -202,9 +202,7 @@ public class BanDichVuDialog extends JDialog {
 
         JButton btnSave = new JButton(" Xác nhận bán");
         btnSave.setIcon(Utils.IconUtils.getCheckIcon(16));
-        btnSave.setFont(UIConstants.FONT_BUTTON);
-        btnSave.setBackground(UIConstants.PRIMARY);
-        btnSave.setForeground(Color.WHITE);
+        Utils.PageUI.stylePrimaryButton(btnSave);
         btnSave.addActionListener(e -> onSave());
 
         pnlFooterRight.add(btnCancel);

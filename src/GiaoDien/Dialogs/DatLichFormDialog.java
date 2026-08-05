@@ -248,15 +248,14 @@ public class DatLichFormDialog extends JDialog {
         row = addField(pnlFormCard, gbc, row, "Thêm Đồ ăn / Hàng kho", pnlDoAnWrapper);
 
         JButton btnCancel = new javax.swing.JButton("Hủy");
+        Utils.PageUI.styleSecondaryButton(btnCancel);
         btnCancel.addActionListener(e -> {
             confirmed = false;
             dispose();
         });
 
         JButton btnSave = new javax.swing.JButton(isEdit ? "Cập nhật" : "Lưu phiếu");
-        btnSave.setFont(UIConstants.FONT_BUTTON);
-        btnSave.setBackground(UIConstants.PRIMARY);
-        btnSave.setForeground(Color.WHITE);
+        Utils.PageUI.stylePrimaryButton(btnSave);
         btnSave.addActionListener(e -> onSave());
 
         pnlFooter.add(btnCancel);
@@ -557,7 +556,7 @@ public class DatLichFormDialog extends JDialog {
         }
 
         double durationHours = (kMin - bMin) / 60.0;
-        double initialCourtPrice = isEdit ? original.getTienSan() : (san.getGiaThueTheoGio() * durationHours);
+        double initialCourtPrice = san.getGiaThueTheoGio() * durationHours;
 
         DatLich candidate = new DatLich();
         candidate.setMaLichDat(isEdit ? original.getMaLichDat() : "");
@@ -572,21 +571,7 @@ public class DatLichFormDialog extends JDialog {
         candidate.setTrangThai(isEdit ? original.getTrangThai() : "ChoXacNhan");
         candidate.setMaTaiKhoan(isEdit ? original.getMaTaiKhoan() : "Hệ thống");
 
-        StringBuilder noteBuilder = new StringBuilder(txtGhiChu.getText().trim());
-        if (!configuredAddons.isEmpty()) {
-            StringBuilder svcStr = new StringBuilder();
-            for (ChonDichVuDialog.SelectedItem item : configuredAddons) {
-                if (svcStr.length() > 0) svcStr.append(", ");
-                svcStr.append(item.getSoLuong()).append(" ").append(item.getDichVu().getTenDichVu())
-                      .append(" (").append(item.getDichVu().getMaDichVu()).append(")");
-            }
-            String noteAdd = "Dặn trước: " + svcStr;
-            if (!noteBuilder.toString().contains("Dặn trước:")) {
-                if (noteBuilder.length() > 0) noteBuilder.append(". ");
-                noteBuilder.append(noteAdd);
-            }
-        }
-        candidate.setGhiChu(noteBuilder.toString());
+        candidate.setGhiChu(txtGhiChu.getText().trim());
 
         candidate.setSelectedDvMap(currentDvMap);
         candidate.setSelectedDoAnMap(currentDoAnMap);
@@ -597,6 +582,12 @@ public class DatLichFormDialog extends JDialog {
         summaryDialog.setVisible(true);
 
         if (summaryDialog.isConfirmed()) {
+            for (ChonDichVuDialog.SelectedItem item : configuredAddons) {
+                if (item.getDichVu() != null && item.getSoLuong() > 0) {
+                    DataStore.get().giamKhoStock(item.getDichVu(), item.getSoLuong());
+                }
+            }
+
             // LƯU/CẬP NHẬT THÔNG TIN KHÁCH HÀNG VÀO CSDL (Không lưu ghi chú lần đặt vào hồ sơ khách hàng)
             Model.KhachHang khachHang = DataStore.get().saveOrUpdateKhachHang(tk, sdt);
             if (khachHang != null) {

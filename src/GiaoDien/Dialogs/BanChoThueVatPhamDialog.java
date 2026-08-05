@@ -92,13 +92,14 @@ public class BanChoThueVatPhamDialog extends JDialog {
         pnlFooter.setBackground(UIConstants.BG);
 
         JButton btnCancel = new JButton("Hủy");
+        Utils.PageUI.styleSecondaryButton(btnCancel);
         btnCancel.addActionListener(e -> {
             confirmed = false;
             dispose();
         });
 
         JButton btnSubmit = new JButton("Xác nhận Bán / Cho thuê");
-        btnSubmit.setFont(UIConstants.FONT_BOLD);
+        Utils.PageUI.stylePrimaryButton(btnSubmit);
         btnSubmit.addActionListener(e -> onConfirm());
 
         pnlFooter.add(btnCancel);

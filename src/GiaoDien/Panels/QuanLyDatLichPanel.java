@@ -62,6 +62,7 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
 
     // Inspector Details Panel components
     private JLabel lblDetailSlotHeader;
+    private JLabel lblDetailTrangThai;
     private JLabel lblDetailKhach;
     private JLabel lblDetailSdt;
     private JLabel lblDetailLoaiSan;
@@ -353,6 +354,7 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
+        lblDetailTrangThai = createBoldValue("—");
         lblDetailKhach = createBoldValue("—");
         lblDetailSdt = createBoldValue("—");
         lblDetailLoaiSan = createBoldValue("—");
@@ -367,18 +369,19 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         lblDetailConLai.setForeground(UIConstants.PRIMARY);
 
         int r = 0;
+        r = addInspectorRow(form, gbc, r, "Trạng thái:", lblDetailTrangThai);
         r = addInspectorRow(form, gbc, r, "Khách:", lblDetailKhach);
         r = addInspectorRow(form, gbc, r, "SĐT:", lblDetailSdt);
         r = addInspectorRow(form, gbc, r, "Loại sân:", lblDetailLoaiSan);
         r = addInspectorRow(form, gbc, r, "Tiền sân:", lblDetailTienSan);
-        r = addInspectorRow(form, gbc, r, "Dịch vụ:", lblDetailDichVu);
+        r = addInspectorRow(form, gbc, r, "DV & Vật tư:", lblDetailDichVu);
         r = addInspectorRow(form, gbc, r, "Ghi chú:", lblDetailGhiChu);
 
         gbc.gridx = 0; gbc.gridy = r++; gbc.gridwidth = 2;
         form.add(new javax.swing.JSeparator(), gbc);
 
         gbc.gridx = 0; gbc.gridy = r; gbc.gridwidth = 1;
-        form.add(new javax.swing.JLabel("Còn lại:"), gbc);
+        form.add(new javax.swing.JLabel("Tổng tiền:"), gbc);
         gbc.gridx = 1;
         form.add(lblDetailConLai, gbc);
 
@@ -577,14 +580,27 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
                 .findFirst().orElse(null);
 
         if (currentlySelectedBooking != null) {
+            String tt = currentlySelectedBooking.getTrangThaiHienThi();
+            if ("DaThanhToan".equalsIgnoreCase(currentlySelectedBooking.getTrangThaiTT())) {
+                tt += " (Đã TT)";
+            } else if ("ChuaThanhToan".equalsIgnoreCase(currentlySelectedBooking.getTrangThaiTT())) {
+                tt += " (Chưa TT)";
+            }
+            lblDetailTrangThai.setText(tt);
             lblDetailKhach.setText(currentlySelectedBooking.getTenKhach());
             lblDetailSdt.setText(currentlySelectedBooking.getSoDienThoaiKhach());
             lblDetailLoaiSan.setText(court.getLoaiSanHienThi());
             lblDetailTienSan.setText(String.format("%,.0f VNĐ", (double) (currentlySelectedBooking.getTienSan())));
-            lblDetailDichVu.setText(String.format("%,.0f VNĐ", (double) (currentlySelectedBooking.getTienDichVu())));
+
+            String dvText = String.format("%,.0f VNĐ", (double) (currentlySelectedBooking.getTienDichVu()));
+            if (currentlySelectedBooking.getDichVuKem() != null && !currentlySelectedBooking.getDichVuKem().isBlank()) {
+                dvText += " (" + currentlySelectedBooking.getDichVuKem().replace("\n", ", ") + ")";
+            }
+            lblDetailDichVu.setText(dvText);
+
             String ghiChu = currentlySelectedBooking.getGhiChu();
             lblDetailGhiChu.setText(ghiChu != null && !ghiChu.isBlank() ? ghiChu : "—");
-            lblDetailConLai.setText(String.format("%,.0f VNĐ", (double) (currentlySelectedBooking.getConLai())));
+            lblDetailConLai.setText(String.format("%,.0f VNĐ", (double) (currentlySelectedBooking.getTongTien())));
 
             boolean isPaid = "DaThanhToan".equals(currentlySelectedBooking.getTrangThaiTT());
 
@@ -594,7 +610,8 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
             btnExportInvoice.setEnabled(true);
             btnCancelBooking.setEnabled(true);
         } else {
-            lblDetailKhach.setText("(Sân trống)");
+            lblDetailTrangThai.setText("Sân trống");
+            lblDetailKhach.setText("(Chưa đặt)");
             lblDetailSdt.setText("—");
             lblDetailLoaiSan.setText(court.getLoaiSanHienThi());
             lblDetailTienSan.setText(String.format("%,.0f VNĐ", (double) (court.getGiaThueTheoGio())));
@@ -649,17 +666,12 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
                 currentlySelectedBooking.setTrangThaiTT("ChuaThanhToan");
             }
             case "Hoàn thành (Đã thanh toán)" -> {
-                JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
-                GiaoDien.Dialogs.XacNhanDichVuThanhToanDialog confirmDialog =
-                        new GiaoDien.Dialogs.XacNhanDichVuThanhToanDialog(parent, currentlySelectedBooking);
-                confirmDialog.setVisible(true);
-                if (!confirmDialog.isConfirmed()) return;
-
                 currentlySelectedBooking.setTrangThai("HoanThanh");
                 currentlySelectedBooking.setTrangThaiTT("DaThanhToan");
+                DataStore.get().saveOrUpdateHoaDonForBooking(currentlySelectedBooking, "Tiền mặt");
 
                 int choice = JOptionPane.showConfirmDialog(this,
-                        "Đã cập nhật dịch vụ thanh toán & chuyển sang Hoàn thành.\nBạn có muốn xuất Hóa đơn thanh toán ngay bây giờ không?",
+                        "Đã chuyển trạng thái sang Hoàn thành (Đã thanh toán) và lưu Hóa đơn thành công.\nBạn có muốn xuất Hóa đơn thanh toán ngay bây giờ không?",
                         "Xuất hóa đơn", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
                 if (choice == JOptionPane.YES_OPTION) {
                     onExportInvoice("Tiền mặt");
@@ -767,6 +779,7 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
             phieu.setMaLichDat(ma);
             phieu.setMaSan(san.getMaSan());
             phieu.setTenSan(san.getTenSan());
+            phieu.setMaKhachHang(form.getMaKhachHang());
             phieu.setTenKhach(form.getTenKhach());
             phieu.setSoDienThoaiKhach(form.getSoDienThoaiKhach());
             phieu.setNgayDat(form.getNgayDat());
@@ -804,7 +817,7 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         for (ChonDichVuDialog.SelectedItem item : dialog.getSelectedItems()) {
             DichVu dv = item.getDichVu();
             int qty   = item.getSoLuong();
-            dv.xuatKho(qty);
+            DataStore.get().giamKhoStock(dv, qty);
             double cost = dv.getDonGia() * qty;
             totalAdded += cost;
             currentlySelectedBooking.addDichVuKem(dv.getTenDichVu(), qty, cost);
@@ -821,17 +834,11 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
             soldInfo.append(qty).append("x ").append(dv.getTenDichVu());
         }
 
-        if (soldInfo.length() > 0) {
-            String oldNote = currentlySelectedBooking.getGhiChu() != null ? currentlySelectedBooking.getGhiChu().trim() : "";
-            String addNote = "Đã bán thêm: " + soldInfo;
-            if (!oldNote.contains(soldInfo.toString())) {
-                currentlySelectedBooking.setGhiChu(oldNote.isEmpty() ? addNote : oldNote + ". " + addNote);
-            }
-        }
-
         if (DataStore.isUseDatabase()) {
             try { new DAO.DatLichDAO().update(currentlySelectedBooking); } catch (Exception ignored) {}
         }
+
+        DataStore.get().saveOrUpdateHoaDonForBooking(currentlySelectedBooking, "Tiền mặt");
 
         reloadSchedule();
         JOptionPane.showMessageDialog(this,
@@ -866,6 +873,7 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         if (DataStore.isUseDatabase()) {
             try { new DAO.DatLichDAO().update(currentlySelectedBooking); } catch (Exception ignored) {}
         }
+        DataStore.get().saveOrUpdateHoaDonForBooking(currentlySelectedBooking, "Tiền mặt");
         String maPhieu = currentlySelectedBooking.getMaLichDat();
         reloadSchedule();
         JOptionPane.showMessageDialog(this, "Đã cập nhật thông tin phiếu đặt sân " + maPhieu + " thành công!", "Cập nhật thành công", JOptionPane.INFORMATION_MESSAGE);

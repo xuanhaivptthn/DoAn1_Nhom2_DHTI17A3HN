@@ -288,12 +288,14 @@ public class ChonNgayDialog extends JDialog {
 
         // Footer buttons
         JButton btnCancel = new javax.swing.JButton("Hủy");
+        Utils.PageUI.styleSecondaryButton(btnCancel);
         btnCancel.addActionListener(e -> {
             confirmed = false;
             dispose();
         });
 
         JButton btnConfirm = new javax.swing.JButton("Đồng ý");
+        Utils.PageUI.stylePrimaryButton(btnConfirm);
         btnConfirm.addActionListener(e -> {
             confirmed = true;
             dispose();

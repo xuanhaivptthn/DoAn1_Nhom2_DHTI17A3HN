@@ -12,11 +12,22 @@ import java.util.List;
 
 public class HoaDonDAO {
 
+    private static boolean columnChecked = false;
+
+    private static synchronized void ensureColumnExists(Connection conn) {
+        if (columnChecked || conn == null) return;
+        try (Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate("ALTER TABLE hoa_don ADD COLUMN dichVuKem TEXT DEFAULT NULL");
+        } catch (SQLException ignored) {}
+        columnChecked = true;
+    }
+
     public List<HoaDon> getAll() {
         List<HoaDon> list = new ArrayList<>();
         String sql = "SELECT * FROM hoa_don ORDER BY maHoaDon DESC";
         try (Connection conn = DBConnect.getConnection()) {
             if (conn == null) return list;
+            ensureColumnExists(conn);
             try (Statement stmt = conn.createStatement();
                  ResultSet rs = stmt.executeQuery(sql)) {
                 while (rs.next()) {
@@ -30,9 +41,10 @@ public class HoaDonDAO {
     }
 
     public boolean insert(HoaDon h) {
-        String sql = "INSERT INTO hoa_don (maHoaDon, maLichDat, maNhanVien, ngayThanhToan, chiPhiSan, tongTienDichVu, tongTienKho, giamGia, tongTien, phuongThucThanhToan) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO hoa_don (maHoaDon, maLichDat, maNhanVien, ngayThanhToan, chiPhiSan, tongTienDichVu, tongTienKho, giamGia, tongTien, phuongThucThanhToan, dichVuKem) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBConnect.getConnection()) {
             if (conn == null) return false;
+            ensureColumnExists(conn);
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setString(1, h.getMaHoaDon());
                 pstmt.setString(2, h.getMaLichDat());
@@ -44,6 +56,7 @@ public class HoaDonDAO {
                 pstmt.setDouble(8, h.getGiamGia());
                 pstmt.setDouble(9, h.getTongTien());
                 pstmt.setString(10, h.getPhuongThucThanhToan());
+                pstmt.setString(11, h.getDichVuKem());
                 return pstmt.executeUpdate() > 0;
             }
         } catch (SQLException ex) {
@@ -53,9 +66,10 @@ public class HoaDonDAO {
     }
 
     public boolean update(HoaDon h) {
-        String sql = "UPDATE hoa_don SET maLichDat = ?, maNhanVien = ?, ngayThanhToan = ?, chiPhiSan = ?, tongTienDichVu = ?, tongTienKho = ?, giamGia = ?, tongTien = ?, phuongThucThanhToan = ? WHERE maHoaDon = ?";
+        String sql = "UPDATE hoa_don SET maLichDat = ?, maNhanVien = ?, ngayThanhToan = ?, chiPhiSan = ?, tongTienDichVu = ?, tongTienKho = ?, giamGia = ?, tongTien = ?, phuongThucThanhToan = ?, dichVuKem = ? WHERE maHoaDon = ?";
         try (Connection conn = DBConnect.getConnection()) {
             if (conn == null) return false;
+            ensureColumnExists(conn);
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setString(1, h.getMaLichDat());
                 pstmt.setString(2, h.getMaNhanVien());
@@ -66,7 +80,8 @@ public class HoaDonDAO {
                 pstmt.setDouble(7, h.getGiamGia());
                 pstmt.setDouble(8, h.getTongTien());
                 pstmt.setString(9, h.getPhuongThucThanhToan());
-                pstmt.setString(10, h.getMaHoaDon());
+                pstmt.setString(10, h.getDichVuKem());
+                pstmt.setString(11, h.getMaHoaDon());
                 return pstmt.executeUpdate() > 0;
             }
         } catch (SQLException ex) {
@@ -102,6 +117,9 @@ public class HoaDonDAO {
                 rs.getString("phuongThucThanhToan")
         );
         h.setTongTienKho(rs.getDouble("tongTienKho"));
+        try {
+            h.setDichVuKem(rs.getString("dichVuKem"));
+        } catch (SQLException ignored) {}
         return h;
     }
 }

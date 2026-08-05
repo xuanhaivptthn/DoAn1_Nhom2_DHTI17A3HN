@@ -108,7 +108,7 @@ public class ChonKhachHangDialog extends JDialog {
         pnlFooter.setBorder(javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, UIConstants.BORDER));
 
         JButton btnCancel = new JButton("Hủy");
-        btnCancel.setFont(UIConstants.FONT_BUTTON);
+        Utils.PageUI.styleSecondaryButton(btnCancel);
         btnCancel.addActionListener(e -> {
             confirmed = false;
             dispose();
@@ -116,9 +116,7 @@ public class ChonKhachHangDialog extends JDialog {
 
         JButton btnSelect = new JButton(" Chọn khách hàng");
         btnSelect.setIcon(Utils.IconUtils.getCheckIcon(16));
-        btnSelect.setFont(UIConstants.FONT_BUTTON);
-        btnSelect.setBackground(UIConstants.PRIMARY);
-        btnSelect.setForeground(java.awt.Color.WHITE);
+        Utils.PageUI.stylePrimaryButton(btnSelect);
         btnSelect.addActionListener(e -> onSelect());
 
         pnlFooter.add(btnCancel);

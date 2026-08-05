@@ -100,14 +100,14 @@ public class ChiTietDichVuDialog extends JDialog {
 
         JButton btnEdit = new JButton(" Sửa dịch vụ");
         btnEdit.setIcon(Utils.IconUtils.getEditIcon(16));
-        btnEdit.setFont(UIConstants.FONT_BUTTON);
+        Utils.PageUI.stylePrimaryButton(btnEdit);
         btnEdit.addActionListener(e -> {
             editRequested = true;
             dispose();
         });
 
         JButton btnClose = new JButton("Đóng");
-        btnClose.setFont(UIConstants.FONT_BUTTON);
+        Utils.PageUI.styleSecondaryButton(btnClose);
         btnClose.addActionListener(e -> dispose());
 
         pnlFooter.add(btnEdit);

@@ -212,7 +212,7 @@ public class TongHopThongTinDialog extends JDialog {
 
         JButton btnCancel = new JButton(" Hủy / Quay lại sửa");
         btnCancel.setIcon(Utils.IconUtils.getCloseIcon(16));
-        btnCancel.setFont(UIConstants.FONT_BUTTON);
+        Utils.PageUI.styleSecondaryButton(btnCancel);
         btnCancel.setPreferredSize(new Dimension(160, 36));
         btnCancel.addActionListener(e -> {
             confirmed = false;
@@ -221,9 +221,7 @@ public class TongHopThongTinDialog extends JDialog {
 
         JButton btnConfirm = new JButton(" XÁC NHẬN LƯU PHIẾU");
         btnConfirm.setIcon(Utils.IconUtils.getCheckIcon(16));
-        btnConfirm.setFont(UIConstants.FONT_BUTTON);
-        btnConfirm.setBackground(UIConstants.PRIMARY);
-        btnConfirm.setForeground(Color.WHITE);
+        Utils.PageUI.stylePrimaryButton(btnConfirm);
         btnConfirm.setPreferredSize(new Dimension(190, 36));
         btnConfirm.addActionListener(e -> {
             confirmed = true;

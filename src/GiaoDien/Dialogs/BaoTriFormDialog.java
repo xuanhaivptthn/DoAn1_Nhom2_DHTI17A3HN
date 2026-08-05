@@ -141,12 +141,14 @@ public class BaoTriFormDialog extends JDialog {
         addField(pnlFormCard, gbc, row, "Trạng thái BT", cboTrangThai);
 
         JButton btnCancel = new javax.swing.JButton("Hủy");
+        Utils.PageUI.styleSecondaryButton(btnCancel);
         btnCancel.addActionListener(e -> {
             confirmed = false;
             dispose();
         });
 
         JButton btnSave = new javax.swing.JButton(isEdit ? "Cập nhật" : "Lưu phiếu");
+        Utils.PageUI.stylePrimaryButton(btnSave);
         btnSave.addActionListener(e -> onSave());
 
         pnlFooter.add(btnCancel);

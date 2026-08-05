@@ -136,10 +136,25 @@ public class DatLich {
     public double getTienSan() { return tienSan; }
     public void setTienSan(double tienSan) { this.tienSan = tienSan; recalc(); }
 
-    public double getTienDichVu() { return tienDichVu; }
+    public double getTienDichVu() {
+        double calc = getTongTienDichVuOnly() + getTongTienKhoOnly();
+        if (calc > 0) return calc;
+        if (this.tienDichVu > 0) return this.tienDichVu;
+        if (maLichDat != null) {
+            Model.HoaDon hd = Utils.DataStore.get().getHoaDons().stream()
+                    .filter(h -> maLichDat.equalsIgnoreCase(h.getMaLichDat()))
+                    .findFirst().orElse(null);
+            if (hd != null) {
+                return hd.getTongTienDichVu() + hd.getTongTienKho();
+            }
+        }
+        return 0;
+    }
     public void setTienDichVu(double tienDichVu) { this.tienDichVu = tienDichVu; recalc(); }
 
-    public double getTongTien() { return tongTien; }
+    public double getTongTien() {
+        return getTienSan() + getTienDichVu();
+    }
     public void setTongTien(double tongTien) { this.tongTien = tongTien; }
 
     public double getDatCoc() { return datCoc; }
@@ -147,13 +162,24 @@ public class DatLich {
 
     public double getConLai() {
         if ("DaThanhToan".equalsIgnoreCase(trangThaiTT)) return 0;
-        return Math.max(0, tongTien - datCoc);
+        return Math.max(0, getTongTien() - datCoc);
     }
 
     public String getTrangThaiTT() { return trangThaiTT; }
     public void setTrangThaiTT(String trangThaiTT) { this.trangThaiTT = trangThaiTT; }
 
-    public String getDichVuKem() { return dichVuKem; }
+    public String getDichVuKem() {
+        if (dichVuKem != null && !dichVuKem.isBlank()) return dichVuKem;
+        if (maLichDat != null) {
+            Model.HoaDon hd = Utils.DataStore.get().getHoaDons().stream()
+                    .filter(h -> maLichDat.equalsIgnoreCase(h.getMaLichDat()))
+                    .findFirst().orElse(null);
+            if (hd != null && hd.getDichVuKem() != null && !hd.getDichVuKem().isBlank()) {
+                return hd.getDichVuKem();
+            }
+        }
+        return dichVuKem;
+    }
     public void setDichVuKem(String dichVuKem) { this.dichVuKem = dichVuKem; }
 
     public java.util.Map<Integer, Integer> getSelectedDvMap() { return selectedDvMap; }
@@ -190,6 +216,49 @@ public class DatLich {
         }
         this.tienDichVu += cost;
         recalc();
+    }
+
+    public double getTongTienDichVuOnly() {
+        double total = 0;
+        if (selectedDvMap != null) {
+            for (java.util.Map.Entry<Integer, Integer> entry : selectedDvMap.entrySet()) {
+                int id = entry.getKey();
+                int qty = entry.getValue();
+                if (qty <= 0) continue;
+                DichVu dv = Utils.DataStore.get().findDichVuById(id);
+                if (dv != null && !"Vật tư kho".equalsIgnoreCase(dv.getLoaiDichVu())) {
+                    total += dv.getDonGia() * qty;
+                }
+            }
+        }
+        return total;
+    }
+
+    public double getTongTienKhoOnly() {
+        double total = 0;
+        if (selectedDoAnMap != null) {
+            for (java.util.Map.Entry<Integer, Integer> entry : selectedDoAnMap.entrySet()) {
+                int id = entry.getKey();
+                int qty = entry.getValue();
+                if (qty <= 0) continue;
+                DichVu dv = Utils.DataStore.get().findDichVuById(id);
+                if (dv != null) {
+                    total += dv.getDonGia() * qty;
+                }
+            }
+        }
+        if (selectedDvMap != null) {
+            for (java.util.Map.Entry<Integer, Integer> entry : selectedDvMap.entrySet()) {
+                int id = entry.getKey();
+                int qty = entry.getValue();
+                if (qty <= 0) continue;
+                DichVu dv = Utils.DataStore.get().findDichVuById(id);
+                if (dv != null && "Vật tư kho".equalsIgnoreCase(dv.getLoaiDichVu())) {
+                    total += dv.getDonGia() * qty;
+                }
+            }
+        }
+        return total;
     }
 
     public void recalc() {

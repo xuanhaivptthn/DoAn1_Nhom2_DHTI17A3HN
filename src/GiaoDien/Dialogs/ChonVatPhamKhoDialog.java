@@ -168,7 +168,7 @@ public class ChonVatPhamKhoDialog extends JDialog {
         pnlFooter.setBorder(javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, UIConstants.BORDER));
 
         JButton btnCancel = new JButton("Hủy");
-        btnCancel.setFont(UIConstants.FONT_BUTTON);
+        Utils.PageUI.styleSecondaryButton(btnCancel);
         btnCancel.addActionListener(e -> {
             confirmed = false;
             dispose();
@@ -176,9 +176,7 @@ public class ChonVatPhamKhoDialog extends JDialog {
 
         JButton btnDone = new JButton(" Hoàn tất chọn");
         btnDone.setIcon(Utils.IconUtils.getCheckIcon(16));
-        btnDone.setFont(UIConstants.FONT_BUTTON);
-        btnDone.setBackground(UIConstants.PRIMARY);
-        btnDone.setForeground(Color.WHITE);
+        Utils.PageUI.stylePrimaryButton(btnDone);
         btnDone.addActionListener(e -> onConfirm());
 
         pnlFooter.add(btnCancel);
