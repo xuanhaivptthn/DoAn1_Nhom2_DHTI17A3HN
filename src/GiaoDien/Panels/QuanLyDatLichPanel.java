@@ -165,7 +165,6 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
 
         JButton btnPrevDay = new javax.swing.JButton();
         btnPrevDay.setIcon(Utils.IconUtils.getPrevIcon(16));
-        PageUI.styleSecondaryButton(btnPrevDay);
         btnPrevDay.setPreferredSize(new Dimension(45, 32));
         btnPrevDay.addActionListener(e -> {
             selectedDate = selectedDate.minusDays(1);
@@ -174,7 +173,6 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         });
 
         JButton btnToday = new javax.swing.JButton("Hôm nay");
-        PageUI.styleSecondaryButton(btnToday);
         btnToday.setPreferredSize(new Dimension(85, 32));
         btnToday.addActionListener(e -> {
             selectedDate = LocalDate.now();
@@ -184,7 +182,6 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
 
         JButton btnNextDay = new javax.swing.JButton();
         btnNextDay.setIcon(Utils.IconUtils.getNextIcon(16));
-        PageUI.styleSecondaryButton(btnNextDay);
         btnNextDay.setPreferredSize(new Dimension(45, 32));
         btnNextDay.addActionListener(e -> {
             selectedDate = selectedDate.plusDays(1);
@@ -193,7 +190,6 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         });
 
         JButton btnPickDate = new javax.swing.JButton("Chọn ngày");
-        PageUI.styleSecondaryButton(btnPickDate);
         btnPickDate.setPreferredSize(new Dimension(120, 32));
         btnPickDate.addActionListener(e -> onQuickPickDate());
 
@@ -221,7 +217,6 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         right.setOpaque(false);
 
         JButton btnNewBooking = new javax.swing.JButton("+ Tạo lịch đặt");
-        PageUI.stylePrimaryButton(btnNewBooking);
         btnNewBooking.setPreferredSize(new Dimension(135, 34));
         btnNewBooking.addActionListener(e -> onBookNew());
 
