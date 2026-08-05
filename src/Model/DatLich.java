@@ -123,7 +123,14 @@ public class DatLich {
 
     // ─── Trường UI runtime ────────────────────────────────────────────────────
 
-    public String getTenSan() { return tenSan; }
+    public String getTenSan() {
+        if (tenSan != null && !tenSan.isBlank()) return tenSan;
+        if (maSan != null) {
+            KhuVucSan kv = Utils.DataStore.get().findKhuVucSanById(maSan);
+            if (kv != null && kv.getTenSan() != null) return kv.getTenSan();
+        }
+        return "";
+    }
     public void setTenSan(String tenSan) { this.tenSan = tenSan; }
 
     public double getTienSan() { return tienSan; }

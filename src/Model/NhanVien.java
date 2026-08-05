@@ -44,6 +44,13 @@ public class NhanVien {
     public String getDiaChi() { return diaChi; }
     public void setDiaChi(String diaChi) { this.diaChi = diaChi; }
 
+    public TaiKhoan getTaiKhoan() {
+        if (maTaiKhoan != null) {
+            return Utils.DataStore.get().findTaiKhoanByMa(maTaiKhoan);
+        }
+        return null;
+    }
+
     @Override
     public String toString() {
         return hoTenNhanVien + " (" + soDienThoaiNhanVien + ")";

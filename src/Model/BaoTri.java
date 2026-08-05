@@ -74,7 +74,14 @@ public class BaoTri {
     public String getTrangThaiPhieu() { return trangThaiPhieu; }
     public void setTrangThaiPhieu(String trangThaiPhieu) { this.trangThaiPhieu = trangThaiPhieu; }
 
-    public String getTenSan() { return tenSan; }
+    public String getTenSan() {
+        if (tenSan != null && !tenSan.isBlank()) return tenSan;
+        if (maSan != null) {
+            KhuVucSan kv = Utils.DataStore.get().findKhuVucSanById(maSan);
+            if (kv != null && kv.getTenSan() != null) return kv.getTenSan();
+        }
+        return "";
+    }
     public void setTenSan(String tenSan) { this.tenSan = tenSan; }
 
     // ─── Helper methods ────────────────────────────────────────────────────────

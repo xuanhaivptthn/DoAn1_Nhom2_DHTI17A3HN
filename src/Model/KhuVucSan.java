@@ -15,6 +15,8 @@ public class KhuVucSan {
     private double giaThueTheoGio;
     /** ENUM: HOAT_DONG | BAO_TRI | NGUNG_HOAT_DONG  — DEFAULT 'HOAT_DONG' */
     private String trangThai;
+    /** FK → chu_san.maChuSan */
+    private String maChuSan;
 
     public KhuVucSan() {
     }
@@ -26,6 +28,12 @@ public class KhuVucSan {
         this.loaiSan = loaiSan;
         this.giaThueTheoGio = giaThueTheoGio;
         this.trangThai = trangThai;
+    }
+
+    public KhuVucSan(String maSan, String maChuSan, String tenSan, String loaiSan,
+                     double giaThueTheoGio, String trangThai) {
+        this(maSan, tenSan, loaiSan, giaThueTheoGio, trangThai);
+        this.maChuSan = maChuSan;
     }
 
     /** Constructor tương thích seed dữ liệu mẫu (id tự sinh mã) */
@@ -42,6 +50,9 @@ public class KhuVucSan {
     public String getMaSan() { return maSan; }
     public void setMaSan(String maSan) { this.maSan = maSan; }
 
+    public String getMaChuSan() { return maChuSan; }
+    public void setMaChuSan(String maChuSan) { this.maChuSan = maChuSan; }
+
     public String getTenSan() { return tenSan; }
     public void setTenSan(String tenSan) { this.tenSan = tenSan; }
 
@@ -53,6 +64,13 @@ public class KhuVucSan {
 
     public String getTrangThai() { return trangThai; }
     public void setTrangThai(String trangThai) { this.trangThai = trangThai; }
+
+    public ChuSan getChuSan() {
+        if (maChuSan != null) {
+            return Utils.DataStore.get().findChuSanById(maChuSan);
+        }
+        return null;
+    }
 
     /** ID số cơ bản từ mã sân (ví dụ "SAN001" -> 1) */
     public int getId() {

@@ -90,6 +90,20 @@ public class HoaDon {
     public String getPhuongThucThanhToan() { return phuongThucThanhToan; }
     public void setPhuongThucThanhToan(String phuongThucThanhToan) { this.phuongThucThanhToan = phuongThucThanhToan; }
 
+    public DatLich getDatLich() {
+        if (maLichDat != null) {
+            return Utils.DataStore.get().findDatLichById(maLichDat);
+        }
+        return null;
+    }
+
+    public NhanVien getNhanVien() {
+        if (maNhanVien != null) {
+            return Utils.DataStore.get().findNhanVienById(maNhanVien);
+        }
+        return null;
+    }
+
     // ─── Helper methods ────────────────────────────────────────────────────────
 
     /** Tính lại tongTien = chiPhiSan + tongTienDichVu + tongTienKho - giamGia */

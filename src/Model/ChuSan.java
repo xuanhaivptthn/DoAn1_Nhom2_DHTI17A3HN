@@ -37,6 +37,13 @@ public class ChuSan {
     public String getSoDienThoaiChuSan() { return soDienThoaiChuSan; }
     public void setSoDienThoaiChuSan(String soDienThoaiChuSan) { this.soDienThoaiChuSan = soDienThoaiChuSan; }
 
+    public TaiKhoan getTaiKhoan() {
+        if (maTaiKhoan != null) {
+            return Utils.DataStore.get().findTaiKhoanByMa(maTaiKhoan);
+        }
+        return null;
+    }
+
     @Override
     public String toString() {
         return tenChuSan + " (" + soDienThoaiChuSan + ")";

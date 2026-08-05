@@ -522,4 +522,52 @@ public final class DataStore {
                 .filter(k -> cleanMa.equalsIgnoreCase(k.getMaKhachHang()))
                 .findFirst().orElse(null);
     }
+
+    public KhuVucSan findKhuVucSanById(String maSan) {
+        if (maSan == null || maSan.isBlank()) return null;
+        String cleanMa = maSan.trim();
+        return khuVucs.stream()
+                .filter(k -> cleanMa.equalsIgnoreCase(k.getMaSan()))
+                .findFirst().orElse(null);
+    }
+
+    public ChuSan findChuSanById(String maChuSan) {
+        if (maChuSan == null || maChuSan.isBlank()) return null;
+        String cleanMa = maChuSan.trim();
+        return chuSans.stream()
+                .filter(c -> cleanMa.equalsIgnoreCase(c.getMaChuSan()))
+                .findFirst().orElse(null);
+    }
+
+    public NhanVien findNhanVienById(String maNhanVien) {
+        if (maNhanVien == null || maNhanVien.isBlank()) return null;
+        String cleanMa = maNhanVien.trim();
+        return nhanViens.stream()
+                .filter(n -> cleanMa.equalsIgnoreCase(n.getMaNhanVien()))
+                .findFirst().orElse(null);
+    }
+
+    public TaiKhoan findTaiKhoanByMa(String maTaiKhoan) {
+        if (maTaiKhoan == null || maTaiKhoan.isBlank()) return null;
+        String cleanMa = maTaiKhoan.trim();
+        return taiKhoans.stream()
+                .filter(t -> cleanMa.equalsIgnoreCase(t.getMaTaiKhoan()))
+                .findFirst().orElse(null);
+    }
+
+    public DatLich findDatLichById(String maLichDat) {
+        if (maLichDat == null || maLichDat.isBlank()) return null;
+        String cleanMa = maLichDat.trim();
+        return datLichs.stream()
+                .filter(d -> cleanMa.equalsIgnoreCase(d.getMaLichDat()))
+                .findFirst().orElse(null);
+    }
+
+    public HoaDon findHoaDonById(String maHoaDon) {
+        if (maHoaDon == null || maHoaDon.isBlank()) return null;
+        String cleanMa = maHoaDon.trim();
+        return hoaDons.stream()
+                .filter(h -> cleanMa.equalsIgnoreCase(h.getMaHoaDon()))
+                .findFirst().orElse(null);
+    }
 }
