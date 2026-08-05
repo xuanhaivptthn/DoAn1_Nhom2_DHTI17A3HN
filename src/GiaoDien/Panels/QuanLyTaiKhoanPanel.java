@@ -40,9 +40,6 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
 
     private TaiKhoanTableModel tableModel;
     private JTable table;
-    private JTextField txtSearch;
-    private JComboBox<String> cboVaiTro;
-    private JComboBox<String> cboTrangThai;
     private JLabel lblCount;
     private boolean embedded;
 
@@ -97,9 +94,6 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
     private void customInit() {
         tableModel = new TaiKhoanTableModel();
         table = createTable();
-        txtSearch = new javax.swing.JTextField(22);
-        cboVaiTro = new JComboBox<>(new String[]{"Tất cả", "Quản trị viên", "Nhân viên"});
-        cboTrangThai = new JComboBox<>(new String[]{"Tất cả", "Hoạt động", "Đã khoá"});
         lblCount = new JLabel("0 tài khoản");
 
         buildUI();
@@ -117,50 +111,14 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
     }
 
     private void buildToolbar() {
+        pnlToolbar.removeAll();
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(4, 6, 4, 6);
         gbc.anchor = GridBagConstraints.WEST;
-
         gbc.gridx = 0;
         gbc.gridy = 0;
-        JLabel lblSearch = new javax.swing.JLabel("Tìm kiếm:");
-        lblSearch.setIcon(Utils.IconUtils.getSearchIcon(16));
-        pnlToolbar.add(lblSearch, gbc);
-
-        gbc.gridx = 1;
-        gbc.weightx = 1;
+        gbc.weightx = 1.0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        txtSearch.setPreferredSize(new Dimension(220, 34));
-        setPlaceholder(txtSearch, "Tên đăng nhập, họ tên, SĐT, email...");
-        txtSearch.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) { applyFilter(); }
-            @Override
-            public void removeUpdate(DocumentEvent e) { applyFilter(); }
-            @Override
-            public void changedUpdate(DocumentEvent e) { applyFilter(); }
-        });
-        pnlToolbar.add(txtSearch, gbc);
-
-        gbc.gridx = 2;
-        gbc.weightx = 0;
-        gbc.fill = GridBagConstraints.NONE;
-        pnlToolbar.add(new javax.swing.JLabel("Vai trò:"), gbc);
-
-        gbc.gridx = 3;
-        styleCombo(cboVaiTro);
-        cboVaiTro.setPreferredSize(new Dimension(140, 34));
-        cboVaiTro.addActionListener(e -> applyFilter());
-        pnlToolbar.add(cboVaiTro, gbc);
-
-        gbc.gridx = 4;
-        pnlToolbar.add(new javax.swing.JLabel("Trạng thái:"), gbc);
-
-        gbc.gridx = 5;
-        styleCombo(cboTrangThai);
-        cboTrangThai.setPreferredSize(new Dimension(120, 34));
-        cboTrangThai.addActionListener(e -> applyFilter());
-        pnlToolbar.add(cboTrangThai, gbc);
 
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         actions.setOpaque(false);
@@ -193,9 +151,7 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
         PageUI.styleSecondaryButton(btnRefresh);
         btnRefresh.setPreferredSize(new Dimension(120, 36));
         btnRefresh.addActionListener(e -> {
-            txtSearch.setText("");
-            cboVaiTro.setSelectedIndex(0);
-            cboTrangThai.setSelectedIndex(0);
+            loadFromStore();
             applyFilter();
         });
 
@@ -205,11 +161,6 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
         actions.add(btnLock);
         actions.add(btnRefresh);
 
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.gridwidth = 6;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(12, 6, 4, 6);
         pnlToolbar.add(actions, gbc);
     }
 
@@ -249,6 +200,7 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
 
     private JTable createTable() {
         JTable t = new JTable(tableModel);
+        t.setName("tableTaiKhoan");
         PageUI.styleTable(t);
         t.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         t.setFillsViewportHeight(true);
@@ -413,15 +365,8 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
     }
 
     private void applyFilter() {
-        String keyword = txtSearch.getText();
-        if ("Tên đăng nhập, họ tên, SĐT, email...".equals(keyword)) {
-            keyword = "";
-        }
-        String vaiTro = (String) cboVaiTro.getSelectedItem();
-        String trangThai = (String) cboTrangThai.getSelectedItem();
-        tableModel.filter(keyword, vaiTro, trangThai);
         if (lblCount != null) {
-            lblCount.setText(tableModel.getRowCount() + " / " + tableModel.getAllData().size() + " tài khoản");
+            lblCount.setText(tableModel.getRowCount() + " tài khoản");
         }
     }
 
@@ -433,33 +378,5 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
         List<TaiKhoan> store = DataStore.get().getTaiKhoans();
         store.clear();
         store.addAll(tableModel.getAllData());
-    }
-
-    private void styleCombo(JComboBox<String> combo) {
-        combo.setFont(UIConstants.FONT_NORMAL);
-        combo.setBackground(Color.WHITE);
-        combo.setForeground(UIConstants.TEXT_PRIMARY);
-    }
-
-    private void setPlaceholder(JTextField field, String placeholder) {
-        field.setForeground(Color.GRAY);
-        field.setText(placeholder);
-        field.addFocusListener(new java.awt.event.FocusAdapter() {
-            @Override
-            public void focusGained(java.awt.event.FocusEvent e) {
-                if (field.getText().equals(placeholder)) {
-                    field.setText("");
-                    field.setForeground(UIConstants.TEXT_PRIMARY);
-                }
-            }
-
-            @Override
-            public void focusLost(java.awt.event.FocusEvent e) {
-                if (field.getText().isEmpty()) {
-                    field.setForeground(Color.GRAY);
-                    field.setText(placeholder);
-                }
-            }
-        });
     }
 }
