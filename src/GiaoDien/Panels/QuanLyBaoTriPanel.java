@@ -36,7 +36,6 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
 
     private DefaultTableModel model;
     private JTable table;
-    private JComboBox<String> cboFilter;
     private JLabel lblCount;
 
     // Table Tình trạng cơ sở vật chất (JTable)
@@ -102,7 +101,6 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
         PageUI.styleTable(table);
         table.getColumnModel().getColumn(0).setPreferredWidth(60);
 
-        cboFilter = new JComboBox<>(new String[]{"Tất cả", "Đang bảo trì", "Hoàn thành", "Đã hủy"});
         lblCount = new JLabel();
         lblCount.setFont(UIConstants.FONT_SMALL);
         lblCount.setForeground(UIConstants.TEXT_SECONDARY);
@@ -122,7 +120,6 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
         pnlMid.add(createCsvcCard());
         pnlMid.add(createHistoryCard());
 
-        cboFilter.addActionListener(e -> reload());
         refreshCsvc();
         reload();
     }
@@ -134,10 +131,6 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
         // HÀNG THỨ NHẤT: Lọc lịch sử + Thao tác lập/sửa/xem + Nút "Làm mới dữ liệu"
         JPanel pnlTopRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         pnlTopRow.setOpaque(false);
-
-        pnlTopRow.add(new javax.swing.JLabel("Lọc lịch sử:"));
-        cboFilter.setPreferredSize(new Dimension(120, 32));
-        pnlTopRow.add(cboFilter);
 
         JButton btnNew = new javax.swing.JButton(" Lập phiếu BT");
         btnNew.setIcon(Utils.IconUtils.getAddIcon(16));
@@ -158,7 +151,7 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
         pnlTopRow.add(btnUpdate);
         pnlTopRow.add(btnView);
 
-        // HÀNG THỨ HAI (CĂN BÊN PHẢI): 2 nút thay đổi nhanh trạng thái phiếu bảo trì
+        // HÀNG THỨ HAI (CĂN BÊN PHẢI): nút thay đổi nhanh trạng thái phiếu bảo trì
         JPanel pnlBottomRow = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         pnlBottomRow.setOpaque(false);
 
@@ -166,18 +159,12 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
         lblQuickNote.setFont(UIConstants.FONT_SMALL);
         lblQuickNote.setForeground(UIConstants.TEXT_SECONDARY);
 
-        JButton btnStart = new javax.swing.JButton(" Bắt đầu XL");
-        btnStart.setIcon(Utils.IconUtils.getPlayIcon(16));
-        PageUI.styleSecondaryButton(btnStart);
-        btnStart.addActionListener(e -> setStatus("DANG_BAO_TRI"));
-
         JButton btnDone = new javax.swing.JButton(" Hoàn thành");
         btnDone.setIcon(Utils.IconUtils.getCheckIcon(16));
         PageUI.styleSuccessButton(btnDone);
         btnDone.addActionListener(e -> setStatus("HOAN_THANH"));
 
         pnlBottomRow.add(lblQuickNote);
-        pnlBottomRow.add(btnStart);
         pnlBottomRow.add(btnDone);
 
         pnlToolbar.add(pnlTopRow, BorderLayout.NORTH);
@@ -232,24 +219,15 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
     public void reload() {
         refreshCsvc();
         model.setRowCount(0);
-        String sel = cboFilter != null ? (String) cboFilter.getSelectedItem() : "Tất cả";
-        String filterCode = switch (sel) {
-            case "Đang bảo trì" -> "DANG_BAO_TRI";
-            case "Hoàn thành" -> "HOAN_THANH";
-            case "Đã hủy" -> "HUY";
-            default -> null;
-        };
 
         List<BaoTri> list = DataStore.get().getBaoTris();
         int c = 0;
         for (BaoTri b : list) {
-            if (filterCode == null || filterCode.equalsIgnoreCase(b.getTrangThaiPhieu())) {
-                model.addRow(new Object[]{
-                        b.getMaPhieuBaoTri(), b.getTenSan(), b.getNoiDung(),
-                        b.getNgayBatDau(), b.getNgayKetThuc(), b.getTrangThaiHienThi()
-                });
-                c++;
-            }
+            model.addRow(new Object[]{
+                    b.getMaPhieuBaoTri(), b.getTenSan(), b.getNoiDung(),
+                    b.getNgayBatDau(), b.getNgayKetThuc(), b.getTrangThaiHienThi()
+            });
+            c++;
         }
         lblCount.setText("Tổng: " + c + " phiếu");
     }
