@@ -114,7 +114,7 @@ public class DichVuFormDialog extends JDialog {
         txtTenDichVu = new javax.swing.JTextField(16);
         row = addField(pnlFormCard, gbc, row, "Tên dịch vụ *", txtTenDichVu);
 
-        cboLoaiDichVu = new JComboBox<>(new String[]{"Cho thuê", "Nhân sự", "Đồ uống", "Dịch vụ thi đấu", "HLV cá nhân", "Hồi phục & Sức khỏe", "Bữa/Suất", "Giặt sấy"});
+        cboLoaiDichVu = new JComboBox<>(new String[]{"Cho thuê", "Nhân sự", "Dịch vụ thi đấu", "HLV cá nhân", "Giặt sấy"});
         cboLoaiDichVu.setEditable(true);
         styleCombo(cboLoaiDichVu);
         row = addField(pnlFormCard, gbc, row, "Loại dịch vụ *", cboLoaiDichVu);
