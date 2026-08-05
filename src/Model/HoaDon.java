@@ -19,6 +19,8 @@ public class HoaDon {
     private double chiPhiSan;
     /** NOT NULL, DEFAULT 0, DECIMAL(12,2) - tiền các dịch vụ phát sinh */
     private double tongTienDichVu;
+    /** NOT NULL, DEFAULT 0, DECIMAL(12,2) - tiền vật tư kho phát sinh */
+    private double tongTienKho;
     /** NOT NULL, DEFAULT 0, DECIMAL(12,2) - tiền giảm giá/khuyến mãi */
     private double giamGia;
     /** NOT NULL, DECIMAL(12,2) - số tiền thực thu của khách */
@@ -41,6 +43,13 @@ public class HoaDon {
         this.giamGia            = giamGia;
         this.tongTien           = tongTien;
         this.phuongThucThanhToan = phuongThucThanhToan;
+    }
+
+    public HoaDon(String maHoaDon, String maLichDat, String maNhanVien,
+                  String ngayThanhToan, double chiPhiSan, double tongTienDichVu,
+                  double tongTienKho, double giamGia, double tongTien, String phuongThucThanhToan) {
+        this(maHoaDon, maLichDat, maNhanVien, ngayThanhToan, chiPhiSan, tongTienDichVu, giamGia, tongTien, phuongThucThanhToan);
+        this.tongTienKho = tongTienKho;
     }
 
     /** Constructor tương thích với code UI cũ (không có maLichDat, maNhanVien) */
@@ -69,6 +78,9 @@ public class HoaDon {
     public double getTongTienDichVu() { return tongTienDichVu; }
     public void setTongTienDichVu(double tongTienDichVu) { this.tongTienDichVu = tongTienDichVu; }
 
+    public double getTongTienKho() { return tongTienKho; }
+    public void setTongTienKho(double tongTienKho) { this.tongTienKho = tongTienKho; }
+
     public double getGiamGia() { return giamGia; }
     public void setGiamGia(double giamGia) { this.giamGia = giamGia; }
 
@@ -80,9 +92,9 @@ public class HoaDon {
 
     // ─── Helper methods ────────────────────────────────────────────────────────
 
-    /** Tính lại tongTien = chiPhiSan + tongTienDichVu - giamGia */
+    /** Tính lại tongTien = chiPhiSan + tongTienDichVu + tongTienKho - giamGia */
     public double tinhTien() {
-        this.tongTien = (this.chiPhiSan + this.tongTienDichVu) - this.giamGia;
+        this.tongTien = (this.chiPhiSan + this.tongTienDichVu + this.tongTienKho) - this.giamGia;
         return this.tongTien;
     }
 }

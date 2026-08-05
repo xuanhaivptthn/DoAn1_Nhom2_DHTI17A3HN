@@ -206,12 +206,16 @@ CREATE TABLE `hoa_don` (
   `ngayThanhToan` VARCHAR(50) NOT NULL,
   `chiPhiSan` DECIMAL(12,2) NOT NULL DEFAULT 0,
   `tongTienDichVu` DECIMAL(12,2) NOT NULL DEFAULT 0,
+  `tongTienKho` DECIMAL(12,2) NOT NULL DEFAULT 0,
   `giamGia` DECIMAL(12,2) NOT NULL DEFAULT 0,
   `tongTien` DECIMAL(12,2) NOT NULL DEFAULT 0,
   `phuongThucThanhToan` VARCHAR(100) NOT NULL,
   FOREIGN KEY (`maLichDat`) REFERENCES `lich_dat_san`(`maLichDat`) ON DELETE CASCADE,
   FOREIGN KEY (`maNhanVien`) REFERENCES `nhan_vien`(`maNhanVien`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO `hoa_don` (`maHoaDon`, `maLichDat`, `maNhanVien`, `ngayThanhToan`, `chiPhiSan`, `tongTienDichVu`, `tongTienKho`, `giamGia`, `tongTien`, `phuongThucThanhToan`) VALUES
+('HD001', 'DL003', 'NV001', '2026-08-05 22:05:00', 375000.00, 0.00, 50000.00, 0.00, 425000.00, 'Chuyển khoản');
 
 -- ------------------------------------------------------------
 -- 10. BẢNG KHO HÀNG (kho) — Model.Kho

@@ -4,6 +4,7 @@ import Model.BaoTri;
 import Model.ChuSan;
 import Model.DatLich;
 import Model.DichVu;
+import Model.HoaDon;
 import Model.KhachHang;
 import Model.Kho;
 import Model.KhuVucSan;
@@ -30,6 +31,7 @@ public final class DataStore {
     private final List<DatLich> datLichs = new ArrayList<>();
     private final List<BaoTri> baoTris = new ArrayList<>();
     private final List<KhachHang> khachHangs = new ArrayList<>();
+    private final List<HoaDon> hoaDons = new ArrayList<>();
 
     private static boolean useDatabase = true;
 
@@ -127,6 +129,11 @@ public final class DataStore {
                 List<KhachHang> dbKhachHangs = new DAO.KhachHangDAO().getAll();
                 if (dbKhachHangs != null) {
                     khachHangs.addAll(dbKhachHangs);
+                }
+
+                List<HoaDon> dbHoaDons = new DAO.HoaDonDAO().getAll();
+                if (dbHoaDons != null) {
+                    hoaDons.addAll(dbHoaDons);
                 }
 
                 // Kết nối thành công và tải xong dữ liệu (dù trống vẫn giữ nguyên theo CSDL)
@@ -450,6 +457,7 @@ public final class DataStore {
     public List<DatLich> getDatLichs() { return datLichs; }
     public List<BaoTri> getBaoTris() { return baoTris; }
     public List<KhachHang> getKhachHangs() { return khachHangs; }
+    public List<HoaDon> getHoaDons() { return hoaDons; }
 
     public DichVu findDichVuById(int id) {
         for (DichVu d : dichVus) {
