@@ -105,14 +105,9 @@ public class QuanLyDichVuPanel extends javax.swing.JPanel {
     }
 
     private void buildToolbar() {
-        JButton btnBanChoThue = new javax.swing.JButton(" Bán / Cho thuê");
-        btnBanChoThue.setIcon(Utils.IconUtils.getOpenIcon(16));
-        PageUI.stylePrimaryButton(btnBanChoThue);
-        btnBanChoThue.addActionListener(e -> onBanChoThue());
-
         JButton btnAdd = new javax.swing.JButton(" Thêm DV");
         btnAdd.setIcon(Utils.IconUtils.getAddIcon(16));
-        PageUI.styleSecondaryButton(btnAdd);
+        PageUI.stylePrimaryButton(btnAdd);
         btnAdd.addActionListener(e -> onAdd());
 
         JButton btnDetail = new javax.swing.JButton(" Xem chi tiết");
@@ -130,20 +125,10 @@ public class QuanLyDichVuPanel extends javax.swing.JPanel {
         PageUI.styleDangerButton(btnDel);
         btnDel.addActionListener(e -> onDelete());
 
-        pnlToolbar.add(btnBanChoThue);
         pnlToolbar.add(btnAdd);
         pnlToolbar.add(btnDetail);
         pnlToolbar.add(btnEdit);
         pnlToolbar.add(btnDel);
-    }
-
-    private void onBanChoThue() {
-        JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
-        BanChoThueVatPhamDialog dialog = new BanChoThueVatPhamDialog(parent);
-        dialog.setVisible(true);
-        if (dialog.isConfirmed()) {
-            reload();
-        }
     }
 
     private void buildTableCard() {
