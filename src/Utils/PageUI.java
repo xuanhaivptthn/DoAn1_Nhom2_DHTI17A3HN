@@ -199,30 +199,54 @@ public final class PageUI {
 
     public static void stylePrimaryButton(javax.swing.JButton btn) {
         btn.setFont(UIConstants.FONT_BUTTON);
-        btn.setBackground(null);
-        btn.setForeground(null);
+        btn.setBackground(UIConstants.PRIMARY);
+        btn.setForeground(Color.WHITE);
         btn.setFocusPainted(false);
+        btn.setOpaque(true);
+        btn.setContentAreaFilled(true);
+        btn.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(UIConstants.PRIMARY_DARK, 1),
+                BorderFactory.createEmptyBorder(6, 14, 6, 14)
+        ));
     }
 
     public static void styleSecondaryButton(javax.swing.JButton btn) {
         btn.setFont(UIConstants.FONT_BUTTON);
-        btn.setBackground(null);
-        btn.setForeground(null);
+        btn.setBackground(Color.WHITE);
+        btn.setForeground(UIConstants.TEXT_PRIMARY);
         btn.setFocusPainted(false);
+        btn.setOpaque(true);
+        btn.setContentAreaFilled(true);
+        btn.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(UIConstants.BORDER, 1),
+                BorderFactory.createEmptyBorder(6, 14, 6, 14)
+        ));
     }
 
     public static void styleSuccessButton(javax.swing.JButton btn) {
         btn.setFont(UIConstants.FONT_BUTTON);
-        btn.setBackground(null);
-        btn.setForeground(null);
+        btn.setBackground(UIConstants.SUCCESS);
+        btn.setForeground(Color.WHITE);
         btn.setFocusPainted(false);
+        btn.setOpaque(true);
+        btn.setContentAreaFilled(true);
+        btn.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(UIConstants.SUCCESS.darker(), 1),
+                BorderFactory.createEmptyBorder(6, 14, 6, 14)
+        ));
     }
 
     public static void styleDangerButton(javax.swing.JButton btn) {
         btn.setFont(UIConstants.FONT_BUTTON);
-        btn.setBackground(null);
-        btn.setForeground(null);
+        btn.setBackground(UIConstants.DANGER);
+        btn.setForeground(Color.WHITE);
         btn.setFocusPainted(false);
+        btn.setOpaque(true);
+        btn.setContentAreaFilled(true);
+        btn.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(UIConstants.DANGER.darker(), 1),
+                BorderFactory.createEmptyBorder(6, 14, 6, 14)
+        ));
     }
 
     public static JPanel createStatCard(String label, String value, Color accent) {

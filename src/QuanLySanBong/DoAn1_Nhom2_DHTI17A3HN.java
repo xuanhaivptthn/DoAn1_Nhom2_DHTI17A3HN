@@ -34,6 +34,36 @@ public class DoAn1_Nhom2_DHTI17A3HN {
         UIManager.put("Table.alternateRowColor", UIConstants.TABLE_ROW_ALT);
         UIManager.put("Table.rowHeight", 30);
 
+        UIManager.put("Button.background", java.awt.Color.WHITE);
+        UIManager.put("Button.foreground", UIConstants.TEXT_PRIMARY);
+
+        javax.swing.Painter<javax.swing.JComponent> fillPainter = (g, c, w, h) -> {
+            java.awt.Color bg = c.getBackground();
+            if (bg != null) {
+                g.setColor(bg);
+                g.fillRect(0, 0, w, h);
+            }
+        };
+
+        UIManager.put("Button[Enabled].backgroundPainter", fillPainter);
+        UIManager.put("Button[Focused].backgroundPainter", fillPainter);
+        UIManager.put("Button[Default].backgroundPainter", fillPainter);
+        UIManager.put("Button[Default+Focused].backgroundPainter", fillPainter);
+        UIManager.put("Button[Pressed].backgroundPainter", (javax.swing.Painter<javax.swing.JComponent>) (g, c, w, h) -> {
+            java.awt.Color bg = c.getBackground();
+            if (bg != null) {
+                g.setColor(bg.darker());
+                g.fillRect(0, 0, w, h);
+            }
+        });
+        UIManager.put("Button[MouseOver].backgroundPainter", (javax.swing.Painter<javax.swing.JComponent>) (g, c, w, h) -> {
+            java.awt.Color bg = c.getBackground();
+            if (bg != null) {
+                g.setColor(bg.equals(java.awt.Color.WHITE) ? new java.awt.Color(241, 245, 249) : bg.brighter());
+                g.fillRect(0, 0, w, h);
+            }
+        });
+
         setUIFont(UIConstants.FONT_NORMAL);
 
         SwingUtilities.invokeLater(DoAn1_Nhom2_DHTI17A3HN::showLogin);

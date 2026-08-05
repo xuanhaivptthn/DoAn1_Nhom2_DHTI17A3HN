@@ -1,5 +1,6 @@
 package GiaoDien.Panels;
 
+import Utils.PageUI;
 import Utils.SessionManager;
 import Utils.UIConstants;
 
@@ -211,6 +212,7 @@ public class LoginPanel extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(4, 0, 2, 0);
         pnlForm.add(lblError, gridBagConstraints);
 
+        PageUI.stylePrimaryButton(btnLogin);
         btnLogin.setPreferredSize(new java.awt.Dimension(0, 38));
         btnLogin.addActionListener(e -> doLogin());
         gridBagConstraints = new java.awt.GridBagConstraints();
