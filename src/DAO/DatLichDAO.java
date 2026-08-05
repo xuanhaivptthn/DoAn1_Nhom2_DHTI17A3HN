@@ -14,94 +14,11 @@ import java.util.List;
 
 public class DatLichDAO {
 
-    private static boolean tableChecked = false;
-    private void ensureTableExists(Connection conn) {
-        if (tableChecked) return;
-        String sql = "CREATE TABLE IF NOT EXISTS `lich_dat_san_dich_vu` ("
-                   + "  `maLichDat` VARCHAR(20) NOT NULL,"
-                   + "  `maDichVu` VARCHAR(20) NOT NULL,"
-                   + "  `soLuong` INT NOT NULL DEFAULT 1,"
-                   + "  PRIMARY KEY (`maLichDat`, `maDichVu`),"
-                   + "  FOREIGN KEY (`maLichDat`) REFERENCES `lich_dat_san`(`maLichDat`) ON DELETE CASCADE,"
-                   + "  FOREIGN KEY (`maDichVu`) REFERENCES `dich_vu`(`maDichVu`) ON DELETE CASCADE"
-                   + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
-        try (Statement stmt = conn.createStatement()) {
-            stmt.execute(sql);
-            tableChecked = true;
-        } catch (SQLException ex) {
-            System.err.println("Lỗi ensureTableExists: " + ex.getMessage());
-        }
-    }
-
-    private void saveAccompanyingServices(Connection conn, DatLich d) throws SQLException {
-        String sql = "INSERT INTO lich_dat_san_dich_vu (maLichDat, maDichVu, soLuong) VALUES (?, ?, ?)";
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            if (d.getSelectedDvMap() != null) {
-                for (java.util.Map.Entry<Integer, Integer> entry : d.getSelectedDvMap().entrySet()) {
-                    int id = entry.getKey();
-                    int qty = entry.getValue();
-                    if (qty <= 0) continue;
-                    
-                    DichVu dv = DataStore.get().findDichVuById(id);
-                    if (dv != null && dv.getMaDichVu() != null) {
-                        pstmt.setString(1, d.getMaLichDat());
-                        pstmt.setString(2, dv.getMaDichVu());
-                        pstmt.setInt(3, qty);
-                        pstmt.addBatch();
-                    }
-                }
-            }
-            if (d.getSelectedDoAnMap() != null) {
-                for (java.util.Map.Entry<Integer, Integer> entry : d.getSelectedDoAnMap().entrySet()) {
-                    int id = entry.getKey();
-                    int qty = entry.getValue();
-                    if (qty <= 0) continue;
-                    
-                    DichVu dv = DataStore.get().findDichVuById(id);
-                    if (dv != null && dv.getMaDichVu() != null) {
-                        pstmt.setString(1, d.getMaLichDat());
-                        pstmt.setString(2, dv.getMaDichVu());
-                        pstmt.setInt(3, qty);
-                        pstmt.addBatch();
-                    }
-                }
-            }
-            pstmt.executeBatch();
-        }
-    }
-
-    private void loadAccompanyingServices(Connection conn, DatLich d) {
-        String sql = "SELECT * FROM lich_dat_san_dich_vu WHERE maLichDat = ?";
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, d.getMaLichDat());
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    String maDichVu = rs.getString("maDichVu");
-                    int soLuong = rs.getInt("soLuong");
-                    if (soLuong <= 0) continue;
-                    
-                    DichVu dv = DataStore.get().findDichVuByMa(maDichVu);
-                    if (dv != null) {
-                        if ("Vật tư kho".equalsIgnoreCase(dv.getLoaiDichVu()) || maDichVu.startsWith("HH")) {
-                            d.getSelectedDoAnMap().put(dv.getId(), soLuong);
-                        } else {
-                            d.getSelectedDvMap().put(dv.getId(), soLuong);
-                        }
-                        d.addDichVuKem(dv.getTenDichVu(), soLuong, dv.getDonGia() * soLuong);
-                    }
-                }
-            }
-        } catch (SQLException ex) {
-            System.err.println("Lỗi loadAccompanyingServices: " + ex.getMessage());
-        }
-    }
-
     public List<DatLich> getAll() {
         List<DatLich> list = new ArrayList<>();
         String sql = "SELECT * FROM lich_dat_san ORDER BY ngayDat DESC";
         try (Connection conn = DBConnect.getConnection()) {
             if (conn == null) return list;
-            ensureTableExists(conn);
             try (Statement stmt = conn.createStatement();
                  ResultSet rs = stmt.executeQuery(sql)) {
                 while (rs.next()) {
@@ -118,9 +35,6 @@ public class DatLichDAO {
         String sql = "INSERT INTO lich_dat_san (maLichDat, maSan, maTaiKhoan, maKhachHang, tenKhach, soDienThoaiKhach, ngayDat, gioBatDau, gioKetThuc, trangThai, ghiChu) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBConnect.getConnection()) {
             if (conn == null) return false;
-            ensureTableExists(conn);
-            
-            boolean ok = false;
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setString(1, d.getMaLichDat());
                 pstmt.setString(2, d.getMaSan());
@@ -133,12 +47,8 @@ public class DatLichDAO {
                 pstmt.setString(9, d.getGioKetThuc());
                 pstmt.setString(10, d.getTrangThai());
                 pstmt.setString(11, d.getGhiChu());
-                ok = pstmt.executeUpdate() > 0;
+                return pstmt.executeUpdate() > 0;
             }
-            if (ok) {
-                saveAccompanyingServices(conn, d);
-            }
-            return ok;
         } catch (SQLException ex) {
             System.err.println("Lỗi DatLichDAO.insert(): " + ex.getMessage());
         }
@@ -149,9 +59,6 @@ public class DatLichDAO {
         String sql = "UPDATE lich_dat_san SET maSan = ?, maTaiKhoan = ?, maKhachHang = ?, tenKhach = ?, soDienThoaiKhach = ?, ngayDat = ?, gioBatDau = ?, gioKetThuc = ?, trangThai = ?, ghiChu = ? WHERE maLichDat = ?";
         try (Connection conn = DBConnect.getConnection()) {
             if (conn == null) return false;
-            ensureTableExists(conn);
-            
-            boolean ok = false;
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setString(1, d.getMaSan());
                 pstmt.setString(2, d.getMaTaiKhoan());
@@ -164,17 +71,8 @@ public class DatLichDAO {
                 pstmt.setString(9, d.getTrangThai());
                 pstmt.setString(10, d.getGhiChu());
                 pstmt.setString(11, d.getMaLichDat());
-                ok = pstmt.executeUpdate() > 0;
+                return pstmt.executeUpdate() > 0;
             }
-            if (ok) {
-                String deleteSql = "DELETE FROM lich_dat_san_dich_vu WHERE maLichDat = ?";
-                try (PreparedStatement pstmtDelete = conn.prepareStatement(deleteSql)) {
-                    pstmtDelete.setString(1, d.getMaLichDat());
-                    pstmtDelete.executeUpdate();
-                }
-                saveAccompanyingServices(conn, d);
-            }
-            return ok;
         } catch (SQLException ex) {
             System.err.println("Lỗi DatLichDAO.update(): " + ex.getMessage());
         }
@@ -185,7 +83,6 @@ public class DatLichDAO {
         String sql = "DELETE FROM lich_dat_san WHERE maLichDat = ?";
         try (Connection conn = DBConnect.getConnection()) {
             if (conn == null) return false;
-            ensureTableExists(conn);
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setString(1, maLichDat);
                 return pstmt.executeUpdate() > 0;
@@ -209,10 +106,6 @@ public class DatLichDAO {
         d.setGioKetThuc(rs.getString("gioKetThuc"));
         d.setTrangThai(rs.getString("trangThai"));
         d.setGhiChu(rs.getString("ghiChu"));
-
-        Connection conn = rs.getStatement().getConnection();
-        ensureTableExists(conn);
-        loadAccompanyingServices(conn, d);
         return d;
     }
 }

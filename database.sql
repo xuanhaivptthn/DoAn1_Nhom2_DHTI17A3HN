@@ -12,7 +12,6 @@ USE `DoAn1_QuanLySanBong`;
 -- ------------------------------------------------------------
 -- 1. BẢNG TÀI KHOẢN (tai_khoan) — Model.TaiKhoan / DAO.TaiKhoanDAO
 -- ------------------------------------------------------------
-DROP TABLE IF EXISTS `lich_dat_san_dich_vu`;
 DROP TABLE IF EXISTS `hoa_don`;
 DROP TABLE IF EXISTS `kho`;
 DROP TABLE IF EXISTS `nhan_vien`;
@@ -159,23 +158,6 @@ INSERT INTO `lich_dat_san` (`maLichDat`, `maSan`, `maTaiKhoan`, `maKhachHang`, `
 ('DL001', 'SAN001', 'TK002', 'KH001', 'Anh Đức (FC Anh Em)', '0912345678', CURDATE(), '17:30', '19:00', 'DaXacNhan', 'Đặt cọc trước 100k'),
 ('DL002', 'SAN003', 'TK003', 'KH002', 'Anh Tuấn (FC Thể Công)', '0987654321', CURDATE(), '19:00', '20:30', 'DaXacNhan', 'Thanh toán cọc qua CK'),
 ('DL003', 'SAN002', 'TK001', 'KH003', 'Chị Mai (Công ty FPT)', '0905123456', CURDATE(), '20:30', '22:00', 'HoanThanh', 'Đã chuyển khoản đủ 100%');
-
--- ------------------------------------------------------------
--- 6b. BẢNG DỊCH VỤ ĐI KÈM ĐẶT SÂN BÓNG (lich_dat_san_dich_vu)
--- ------------------------------------------------------------
-CREATE TABLE `lich_dat_san_dich_vu` (
-  `maLichDat` VARCHAR(20) NOT NULL,
-  `maDichVu` VARCHAR(20) NOT NULL,
-  `soLuong` INT NOT NULL DEFAULT 1,
-  PRIMARY KEY (`maLichDat`, `maDichVu`),
-  FOREIGN KEY (`maLichDat`) REFERENCES `lich_dat_san`(`maLichDat`) ON DELETE CASCADE,
-  FOREIGN KEY (`maDichVu`) REFERENCES `dich_vu`(`maDichVu`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-INSERT INTO `lich_dat_san_dich_vu` (`maLichDat`, `maDichVu`, `soLuong`) VALUES
-('DL001', 'HH101', 5),
-('DL002', 'HH102', 4),
-('DL002', 'HH103', 1);
 
 
 -- ------------------------------------------------------------
