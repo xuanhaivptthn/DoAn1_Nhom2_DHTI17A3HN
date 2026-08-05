@@ -31,7 +31,6 @@ public class MainFrame extends JFrame {
     private final CardLayout cardLayout = new CardLayout();
     private final Map<String, JButton> navButtons = new LinkedHashMap<>();
 
-    private DashboardPanel dashboardPanel;
     private QuanLyKinhDoanhPanel kinhDoanhPanel;
     private QuanLyDichVuPanel dichVuPanel;
     private QuanLyDatLichPanel datLichPanel;
@@ -138,7 +137,7 @@ public class MainFrame extends JFrame {
         rebuildSidebar();
         buildPages();
         refreshUserBar();
-        showPage("dashboard");
+        showPage("datlich");
     }
 
     private void rebuildSidebar() {
@@ -146,10 +145,6 @@ public class MainFrame extends JFrame {
         navButtons.clear();
 
         SessionManager sm = SessionManager.get();
-
-        // NHÓM 1: TỔNG QUAN HỆ THỐNG
-        addSectionLabel(pnlNav, "— TỔNG QUAN HỆ THỐNG —");
-        addNav(pnlNav, "dashboard", "Dashboard & Hành động");
 
         // NHÓM 2: QUẢN LÝ SÂN BÓNG & LỊCH ĐẶT
         addSectionLabel(pnlNav, "— SÂN BÓNG & LỊCH ĐẶT —");
@@ -212,9 +207,6 @@ public class MainFrame extends JFrame {
     }
 
     private void buildPages() {
-        dashboardPanel = new DashboardPanel(this::showPage);
-        pnlContent.add(dashboardPanel, "dashboard");
-
         dichVuPanel = new QuanLyDichVuPanel();
         pnlContent.add(dichVuPanel, "dichvu");
 
@@ -246,7 +238,6 @@ public class MainFrame extends JFrame {
                 JOptionPane.showMessageDialog(this,
                         "Tài khoản Nhân viên không được phép truy cập chức năng này.\n"
                         + "Nhân viên chỉ có quyền:\n"
-                        + "  • Dashboard & Hành động nhanh\n"
                         + "  • Quản lý đặt lịch sân\n"
                         + "  • Quản lý bảo trì sân\n"
                         + "  • Bán dịch vụ / đồ ăn qua giao diện đặt sân",
@@ -254,7 +245,7 @@ public class MainFrame extends JFrame {
                 return;
             }
         } else if (!sm.isAdmin() && !sm.isNhanVien()) {
-            if (!"dashboard".equals(key)) {
+            if (!"datlich".equals(key)) {
                 JOptionPane.showMessageDialog(this,
                         "Bạn không có quyền truy cập chức năng này.",
                         "Phân quyền hệ thống", JOptionPane.WARNING_MESSAGE);
@@ -266,7 +257,6 @@ public class MainFrame extends JFrame {
         navButtons.forEach((k, b) -> styleNav(b, k.equals(key)));
 
         // AUTO-RELOAD TARGET PANELS ON PAGE SWITCH
-        if ("dashboard".equals(key) && dashboardPanel != null) dashboardPanel.refresh();
         if ("datlich".equals(key) && datLichPanel != null) datLichPanel.reloadSchedule();
         if ("kinhdoanh".equals(key) && kinhDoanhPanel != null) kinhDoanhPanel.refresh();
         if ("dichvu".equals(key) && dichVuPanel != null) dichVuPanel.reload();
@@ -279,7 +269,6 @@ public class MainFrame extends JFrame {
         DataStore.get().syncTrangThaiSanBaoTri();
         if (datLichPanel != null) datLichPanel.reloadSchedule();
         if (baoTriPanel != null) baoTriPanel.reload();
-        if (dashboardPanel != null) dashboardPanel.refresh();
         if (khuVucPanel != null) khuVucPanel.reload();
     }
 

@@ -673,6 +673,10 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
             }
         }
 
+        if (DataStore.isUseDatabase()) {
+            try { new DAO.DatLichDAO().update(currentlySelectedBooking); } catch (Exception ignored) {}
+        }
+
         String displayStatus = currentlySelectedBooking.getTrangThaiHienThi();
         reloadSchedule();
         JOptionPane.showMessageDialog(this,
@@ -807,8 +811,21 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
             double cost = dv.getDonGia() * qty;
             totalAdded += cost;
             currentlySelectedBooking.addDichVuKem(dv.getTenDichVu(), qty, cost);
+            
+            if ("Vật tư kho".equalsIgnoreCase(dv.getLoaiDichVu())) {
+                int oldQty = currentlySelectedBooking.getSelectedDoAnMap().getOrDefault(dv.getId(), 0);
+                currentlySelectedBooking.getSelectedDoAnMap().put(dv.getId(), oldQty + qty);
+            } else {
+                int oldQty = currentlySelectedBooking.getSelectedDvMap().getOrDefault(dv.getId(), 0);
+                currentlySelectedBooking.getSelectedDvMap().put(dv.getId(), oldQty + qty);
+            }
+
             if (soldInfo.length() > 0) soldInfo.append(", ");
             soldInfo.append(qty).append("x ").append(dv.getTenDichVu());
+        }
+
+        if (DataStore.isUseDatabase()) {
+            try { new DAO.DatLichDAO().update(currentlySelectedBooking); } catch (Exception ignored) {}
         }
 
         reloadSchedule();
@@ -840,6 +857,10 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         currentlySelectedBooking.setTongTien(updated.getTongTien());
         currentlySelectedBooking.setDichVuKem(updated.getDichVuKem());
         currentlySelectedBooking.setSelectedDvMap(updated.getSelectedDvMap());
+        currentlySelectedBooking.setSelectedDoAnMap(updated.getSelectedDoAnMap());
+        if (DataStore.isUseDatabase()) {
+            try { new DAO.DatLichDAO().update(currentlySelectedBooking); } catch (Exception ignored) {}
+        }
         String maPhieu = currentlySelectedBooking.getMaLichDat();
         reloadSchedule();
         JOptionPane.showMessageDialog(this, "Đã cập nhật thông tin phiếu đặt sân " + maPhieu + " thành công!", "Cập nhật thành công", JOptionPane.INFORMATION_MESSAGE);
@@ -860,6 +881,9 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         if (currentlySelectedBooking == null) return;
         if (JOptionPane.showConfirmDialog(this, "Bạn có chắc muốn hủy phiếu " + currentlySelectedBooking.getMaLichDat() + " của khách " + currentlySelectedBooking.getTenKhach() + "?", "Xác nhận hủy", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.YES_OPTION) {
             currentlySelectedBooking.setTrangThai("DaHuy");
+            if (DataStore.isUseDatabase()) {
+                try { new DAO.DatLichDAO().update(currentlySelectedBooking); } catch (Exception ignored) {}
+            }
             reloadSchedule();
             JOptionPane.showMessageDialog(this, "Đã hủy phiếu đặt lịch.", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
         }

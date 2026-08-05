@@ -461,6 +461,16 @@ public final class DataStore {
     public List<PhienLamViec> getPhienHistory() { return phienHistory; }
     public List<KhachHang> getKhachHangs() { return khachHangs; }
 
+    public DichVu findDichVuById(int id) {
+        for (DichVu d : dichVus) {
+            if (d.getId() == id) return d;
+        }
+        for (DichVu d : khoItems) {
+            if (d.getId() == id) return d;
+        }
+        return null;
+    }
+
     public synchronized KhachHang saveOrUpdateKhachHang(String tenKhachHang, String sdt) {
         if (sdt == null || sdt.isBlank()) return null;
         String cleanSdt = sdt.trim();
