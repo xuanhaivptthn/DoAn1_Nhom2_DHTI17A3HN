@@ -168,6 +168,8 @@ public class HoaDonDialog extends JDialog {
 
         if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             File saveFile = chooser.getSelectedFile();
+            String cleanName = Utils.CodeGen.removeDiacritics(saveFile.getName());
+            saveFile = new File(saveFile.getParent(), cleanName);
             if (!saveFile.getName().toLowerCase().endsWith(".csv")) {
                 saveFile = new File(saveFile.getAbsolutePath() + ".csv");
             }

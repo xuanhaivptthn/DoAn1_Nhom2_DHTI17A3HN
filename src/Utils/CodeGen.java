@@ -28,4 +28,12 @@ public final class CodeGen {
         }
         return prefix + String.format("%0" + width + "d", max + 1);
     }
+
+    public static String removeDiacritics(String str) {
+        if (str == null) return "";
+        String nfdNormalizedString = java.text.Normalizer.normalize(str, java.text.Normalizer.Form.NFD);
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+        String result = pattern.matcher(nfdNormalizedString).replaceAll("");
+        return result.replace("đ", "d").replace("Đ", "D");
+    }
 }

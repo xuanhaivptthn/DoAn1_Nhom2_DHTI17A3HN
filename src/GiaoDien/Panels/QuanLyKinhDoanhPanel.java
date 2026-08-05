@@ -296,13 +296,19 @@ public class QuanLyKinhDoanhPanel extends javax.swing.JPanel {
     private void onExportExcel() {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Xuất báo cáo kinh doanh ra Excel (CSV)");
-        String fileNamePeriod = getTimePeriodLabel().replaceAll("[^a-zA-Z0-9_-]", "_");
-        fileChooser.setSelectedFile(new File("BaoCaoDoanhThu_" + fileNamePeriod + ".csv"));
+        String rawPeriod = getTimePeriodLabel();
+        String cleanPeriod = Utils.CodeGen.removeDiacritics(rawPeriod)
+                .replaceAll("[^a-zA-Z0-9_-]", "_")
+                .replaceAll("_+", "_")
+                .replaceAll("^_+|_+$", "");
+        fileChooser.setSelectedFile(new File("BaoCaoDoanhThu_" + cleanPeriod + ".csv"));
 
         int userSelection = fileChooser.showSaveDialog(this);
         if (userSelection != JFileChooser.APPROVE_OPTION) return;
 
         File fileToSave = fileChooser.getSelectedFile();
+        String cleanName = Utils.CodeGen.removeDiacritics(fileToSave.getName());
+        fileToSave = new File(fileToSave.getParent(), cleanName);
         if (!fileToSave.getName().toLowerCase().endsWith(".csv")) {
             fileToSave = new File(fileToSave.getAbsolutePath() + ".csv");
         }
