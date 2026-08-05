@@ -514,4 +514,12 @@ public final class DataStore {
                 .filter(k -> cleanSdt.equalsIgnoreCase(k.getSoDienThoai().trim()))
                 .findFirst().orElse(null);
     }
+
+    public KhachHang findKhachHangById(String maKhachHang) {
+        if (maKhachHang == null || maKhachHang.isBlank()) return null;
+        String cleanMa = maKhachHang.trim();
+        return khachHangs.stream()
+                .filter(k -> cleanMa.equalsIgnoreCase(k.getMaKhachHang()))
+                .findFirst().orElse(null);
+    }
 }

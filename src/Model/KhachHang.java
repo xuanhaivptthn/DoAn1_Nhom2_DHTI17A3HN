@@ -37,6 +37,13 @@ public class KhachHang {
     public String getSoDienThoai() { return soDienThoai; }
     public void setSoDienThoai(String soDienThoai) { this.soDienThoai = soDienThoai; }
 
+    // ─── Alias helpers tương thích với DatLich ───────────────────────────────
+    public String getTenKhach() { return tenKhachHang; }
+    public void setTenKhach(String tenKhach) { this.tenKhachHang = tenKhach; }
+
+    public String getSoDienThoaiKhach() { return soDienThoai; }
+    public void setSoDienThoaiKhach(String soDienThoaiKhach) { this.soDienThoai = soDienThoaiKhach; }
+
     @Override
     public String toString() {
         return tenKhachHang + " (" + soDienThoai + ")";

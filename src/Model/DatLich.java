@@ -86,10 +86,24 @@ public class DatLich {
     public String getMaKhachHang() { return maKhachHang; }
     public void setMaKhachHang(String maKhachHang) { this.maKhachHang = maKhachHang; }
 
-    public String getTenKhach() { return tenKhach; }
+    public String getTenKhach() {
+        if (tenKhach != null && !tenKhach.isBlank()) return tenKhach;
+        if (maKhachHang != null) {
+            KhachHang kh = Utils.DataStore.get().findKhachHangById(maKhachHang);
+            if (kh != null && kh.getTenKhachHang() != null) return kh.getTenKhachHang();
+        }
+        return "";
+    }
     public void setTenKhach(String tenKhach) { this.tenKhach = tenKhach; }
 
-    public String getSoDienThoaiKhach() { return soDienThoaiKhach; }
+    public String getSoDienThoaiKhach() {
+        if (soDienThoaiKhach != null && !soDienThoaiKhach.isBlank()) return soDienThoaiKhach;
+        if (maKhachHang != null) {
+            KhachHang kh = Utils.DataStore.get().findKhachHangById(maKhachHang);
+            if (kh != null && kh.getSoDienThoai() != null) return kh.getSoDienThoai();
+        }
+        return "";
+    }
     public void setSoDienThoaiKhach(String soDienThoaiKhach) { this.soDienThoaiKhach = soDienThoaiKhach; }
 
     public String getNgayDat() { return ngayDat; }

@@ -32,7 +32,7 @@ public class DatLichDAO {
     }
 
     public boolean insert(DatLich d) {
-        String sql = "INSERT INTO lich_dat_san (maLichDat, maSan, maTaiKhoan, maKhachHang, tenKhach, soDienThoaiKhach, ngayDat, gioBatDau, gioKetThuc, trangThai, ghiChu) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO lich_dat_san (maLichDat, maSan, maTaiKhoan, maKhachHang, ngayDat, gioBatDau, gioKetThuc, trangThai, ghiChu) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBConnect.getConnection()) {
             if (conn == null) return false;
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -40,13 +40,11 @@ public class DatLichDAO {
                 pstmt.setString(2, d.getMaSan());
                 pstmt.setString(3, d.getMaTaiKhoan());
                 pstmt.setString(4, d.getMaKhachHang());
-                pstmt.setString(5, d.getTenKhach());
-                pstmt.setString(6, d.getSoDienThoaiKhach());
-                pstmt.setString(7, d.getNgayDat());
-                pstmt.setString(8, d.getGioBatDau());
-                pstmt.setString(9, d.getGioKetThuc());
-                pstmt.setString(10, d.getTrangThai());
-                pstmt.setString(11, d.getGhiChu());
+                pstmt.setString(5, d.getNgayDat());
+                pstmt.setString(6, d.getGioBatDau());
+                pstmt.setString(7, d.getGioKetThuc());
+                pstmt.setString(8, d.getTrangThai());
+                pstmt.setString(9, d.getGhiChu());
                 return pstmt.executeUpdate() > 0;
             }
         } catch (SQLException ex) {
@@ -56,21 +54,19 @@ public class DatLichDAO {
     }
 
     public boolean update(DatLich d) {
-        String sql = "UPDATE lich_dat_san SET maSan = ?, maTaiKhoan = ?, maKhachHang = ?, tenKhach = ?, soDienThoaiKhach = ?, ngayDat = ?, gioBatDau = ?, gioKetThuc = ?, trangThai = ?, ghiChu = ? WHERE maLichDat = ?";
+        String sql = "UPDATE lich_dat_san SET maSan = ?, maTaiKhoan = ?, maKhachHang = ?, ngayDat = ?, gioBatDau = ?, gioKetThuc = ?, trangThai = ?, ghiChu = ? WHERE maLichDat = ?";
         try (Connection conn = DBConnect.getConnection()) {
             if (conn == null) return false;
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setString(1, d.getMaSan());
                 pstmt.setString(2, d.getMaTaiKhoan());
                 pstmt.setString(3, d.getMaKhachHang());
-                pstmt.setString(4, d.getTenKhach());
-                pstmt.setString(5, d.getSoDienThoaiKhach());
-                pstmt.setString(6, d.getNgayDat());
-                pstmt.setString(7, d.getGioBatDau());
-                pstmt.setString(8, d.getGioKetThuc());
-                pstmt.setString(9, d.getTrangThai());
-                pstmt.setString(10, d.getGhiChu());
-                pstmt.setString(11, d.getMaLichDat());
+                pstmt.setString(4, d.getNgayDat());
+                pstmt.setString(5, d.getGioBatDau());
+                pstmt.setString(6, d.getGioKetThuc());
+                pstmt.setString(7, d.getTrangThai());
+                pstmt.setString(8, d.getGhiChu());
+                pstmt.setString(9, d.getMaLichDat());
                 return pstmt.executeUpdate() > 0;
             }
         } catch (SQLException ex) {
@@ -99,13 +95,19 @@ public class DatLichDAO {
         d.setMaSan(rs.getString("maSan"));
         d.setMaTaiKhoan(rs.getString("maTaiKhoan"));
         d.setMaKhachHang(rs.getString("maKhachHang"));
-        d.setTenKhach(rs.getString("tenKhach"));
-        d.setSoDienThoaiKhach(rs.getString("soDienThoaiKhach"));
         d.setNgayDat(rs.getString("ngayDat"));
         d.setGioBatDau(rs.getString("gioBatDau"));
         d.setGioKetThuc(rs.getString("gioKetThuc"));
         d.setTrangThai(rs.getString("trangThai"));
         d.setGhiChu(rs.getString("ghiChu"));
+
+        if (d.getMaKhachHang() != null) {
+            Model.KhachHang kh = DataStore.get().findKhachHangById(d.getMaKhachHang());
+            if (kh != null) {
+                d.setTenKhach(kh.getTenKhachHang());
+                d.setSoDienThoaiKhach(kh.getSoDienThoai());
+            }
+        }
         return d;
     }
 }

@@ -142,22 +142,20 @@ CREATE TABLE `lich_dat_san` (
   `maLichDat` VARCHAR(20) NOT NULL PRIMARY KEY,
   `maSan` VARCHAR(20) NOT NULL,
   `maTaiKhoan` VARCHAR(50),
-  `maKhachHang` VARCHAR(20),
-  `tenKhach` VARCHAR(100) NOT NULL,
-  `soDienThoaiKhach` VARCHAR(15) NOT NULL,
+  `maKhachHang` VARCHAR(20) NOT NULL,
   `ngayDat` VARCHAR(20) NOT NULL,   -- yyyy-MM-dd
   `gioBatDau` VARCHAR(10) NOT NULL, -- HH:mm
   `gioKetThuc` VARCHAR(10) NOT NULL,
   `trangThai` VARCHAR(20) DEFAULT 'ChoXacNhan', -- ChoXacNhan | DaXacNhan | HoanThanh | DaHuy
   `ghiChu` TEXT,
   FOREIGN KEY (`maSan`) REFERENCES `san_bong`(`maSan`) ON DELETE CASCADE,
-  FOREIGN KEY (`maKhachHang`) REFERENCES `khach_hang`(`maKhachHang`) ON DELETE SET NULL
+  FOREIGN KEY (`maKhachHang`) REFERENCES `khach_hang`(`maKhachHang`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO `lich_dat_san` (`maLichDat`, `maSan`, `maTaiKhoan`, `maKhachHang`, `tenKhach`, `soDienThoaiKhach`, `ngayDat`, `gioBatDau`, `gioKetThuc`, `trangThai`, `ghiChu`) VALUES
-('DL001', 'SAN001', 'TK002', 'KH001', 'Anh Đức (FC Anh Em)', '0912345678', CURDATE(), '17:30', '19:00', 'DaXacNhan', 'Đặt cọc trước 100k'),
-('DL002', 'SAN003', 'TK003', 'KH002', 'Anh Tuấn (FC Thể Công)', '0987654321', CURDATE(), '19:00', '20:30', 'DaXacNhan', 'Thanh toán cọc qua CK'),
-('DL003', 'SAN002', 'TK001', 'KH003', 'Chị Mai (Công ty FPT)', '0905123456', CURDATE(), '20:30', '22:00', 'HoanThanh', 'Đã chuyển khoản đủ 100%');
+INSERT INTO `lich_dat_san` (`maLichDat`, `maSan`, `maTaiKhoan`, `maKhachHang`, `ngayDat`, `gioBatDau`, `gioKetThuc`, `trangThai`, `ghiChu`) VALUES
+('DL001', 'SAN001', 'TK002', 'KH001', CURDATE(), '17:30', '19:00', 'DaXacNhan', 'Đặt cọc trước 100k'),
+('DL002', 'SAN003', 'TK003', 'KH002', CURDATE(), '19:00', '20:30', 'DaXacNhan', 'Thanh toán cọc qua CK'),
+('DL003', 'SAN002', 'TK001', 'KH003', CURDATE(), '20:30', '22:00', 'HoanThanh', 'Đã chuyển khoản đủ 100%');
 
 
 -- ------------------------------------------------------------
