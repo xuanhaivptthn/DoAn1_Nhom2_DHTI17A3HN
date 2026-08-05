@@ -154,20 +154,9 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
         PageUI.styleSecondaryButton(btnView);
         btnView.addActionListener(e -> viewTicket());
 
-        JButton btnRefreshData = new javax.swing.JButton(" Làm mới dữ liệu");
-        btnRefreshData.setIcon(Utils.IconUtils.getRefreshIcon(16));
-        PageUI.styleSecondaryButton(btnRefreshData);
-        btnRefreshData.addActionListener(e -> {
-            reload();
-            JOptionPane.showMessageDialog(this,
-                    "Đã làm mới và đồng bộ lại toàn bộ dữ liệu từ CSDL!",
-                    "Làm mới dữ liệu", JOptionPane.INFORMATION_MESSAGE);
-        });
-
         pnlTopRow.add(btnNew);
         pnlTopRow.add(btnUpdate);
         pnlTopRow.add(btnView);
-        pnlTopRow.add(btnRefreshData);
 
         // HÀNG THỨ HAI (CĂN BÊN PHẢI): 2 nút thay đổi nhanh trạng thái phiếu bảo trì
         JPanel pnlBottomRow = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));

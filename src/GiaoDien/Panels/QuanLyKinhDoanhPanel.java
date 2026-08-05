@@ -181,14 +181,7 @@ public class QuanLyKinhDoanhPanel extends javax.swing.JPanel {
         btnReport.addActionListener(e -> onTongHopBaoCao());
         pnlFilterBar.add(btnReport);
 
-        JButton btnRefresh = new javax.swing.JButton(" Làm mới dữ liệu");
-        btnRefresh.setIcon(Utils.IconUtils.getRefreshIcon(16));
-        PageUI.styleSecondaryButton(btnRefresh);
-        btnRefresh.addActionListener(e -> {
-            refresh();
-            JOptionPane.showMessageDialog(this, "Đã làm mới dữ liệu báo cáo kinh doanh từ CSDL!", "Làm mới dữ liệu", JOptionPane.INFORMATION_MESSAGE);
-        });
-        pnlFilterBar.add(btnRefresh);
+
 
         JButton btnExport = new javax.swing.JButton(" Xuất Excel (CSV)");
         btnExport.setIcon(Utils.IconUtils.getExportIcon(16));

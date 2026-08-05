@@ -135,16 +135,7 @@ public class QuanLyKhoPanel extends javax.swing.JPanel {
         PageUI.styleSecondaryButton(btnXuat);
         btnXuat.addActionListener(e -> onXuatKho());
 
-        JButton btnRefresh = new javax.swing.JButton(" Làm mới dữ liệu");
-        btnRefresh.setIcon(Utils.IconUtils.getRefreshIcon(16));
-        PageUI.styleSecondaryButton(btnRefresh);
-        btnRefresh.addActionListener(e -> {
-            reload();
-            JOptionPane.showMessageDialog(this, "Đã làm mới dữ liệu kho hàng từ CSDL!", "Làm mới dữ liệu", JOptionPane.INFORMATION_MESSAGE);
-        });
-
         pnlRight.add(btnXuat);
-        pnlRight.add(btnRefresh);
 
         pnlToolbar.add(pnlLeft, BorderLayout.WEST);
         pnlToolbar.add(pnlRight, BorderLayout.EAST);

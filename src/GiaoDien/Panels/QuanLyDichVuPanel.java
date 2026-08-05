@@ -125,19 +125,10 @@ public class QuanLyDichVuPanel extends javax.swing.JPanel {
         PageUI.styleDangerButton(btnDel);
         btnDel.addActionListener(e -> onDelete());
 
-        JButton btnRefresh = new javax.swing.JButton(" Làm mới dữ liệu");
-        btnRefresh.setIcon(Utils.IconUtils.getRefreshIcon(16));
-        PageUI.styleSecondaryButton(btnRefresh);
-        btnRefresh.addActionListener(e -> {
-            reload();
-            JOptionPane.showMessageDialog(this, "Đã làm mới dữ liệu dịch vụ từ CSDL!", "Làm mới dữ liệu", JOptionPane.INFORMATION_MESSAGE);
-        });
-
         pnlToolbar.add(btnAdd);
         pnlToolbar.add(btnDetail);
         pnlToolbar.add(btnEdit);
         pnlToolbar.add(btnDel);
-        pnlToolbar.add(btnRefresh);
     }
 
     private void buildTableCard() {

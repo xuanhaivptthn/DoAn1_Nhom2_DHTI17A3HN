@@ -220,16 +220,7 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         btnNewBooking.setPreferredSize(new Dimension(135, 34));
         btnNewBooking.addActionListener(e -> onBookNew());
 
-        JButton btnRefresh = new javax.swing.JButton(" Làm mới dữ liệu");
-        btnRefresh.setIcon(Utils.IconUtils.getRefreshIcon(16));
-        btnRefresh.setPreferredSize(new Dimension(145, 34));
-        btnRefresh.addActionListener(e -> {
-            reloadSchedule();
-            JOptionPane.showMessageDialog(this, "Đã làm mới dữ liệu lịch đặt sân từ CSDL!", "Làm mới dữ liệu", JOptionPane.INFORMATION_MESSAGE);
-        });
-
         right.add(btnNewBooking);
-        right.add(btnRefresh);
 
         pnlTopControls.add(left, BorderLayout.WEST);
         pnlTopControls.add(right, BorderLayout.EAST);

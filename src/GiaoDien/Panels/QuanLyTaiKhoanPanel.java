@@ -146,20 +146,10 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
         btnLock.setPreferredSize(new Dimension(130, 36));
         btnLock.addActionListener(e -> onToggleLock());
 
-        JButton btnRefresh = new javax.swing.JButton(" Làm mới");
-        btnRefresh.setIcon(Utils.IconUtils.getRefreshIcon(16));
-        PageUI.styleSecondaryButton(btnRefresh);
-        btnRefresh.setPreferredSize(new Dimension(120, 36));
-        btnRefresh.addActionListener(e -> {
-            loadFromStore();
-            applyFilter();
-        });
-
         actions.add(btnAdd);
         actions.add(btnEdit);
         actions.add(btnDelete);
         actions.add(btnLock);
-        actions.add(btnRefresh);
 
         pnlToolbar.add(actions, gbc);
     }
