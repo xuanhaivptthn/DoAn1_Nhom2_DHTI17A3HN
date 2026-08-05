@@ -138,10 +138,14 @@ public class ChonDichVuDialog extends JDialog {
                 int r = e.getFirstRow();
                 if (r >= 0 && r < modelDichVu.getRowCount()) {
                     String maStr = modelDichVu.getValueAt(r, 0).toString();
-                    int id = parseIdFromMaStr(maStr);
-                    Object val = modelDichVu.getValueAt(r, 3);
-                    boolean isChecked = Boolean.TRUE.equals(val);
-                    selectedQtyMap.put(id, isChecked ? 1 : 0);
+                    DichVu item = DataStore.get().getDichVus().stream()
+                            .filter(d -> maStr.equalsIgnoreCase(d.getMaDichVu()))
+                            .findFirst().orElse(null);
+                    if (item != null) {
+                        Object val = modelDichVu.getValueAt(r, 3);
+                        boolean isChecked = Boolean.TRUE.equals(val);
+                        selectedQtyMap.put(item.getId(), isChecked ? 1 : 0);
+                    }
                 }
             }
         });
@@ -177,14 +181,6 @@ public class ChonDichVuDialog extends JDialog {
         reloadTable();
     }
 
-    private int parseIdFromMaStr(String maStr) {
-        try {
-            return Integer.parseInt(maStr.replaceAll("\\D", ""));
-        } catch (Exception e) {
-            return 0;
-        }
-    }
-
     private void reloadTable() {
         String kw = txtSearch != null ? txtSearch.getText().trim().toLowerCase() : "";
         modelDichVu.setRowCount(0);
@@ -194,9 +190,8 @@ public class ChonDichVuDialog extends JDialog {
             boolean matchDesc = dv.getMoTa() != null && dv.getMoTa().toLowerCase().contains(kw);
             if (kw.isEmpty() || matchName || matchDesc) {
                 int currentQty = selectedQtyMap.getOrDefault(dv.getId(), 0);
-                String maStr = String.format("DV%02d", dv.getId());
                 modelDichVu.addRow(new Object[]{
-                        maStr,
+                        dv.getMaDichVu(),
                         dv.getTenDichVu(),
                         String.format("%,.0f đ", dv.getDonGia()),
                         currentQty > 0

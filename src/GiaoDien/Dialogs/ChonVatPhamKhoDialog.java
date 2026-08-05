@@ -137,23 +137,24 @@ public class ChonVatPhamKhoDialog extends JDialog {
                 int r = e.getFirstRow();
                 if (r >= 0 && r < modelKho.getRowCount()) {
                     String maStr = modelKho.getValueAt(r, 0).toString();
-                    int id = parseIdFromMaStr(maStr);
-                    Object val = modelKho.getValueAt(r, 5);
-                    int qty = (val instanceof Integer num) ? num : 0;
-                    
                     DichVu item = DataStore.get().getKhoItems().stream()
-                            .filter(k -> k.getId() == id)
+                            .filter(k -> maStr.equalsIgnoreCase(k.getMaDichVu()))
                             .findFirst().orElse(null);
 
-                    if (item != null && qty > item.getSoLuongTon()) {
-                        JOptionPane.showMessageDialog(this,
-                                "Số lượng chọn (" + qty + ") vượt quá số lượng tồn kho (" + item.getSoLuongTon() + ")!",
-                                "Cảnh báo tồn kho", JOptionPane.WARNING_MESSAGE);
-                        qty = item.getSoLuongTon();
-                        modelKho.setValueAt(qty, r, 5);
-                    }
+                    if (item != null) {
+                        Object val = modelKho.getValueAt(r, 5);
+                        int qty = (val instanceof Integer num) ? num : 0;
 
-                    selectedQtyMap.put(id, Math.max(0, qty));
+                        if (qty > item.getSoLuongTon()) {
+                            JOptionPane.showMessageDialog(this,
+                                    "Số lượng chọn (" + qty + ") vượt quá số lượng tồn kho (" + item.getSoLuongTon() + ")!",
+                                    "Cảnh báo tồn kho", JOptionPane.WARNING_MESSAGE);
+                            qty = item.getSoLuongTon();
+                            modelKho.setValueAt(qty, r, 5);
+                        }
+
+                        selectedQtyMap.put(item.getId(), Math.max(0, qty));
+                    }
                 }
             }
         });
@@ -187,14 +188,6 @@ public class ChonVatPhamKhoDialog extends JDialog {
         reloadTable();
     }
 
-    private int parseIdFromMaStr(String maStr) {
-        try {
-            return Integer.parseInt(maStr.replaceAll("\\D", ""));
-        } catch (Exception e) {
-            return 0;
-        }
-    }
-
     private void reloadTable() {
         String kw = txtSearch.getText().trim().toLowerCase();
         modelKho.setRowCount(0);
@@ -204,9 +197,8 @@ public class ChonVatPhamKhoDialog extends JDialog {
             boolean matchDesc = item.getMoTa() != null && item.getMoTa().toLowerCase().contains(kw);
             if (kw.isEmpty() || matchName || matchDesc) {
                 int currentQty = selectedQtyMap.getOrDefault(item.getId(), 0);
-                String maStr = String.format("HH%02d", item.getId());
                 modelKho.addRow(new Object[]{
-                        maStr,
+                        item.getMaDichVu(),
                         item.getTenDichVu(),
                         String.format("%,.0f đ", item.getDonGia()),
                         item.getDonVi() != null ? item.getDonVi() : "cái",
@@ -224,10 +216,12 @@ public class ChonVatPhamKhoDialog extends JDialog {
             return;
         }
         String maStr = modelKho.getValueAt(selectedRow, 0).toString();
-        int id = parseIdFromMaStr(maStr);
-        DichVu item = DataStore.get().getKhoItems().stream().filter(k -> k.getId() == id).findFirst().orElse(null);
+        DichVu item = DataStore.get().getKhoItems().stream()
+                .filter(k -> maStr.equalsIgnoreCase(k.getMaDichVu()))
+                .findFirst().orElse(null);
         if (item == null) return;
 
+        int id = item.getId();
         int oldVal = selectedQtyMap.getOrDefault(id, 0);
         int newVal = Math.max(0, oldVal + delta);
         if (newVal > item.getSoLuongTon()) {

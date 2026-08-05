@@ -80,15 +80,13 @@ public class DatLichDAO {
                     int soLuong = rs.getInt("soLuong");
                     if (soLuong <= 0) continue;
                     
-                    int id = maDichVu.hashCode() & 0x7FFFFFFF;
-                    if (maDichVu.startsWith("HH")) {
-                        d.getSelectedDoAnMap().put(id, soLuong);
-                    } else {
-                        d.getSelectedDvMap().put(id, soLuong);
-                    }
-                    
-                    DichVu dv = DataStore.get().findDichVuById(id);
+                    DichVu dv = DataStore.get().findDichVuByMa(maDichVu);
                     if (dv != null) {
+                        if ("Vật tư kho".equalsIgnoreCase(dv.getLoaiDichVu()) || maDichVu.startsWith("HH")) {
+                            d.getSelectedDoAnMap().put(dv.getId(), soLuong);
+                        } else {
+                            d.getSelectedDvMap().put(dv.getId(), soLuong);
+                        }
                         d.addDichVuKem(dv.getTenDichVu(), soLuong, dv.getDonGia() * soLuong);
                     }
                 }

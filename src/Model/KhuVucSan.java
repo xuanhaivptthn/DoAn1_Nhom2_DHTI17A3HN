@@ -54,8 +54,17 @@ public class KhuVucSan {
     public String getTrangThai() { return trangThai; }
     public void setTrangThai(String trangThai) { this.trangThai = trangThai; }
 
-    /** id nội bộ cho UI (dùng hashCode của maSan) */
-    public int getId() { return maSan != null ? maSan.hashCode() & 0x7FFFFFFF : 0; }
+    /** ID số cơ bản từ mã sân (ví dụ "SAN001" -> 1) */
+    public int getId() {
+        if (maSan == null || maSan.isBlank()) return 0;
+        String digits = maSan.replaceAll("\\D", "");
+        if (digits.isEmpty()) return 0;
+        try {
+            return Integer.parseInt(digits);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
 
     // ─── Helper methods ────────────────────────────────────────────────────────
 

@@ -461,6 +461,18 @@ public final class DataStore {
         return null;
     }
 
+    public DichVu findDichVuByMa(String ma) {
+        if (ma == null || ma.isBlank()) return null;
+        String cleanMa = ma.trim();
+        for (DichVu d : dichVus) {
+            if (cleanMa.equalsIgnoreCase(d.getMaDichVu())) return d;
+        }
+        for (DichVu d : khoItems) {
+            if (cleanMa.equalsIgnoreCase(d.getMaDichVu())) return d;
+        }
+        return null;
+    }
+
     public synchronized KhachHang saveOrUpdateKhachHang(String tenKhachHang, String sdt) {
         if (sdt == null || sdt.isBlank()) return null;
         String cleanSdt = sdt.trim();

@@ -4,8 +4,7 @@ import java.util.List;
 
 /**
  * Sinh mã định danh mới (VD: "DL004", "BT002") dựa trên số lớn nhất
- * đang tồn tại trong danh sách mã hiện có, thay cho cách sinh id cũ
- * dựa trên hashCode (Model.*.getId() đã bị loại bỏ).
+ * đang tồn tại trong danh sách mã hiện có.
  */
 public final class CodeGen {
 

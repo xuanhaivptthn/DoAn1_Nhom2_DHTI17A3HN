@@ -101,8 +101,17 @@ public class DichVu {
     /** Mức tồn tối thiểu - mặc định 5 */
     public int getTonToiThieu() { return 5; }
 
-    /** id nội bộ cho UI (dùng hashCode của maDichVu) */
-    public int getId() { return maDichVu != null ? maDichVu.hashCode() & 0x7FFFFFFF : 0; }
+    /** ID số cơ bản từ mã dịch vụ (ví dụ "DV001" -> 1, "HH002" -> 2) */
+    public int getId() {
+        if (maDichVu == null || maDichVu.isBlank()) return 0;
+        String digits = maDichVu.replaceAll("\\D", "");
+        if (digits.isEmpty()) return 0;
+        try {
+            return Integer.parseInt(digits);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
 
     // ─── Alias cho kho hàng hóa ───────────────────────────────────────────────
     public int getMaHangHoa() { return getId(); }
@@ -138,7 +147,7 @@ public class DichVu {
     }
 
     public static DichVu layThongTinDichVu(String maDichVu) {
-        return DataStore.get().findDichVuById(maDichVu != null ? maDichVu.hashCode() & 0x7FFFFFFF : 0);
+        return DataStore.get().findDichVuByMa(maDichVu);
     }
 
     public boolean kiemTraTrungTen(String ten) {
