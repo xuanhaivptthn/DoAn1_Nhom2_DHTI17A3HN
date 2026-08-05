@@ -8,7 +8,6 @@ import Model.KhachHang;
 import Model.Kho;
 import Model.KhuVucSan;
 import Model.NhanVien;
-import Model.PhienLamViec;
 import Model.TaiKhoan;
 
 import java.util.ArrayList;
@@ -30,7 +29,6 @@ public final class DataStore {
     private final List<Kho> khos = new ArrayList<>();
     private final List<DatLich> datLichs = new ArrayList<>();
     private final List<BaoTri> baoTris = new ArrayList<>();
-    private final List<PhienLamViec> phienHistory = new ArrayList<>();
     private final List<KhachHang> khachHangs = new ArrayList<>();
 
     private static boolean useDatabase = true;
@@ -67,7 +65,6 @@ public final class DataStore {
         khos.clear();
         datLichs.clear();
         baoTris.clear();
-        phienHistory.clear();
         khachHangs.clear();
         seed();
     }
@@ -132,11 +129,6 @@ public final class DataStore {
                     khachHangs.addAll(dbKhachHangs);
                 }
 
-                List<PhienLamViec> dbPhien = new DAO.PhienLamViecDAO().getAll();
-                if (dbPhien != null) {
-                    phienHistory.addAll(dbPhien);
-                }
-
                 // Kết nối thành công và tải xong dữ liệu (dù trống vẫn giữ nguyên theo CSDL)
                 syncTrangThaiSanBaoTri();
                 return;
@@ -152,7 +144,6 @@ public final class DataStore {
                 khos.clear();
                 datLichs.clear();
                 baoTris.clear();
-                phienHistory.clear();
                 khachHangs.clear();
             }
         }
@@ -458,7 +449,6 @@ public final class DataStore {
     public List<Kho> getKhos() { return khos; }
     public List<DatLich> getDatLichs() { return datLichs; }
     public List<BaoTri> getBaoTris() { return baoTris; }
-    public List<PhienLamViec> getPhienHistory() { return phienHistory; }
     public List<KhachHang> getKhachHangs() { return khachHangs; }
 
     public DichVu findDichVuById(int id) {

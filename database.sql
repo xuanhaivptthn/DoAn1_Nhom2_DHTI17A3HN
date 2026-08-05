@@ -20,7 +20,6 @@ DROP TABLE IF EXISTS `chu_san`;
 DROP TABLE IF EXISTS `bao_tri`;
 DROP TABLE IF EXISTS `lich_dat_san`;
 DROP TABLE IF EXISTS `san_bong`;
-DROP TABLE IF EXISTS `PhienLamViec`;
 DROP TABLE IF EXISTS `dich_vu`;
 DROP TABLE IF EXISTS `khach_hang`;
 DROP TABLE IF EXISTS `tai_khoan`;
@@ -196,25 +195,6 @@ INSERT INTO `bao_tri` (`maPhieuBaoTri`, `maSan`, `noiDung`, `ngayBatDau`, `ngayK
 ('BT001', 'SAN005', 'Thay lại thảm cỏ nhân tạo vùng cấm địa & kiểm tra hệ thống đèn pha LED', '2026-07-25', '2026-08-05', 'DANG_BAO_TRI'),
 ('BT002', 'SAN004', 'Bảo dưỡng định kỳ lưới chắn bóng xung quanh', '2026-07-20', '2026-07-22', 'HOAN_THANH');
 
-
--- ------------------------------------------------------------
--- 8. BẢNG PHIÊN LÀM VIỆC (PhienLamViec) — Model.PhienLamViec / DAO.PhienLamViecDAO
--- ------------------------------------------------------------
-CREATE TABLE `PhienLamViec` (
-  `id` INT AUTO_INCREMENT PRIMARY KEY,
-  `sessionId` VARCHAR(50) NOT NULL UNIQUE,
-  `tenDangNhap` VARCHAR(50) NOT NULL,
-  `hoTen` VARCHAR(100),
-  `vaiTro` VARCHAR(20),
-  `thoiGianDangNhap` VARCHAR(50),
-  `thoiGianDangXuat` VARCHAR(50),
-  `trangThai` VARCHAR(20) DEFAULT 'DangHoatDong', -- DangHoatDong | DaDangXuat | HetHan
-  `diaChiIp` VARCHAR(45),
-  `thietBi` VARCHAR(100)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-INSERT INTO `PhienLamViec` (`sessionId`, `tenDangNhap`, `hoTen`, `vaiTro`, `thoiGianDangNhap`, `thoiGianDangXuat`, `trangThai`, `diaChiIp`, `thietBi`) VALUES
-('SES-1001', 'admin', 'admin', 'ADMIN', '2026-07-29 08:00:00', NULL, 'DangHoatDong', '127.0.0.1', 'Desktop App (Java Swing)');
 
 -- ------------------------------------------------------------
 -- 9. BẢNG HÓA ĐƠN (hoa_don) — Model.HoaDon

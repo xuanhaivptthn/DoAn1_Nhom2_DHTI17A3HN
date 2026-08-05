@@ -1,10 +1,7 @@
 package Utils;
 
-import Model.PhienLamViec;
 import Model.TaiKhoan;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,10 +11,8 @@ import java.util.Optional;
 public final class SessionManager {
 
     private static final SessionManager INSTANCE = new SessionManager();
-    private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     private TaiKhoan currentUser;
-    private PhienLamViec currentSession;
 
     private SessionManager() {
     }
@@ -48,13 +43,6 @@ public final class SessionManager {
                     // Nếu tài khoản hoạt động, kiểm tra mật khẩu
                     if (dbUser.getMatKhau().equals(password)) {
                         this.currentUser = dbUser;
-                        int nextId = DataStore.get().getPhienHistory().size() + 1;
-                        String sid = String.format("SES-%04d", nextId);
-                        String now = LocalDateTime.now().format(FMT);
-                        this.currentSession = new PhienLamViec(sid, dbUser.getTenDangNhap(), dbUser.getTenDangNhap(), dbUser.getQuyenHan(),
-                                now, null, "DangHoatDong", "127.0.0.1", "Desktop App (Java Swing)");
-                        DataStore.get().getPhienHistory().add(0, currentSession);
-                        try { new DAO.PhienLamViecDAO().insert(currentSession); } catch (Exception ignored) {}
                         return Optional.empty();
                     }
                 }
@@ -83,51 +71,15 @@ public final class SessionManager {
         }
 
         this.currentUser = u;
-
-        int nextId = DataStore.get().getPhienHistory().size() + 1;
-        String sid = String.format("SES-%04d", nextId);
-        String now = LocalDateTime.now().format(FMT);
-
-        this.currentSession = new PhienLamViec(sid, u.getTenDangNhap(), u.getTenDangNhap(), u.getQuyenHan(),
-                now, null, "DangHoatDong", "127.0.0.1", "Desktop App (Java Swing)");
-
-        DataStore.get().getPhienHistory().add(0, currentSession);
-
         return Optional.empty();
     }
 
     public void logout() {
-        if (currentSession != null) {
-            currentSession.setThoiGianDangXuat(LocalDateTime.now().format(FMT));
-            currentSession.setTrangThai("DaDangXuat");
-            if (DataStore.isUseDatabase()) {
-                try { new DAO.PhienLamViecDAO().update(currentSession); } catch (Exception ignored) {}
-            }
-        }
         this.currentUser = null;
-        this.currentSession = null;
-    }
-
-    public void forceEndSession(String sessionId) {
-        if (sessionId == null) return;
-        DataStore.get().getPhienHistory().stream()
-                .filter(p -> p.getSessionId().equals(sessionId) && "DangHoatDong".equals(p.getTrangThai()))
-                .findFirst()
-                .ifPresent(p -> {
-                    p.setThoiGianDangXuat(LocalDateTime.now().format(FMT));
-                    p.setTrangThai("DaDangXuat");
-                    if (DataStore.isUseDatabase()) {
-                        try { new DAO.PhienLamViecDAO().update(p); } catch (Exception ignored) {}
-                    }
-                });
     }
 
     public TaiKhoan getCurrentUser() {
         return currentUser;
-    }
-
-    public PhienLamViec getCurrentSession() {
-        return currentSession;
     }
 
     public boolean isLoggedIn() {
