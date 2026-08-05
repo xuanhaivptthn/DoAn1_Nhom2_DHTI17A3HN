@@ -649,11 +649,17 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
                 currentlySelectedBooking.setTrangThaiTT("ChuaThanhToan");
             }
             case "Hoàn thành (Đã thanh toán)" -> {
+                JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
+                GiaoDien.Dialogs.XacNhanDichVuThanhToanDialog confirmDialog =
+                        new GiaoDien.Dialogs.XacNhanDichVuThanhToanDialog(parent, currentlySelectedBooking);
+                confirmDialog.setVisible(true);
+                if (!confirmDialog.isConfirmed()) return;
+
                 currentlySelectedBooking.setTrangThai("HoanThanh");
                 currentlySelectedBooking.setTrangThaiTT("DaThanhToan");
 
                 int choice = JOptionPane.showConfirmDialog(this,
-                        "Đã chuyển trạng thái sang Hoàn thành.\nBạn có muốn xuất Hóa đơn thanh toán ngay bây giờ không?",
+                        "Đã cập nhật dịch vụ thanh toán & chuyển sang Hoàn thành.\nBạn có muốn xuất Hóa đơn thanh toán ngay bây giờ không?",
                         "Xuất hóa đơn", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
                 if (choice == JOptionPane.YES_OPTION) {
                     onExportInvoice("Tiền mặt");
@@ -813,6 +819,14 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
 
             if (soldInfo.length() > 0) soldInfo.append(", ");
             soldInfo.append(qty).append("x ").append(dv.getTenDichVu());
+        }
+
+        if (soldInfo.length() > 0) {
+            String oldNote = currentlySelectedBooking.getGhiChu() != null ? currentlySelectedBooking.getGhiChu().trim() : "";
+            String addNote = "Đã bán thêm: " + soldInfo;
+            if (!oldNote.contains(soldInfo.toString())) {
+                currentlySelectedBooking.setGhiChu(oldNote.isEmpty() ? addNote : oldNote + ". " + addNote);
+            }
         }
 
         if (DataStore.isUseDatabase()) {

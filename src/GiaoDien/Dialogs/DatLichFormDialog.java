@@ -571,7 +571,22 @@ public class DatLichFormDialog extends JDialog {
         candidate.setTienSan(initialCourtPrice);
         candidate.setTrangThai(isEdit ? original.getTrangThai() : "ChoXacNhan");
         candidate.setMaTaiKhoan(isEdit ? original.getMaTaiKhoan() : "Hệ thống");
-        candidate.setGhiChu(txtGhiChu.getText().trim());
+
+        StringBuilder noteBuilder = new StringBuilder(txtGhiChu.getText().trim());
+        if (!configuredAddons.isEmpty()) {
+            StringBuilder svcStr = new StringBuilder();
+            for (ChonDichVuDialog.SelectedItem item : configuredAddons) {
+                if (svcStr.length() > 0) svcStr.append(", ");
+                svcStr.append(item.getSoLuong()).append(" ").append(item.getDichVu().getTenDichVu())
+                      .append(" (").append(item.getDichVu().getMaDichVu()).append(")");
+            }
+            String noteAdd = "Dặn trước: " + svcStr;
+            if (!noteBuilder.toString().contains("Dặn trước:")) {
+                if (noteBuilder.length() > 0) noteBuilder.append(". ");
+                noteBuilder.append(noteAdd);
+            }
+        }
+        candidate.setGhiChu(noteBuilder.toString());
 
         candidate.setSelectedDvMap(currentDvMap);
         candidate.setSelectedDoAnMap(currentDoAnMap);
