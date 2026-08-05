@@ -101,13 +101,6 @@ public class DatLichDAO {
         d.setTrangThai(rs.getString("trangThai"));
         d.setGhiChu(rs.getString("ghiChu"));
 
-        if (d.getMaKhachHang() != null) {
-            Model.KhachHang kh = DataStore.get().findKhachHangById(d.getMaKhachHang());
-            if (kh != null) {
-                d.setTenKhach(kh.getTenKhachHang());
-                d.setSoDienThoaiKhach(kh.getSoDienThoai());
-            }
-        }
         return d;
     }
 }
