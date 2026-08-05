@@ -273,6 +273,7 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         };
 
         tableSchedule = new JTable(modelSchedule);
+        tableSchedule.setName("tableSchedule");
         tableSchedule.setFont(UIConstants.FONT_NORMAL);
         tableSchedule.setRowHeight(42);
         tableSchedule.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);

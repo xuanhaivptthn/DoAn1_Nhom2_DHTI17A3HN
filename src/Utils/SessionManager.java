@@ -16,8 +16,8 @@ public final class SessionManager {
     private static final SessionManager INSTANCE = new SessionManager();
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    private TaiKhoan currentUser;
-    private PhienLamViec currentSession;
+    private volatile TaiKhoan currentUser;
+    private volatile PhienLamViec currentSession;
 
     private SessionManager() {
     }

@@ -82,6 +82,7 @@ public class QuanLyDichVuPanel extends javax.swing.JPanel {
             public boolean isCellEditable(int r, int c) { return false; }
         };
         table = new JTable(model);
+        table.setName("tableDichVu");
         PageUI.styleTable(table);
         table.getColumnModel().getColumn(0).setPreferredWidth(65);
 

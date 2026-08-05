@@ -84,6 +84,7 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
             public boolean isCellEditable(int r, int c) { return false; }
         };
         table = new JTable(model);
+        table.setName("tableKhuVuc");
         PageUI.styleTable(table);
         table.getColumnModel().getColumn(0).setPreferredWidth(80);
         lblCount = new JLabel();

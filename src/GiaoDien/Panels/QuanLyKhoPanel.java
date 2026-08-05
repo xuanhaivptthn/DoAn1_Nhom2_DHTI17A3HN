@@ -87,6 +87,7 @@ public class QuanLyKhoPanel extends javax.swing.JPanel {
             public boolean isCellEditable(int r, int c) { return false; }
         };
         table = new JTable(model);
+        table.setName("tableKho");
         PageUI.styleTable(table);
         table.getColumnModel().getColumn(0).setPreferredWidth(80);
         table.getColumnModel().getColumn(1).setPreferredWidth(200);

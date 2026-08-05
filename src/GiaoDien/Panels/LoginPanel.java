@@ -248,6 +248,13 @@ public class LoginPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void customInit() {
+        txtUser.setName("txtUser");
+        txtPass.setName("txtPass");
+        btnLogin.setName("btnLogin");
+        lblError.setName("lblError");
+        if (cboDataSource != null) {
+            cboDataSource.setName("cboDataSource");
+        }
         txtPass.addActionListener(e -> doLogin());
         txtUser.addActionListener(e -> txtPass.requestFocus());
     }

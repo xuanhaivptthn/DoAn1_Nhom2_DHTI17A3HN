@@ -33,7 +33,7 @@ public final class DataStore {
     private final List<PhienLamViec> phienHistory = new ArrayList<>();
     private final List<KhachHang> khachHangs = new ArrayList<>();
 
-    private static boolean useDatabase = true;
+    private static volatile boolean useDatabase = true;
 
     private DataStore() {
         seed();
