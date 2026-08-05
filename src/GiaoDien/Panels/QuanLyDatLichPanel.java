@@ -84,6 +84,10 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
     private int selectedCourtIndex = -1;
     private int selectedTimeIndex = -1;
 
+    private final Controller.DatLichController datLichController = new Controller.DatLichController();
+    private final Controller.HoaDonController hoaDonController = new Controller.HoaDonController();
+    private final Controller.KhoController khoController = new Controller.KhoController();
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel pnlBody;
     private javax.swing.JPanel pnlBottomBar;
@@ -656,20 +660,17 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
 
         String maPhieu = currentlySelectedBooking.getMaLichDat();
 
-        switch (selected) {
-            case "Chờ xác nhận" -> {
-                currentlySelectedBooking.setTrangThai("ChoXacNhan");
-                currentlySelectedBooking.setTrangThaiTT("ChuaThanhToan");
-            }
-            case "Đã xác nhận" -> {
-                currentlySelectedBooking.setTrangThai("DaXacNhan");
-                currentlySelectedBooking.setTrangThaiTT("ChuaThanhToan");
-            }
-            case "Hoàn thành (Đã thanh toán)" -> {
-                currentlySelectedBooking.setTrangThai("HoanThanh");
-                currentlySelectedBooking.setTrangThaiTT("DaThanhToan");
-                DataStore.get().saveOrUpdateHoaDonForBooking(currentlySelectedBooking, "Tiền mặt");
+        String statusKey = switch (selected) {
+            case "Chờ xác nhận" -> "ChoXacNhan";
+            case "Đã xác nhận" -> "DaXacNhan";
+            case "Hoàn thành (Đã thanh toán)" -> "HoanThanh";
+            case "Đã hủy" -> "DaHuy";
+            default -> null;
+        };
 
+        if (statusKey != null) {
+            datLichController.updateBookingStatus(currentlySelectedBooking, statusKey, "Tiền mặt");
+            if ("HoanThanh".equals(statusKey)) {
                 int choice = JOptionPane.showConfirmDialog(this,
                         "Đã chuyển trạng thái sang Hoàn thành (Đã thanh toán) và lưu Hóa đơn thành công.\nBạn có muốn xuất Hóa đơn thanh toán ngay bây giờ không?",
                         "Xuất hóa đơn", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
@@ -677,13 +678,6 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
                     onExportInvoice("Tiền mặt");
                 }
             }
-            case "Đã hủy" -> {
-                currentlySelectedBooking.setTrangThai("DaHuy");
-            }
-        }
-
-        if (DataStore.isUseDatabase()) {
-            try { new DAO.DatLichDAO().update(currentlySelectedBooking); } catch (Exception ignored) {}
         }
 
         String displayStatus = currentlySelectedBooking.getTrangThaiHienThi();
@@ -733,10 +727,7 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         phieu.setDichVuKem(form.getDichVuKem());
         phieu.setSelectedDvMap(form.getSelectedDvMap());
         phieu.setSelectedDoAnMap(form.getSelectedDoAnMap());
-        DataStore.get().getDatLichs().add(phieu);
-        if (DataStore.isUseDatabase()) {
-            try { new DAO.DatLichDAO().insert(phieu); } catch (Exception ignored) {}
-        }
+        datLichController.createBooking(phieu);
         reloadSchedule();
         JOptionPane.showMessageDialog(this, "Đã tạo mới lịch đặt sân " + ma + " thành công!", "Kết quả đặt lịch", JOptionPane.INFORMATION_MESSAGE);
     }
@@ -747,7 +738,7 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         KhuVucSan court = courtList.get(courtIdx);
         String curDateStr = selectedDate.toString();
 
-        if (DataStore.get().isSanBaoTriVoiNgay(court, curDateStr)) {
+        if (datLichController.isSanBaoTriVoiNgay(court, curDateStr)) {
             JOptionPane.showMessageDialog(this,
                     "[!] SÂN ĐANG BẢO TRÌ!\n\nSân " + court.getTenSan() + " hiện đang trong trạng thái bảo trì cơ sở vật chất.\nKhông thể tạo mới lịch đặt cho sân này!",
                     "Cảnh báo bảo trì sân", JOptionPane.WARNING_MESSAGE);
@@ -755,12 +746,7 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         }
         String slotTime = TIME_SLOTS[timeIdx];
 
-        DatLich existing = DataStore.get().getDatLichs().stream()
-                .filter(d -> curDateStr.equals(d.getNgayDat())
-                        && court.getMaSan() != null && court.getMaSan().equals(d.getMaSan())
-                        && !"DaHuy".equals(d.getTrangThai())
-                        && isTimeOverlap(d.getGioBatDau(), d.getGioKetThuc(), slotTime))
-                .findFirst().orElse(null);
+        DatLich existing = datLichController.findOverlapBooking(court.getMaSan(), curDateStr, slotTime, getNextHour(slotTime), null);
 
         if (existing == null) {
             JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
@@ -793,10 +779,7 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
             phieu.setDichVuKem(form.getDichVuKem());
             phieu.setSelectedDvMap(form.getSelectedDvMap());
             phieu.setSelectedDoAnMap(form.getSelectedDoAnMap());
-            DataStore.get().getDatLichs().add(phieu);
-            if (DataStore.isUseDatabase()) {
-                try { new DAO.DatLichDAO().insert(phieu); } catch (Exception ignored) {}
-            }
+            datLichController.createBooking(phieu);
             reloadSchedule();
             JOptionPane.showMessageDialog(this, "Đã tạo mới lịch đặt sân " + ma + " (" + san.getTenSan() + " - " + form.getKhungGio() + ") thành công!", "Kết quả đặt lịch", JOptionPane.INFORMATION_MESSAGE);
         }
@@ -817,7 +800,7 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         for (ChonDichVuDialog.SelectedItem item : dialog.getSelectedItems()) {
             DichVu dv = item.getDichVu();
             int qty   = item.getSoLuong();
-            DataStore.get().giamKhoStock(dv, qty);
+            khoController.giamStock(dv, qty);
             double cost = dv.getDonGia() * qty;
             totalAdded += cost;
             currentlySelectedBooking.addDichVuKem(dv.getTenDichVu(), qty, cost);
@@ -834,11 +817,7 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
             soldInfo.append(qty).append("x ").append(dv.getTenDichVu());
         }
 
-        if (DataStore.isUseDatabase()) {
-            try { new DAO.DatLichDAO().update(currentlySelectedBooking); } catch (Exception ignored) {}
-        }
-
-        DataStore.get().saveOrUpdateHoaDonForBooking(currentlySelectedBooking, "Tiền mặt");
+        datLichController.updateBooking(currentlySelectedBooking);
 
         reloadSchedule();
         JOptionPane.showMessageDialog(this,
@@ -870,10 +849,7 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         currentlySelectedBooking.setDichVuKem(updated.getDichVuKem());
         currentlySelectedBooking.setSelectedDvMap(updated.getSelectedDvMap());
         currentlySelectedBooking.setSelectedDoAnMap(updated.getSelectedDoAnMap());
-        if (DataStore.isUseDatabase()) {
-            try { new DAO.DatLichDAO().update(currentlySelectedBooking); } catch (Exception ignored) {}
-        }
-        DataStore.get().saveOrUpdateHoaDonForBooking(currentlySelectedBooking, "Tiền mặt");
+        datLichController.updateBooking(currentlySelectedBooking);
         String maPhieu = currentlySelectedBooking.getMaLichDat();
         reloadSchedule();
         JOptionPane.showMessageDialog(this, "Đã cập nhật thông tin phiếu đặt sân " + maPhieu + " thành công!", "Cập nhật thành công", JOptionPane.INFORMATION_MESSAGE);
@@ -893,10 +869,7 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
     private void onCancelBooking() {
         if (currentlySelectedBooking == null) return;
         if (JOptionPane.showConfirmDialog(this, "Bạn có chắc muốn hủy phiếu " + currentlySelectedBooking.getMaLichDat() + " của khách " + currentlySelectedBooking.getTenKhach() + "?", "Xác nhận hủy", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.YES_OPTION) {
-            currentlySelectedBooking.setTrangThai("DaHuy");
-            if (DataStore.isUseDatabase()) {
-                try { new DAO.DatLichDAO().update(currentlySelectedBooking); } catch (Exception ignored) {}
-            }
+            datLichController.updateBookingStatus(currentlySelectedBooking, "DaHuy", "Tiền mặt");
             reloadSchedule();
             JOptionPane.showMessageDialog(this, "Đã hủy phiếu đặt lịch.", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
         }

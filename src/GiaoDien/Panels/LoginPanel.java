@@ -257,7 +257,7 @@ public class LoginPanel extends javax.swing.JPanel {
         boolean useDb = cboDataSource != null && cboDataSource.getSelectedIndex() == 0;
         Utils.DataStore.setUseDatabase(useDb);
 
-        Optional<String> error = SessionManager.get().login(txtUser.getText(), new String(txtPass.getPassword()));
+        Optional<String> error = new Controller.TaiKhoanController().login(txtUser.getText(), new String(txtPass.getPassword()));
         if (error.isPresent()) {
             lblError.setText("<html><table width='350' style='color: #dc2626; word-wrap: break-word; table-layout: fixed;'><tr><td><b>[!]</b> " + error.get() + "</td></tr></table></html>");
             pnlCard.revalidate();

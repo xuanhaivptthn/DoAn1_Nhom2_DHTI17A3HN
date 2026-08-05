@@ -539,7 +539,7 @@ public class DatLichFormDialog extends JDialog {
         }
 
         // KIỂM TRA TRÙNG LỊCH ĐẶT SÂN
-        DatLich conflict = findOverlapBooking(san.getMaSan(), ng, bd, kt, isEdit ? original.getMaLichDat() : null);
+        DatLich conflict = new Controller.DatLichController().findOverlapBooking(san.getMaSan(), ng, bd, kt, isEdit ? original.getMaLichDat() : null);
         if (conflict != null) {
             JOptionPane.showMessageDialog(this,
                     "[!] CẢNH BÁO TRÙNG LỊCH ĐẶT SÂN!\n\n"
@@ -582,9 +582,10 @@ public class DatLichFormDialog extends JDialog {
         summaryDialog.setVisible(true);
 
         if (summaryDialog.isConfirmed()) {
+            Controller.KhoController khoController = new Controller.KhoController();
             for (ChonDichVuDialog.SelectedItem item : configuredAddons) {
                 if (item.getDichVu() != null && item.getSoLuong() > 0) {
-                    DataStore.get().giamKhoStock(item.getDichVu(), item.getSoLuong());
+                    khoController.giamStock(item.getDichVu(), item.getSoLuong());
                 }
             }
 
