@@ -439,8 +439,8 @@ public class DashboardPanel extends JPanel {
         String todayStr = LocalDate.now().toString();
 
         // Stat cards
-        long sanReady   = sans.stream().filter(k -> "SanSang".equals(k.getTrangThai())).count();
-        long sanRenting = sans.stream().filter(k -> "DangThue".equals(k.getTrangThai())).count();
+        long sanReady   = sans.stream().filter(k -> "SanSang".equalsIgnoreCase(k.getTrangThai()) || "HOAT_DONG".equalsIgnoreCase(k.getTrangThai())).count();
+        long sanRenting = sans.stream().filter(k -> "DangThue".equalsIgnoreCase(k.getTrangThai()) || "DANG_THUE".equalsIgnoreCase(k.getTrangThai())).count();
         long pending    = datLichs.stream().filter(d -> "ChoXacNhan".equals(d.getTrangThai())).count();
         long active     = datLichs.stream().filter(d -> "DaXacNhan".equals(d.getTrangThai())).count();
         double revenue  = datLichs.stream()

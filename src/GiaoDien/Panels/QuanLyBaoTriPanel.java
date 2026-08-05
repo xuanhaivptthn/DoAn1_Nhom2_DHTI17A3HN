@@ -323,9 +323,9 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
 
             if (san != null) {
                 if ("HOAN_THANH".equalsIgnoreCase(form.getTrangThaiPhieu()) || "HUY".equalsIgnoreCase(form.getTrangThaiPhieu())) {
-                    san.setTrangThai("SanSang");
+                    san.setTrangThai("HOAT_DONG");
                 } else if ("DANG_BAO_TRI".equalsIgnoreCase(form.getTrangThaiPhieu()) || "DangXuLy".equalsIgnoreCase(form.getTrangThaiPhieu())) {
-                    san.setTrangThai("BaoTri");
+                    san.setTrangThai("BAO_TRI");
                 }
             }
 
@@ -354,8 +354,8 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
                 KhuVucSan san = DataStore.get().getKhuVucs().stream()
                         .filter(k -> k.getMaSan() != null && k.getMaSan().equals(target.getMaSan()))
                         .findFirst().orElse(null);
-                if (san != null && "BaoTri".equals(san.getTrangThai())) {
-                    san.setTrangThai("SanSang");
+                if (san != null && ("BaoTri".equals(san.getTrangThai()) || "BAO_TRI".equals(san.getTrangThai()))) {
+                    san.setTrangThai("HOAT_DONG");
                 }
             }
             reload();

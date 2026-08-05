@@ -75,28 +75,32 @@ public final class DataStore {
     private void seed() {
         if (useDatabase) {
             try {
+                if (!DAO.DBConnect.testConnection()) {
+                    throw new java.sql.SQLException("Không thể thiết lập kết nối MySQL.");
+                }
+
                 List<TaiKhoan> dbTaiKhoans = new DAO.TaiKhoanDAO().getAll();
-                if (dbTaiKhoans != null && !dbTaiKhoans.isEmpty()) {
+                if (dbTaiKhoans != null) {
                     taiKhoans.addAll(dbTaiKhoans);
                 }
 
                 List<ChuSan> dbChuSans = new DAO.ChuSanDAO().getAll();
-                if (dbChuSans != null && !dbChuSans.isEmpty()) {
+                if (dbChuSans != null) {
                     chuSans.addAll(dbChuSans);
                 }
 
                 List<NhanVien> dbNhanViens = new DAO.NhanVienDAO().getAll();
-                if (dbNhanViens != null && !dbNhanViens.isEmpty()) {
+                if (dbNhanViens != null) {
                     nhanViens.addAll(dbNhanViens);
                 }
 
                 List<KhuVucSan> dbKhuVucs = new DAO.KhuVucSanDAO().getAll();
-                if (dbKhuVucs != null && !dbKhuVucs.isEmpty()) {
+                if (dbKhuVucs != null) {
                     khuVucs.addAll(dbKhuVucs);
                 }
 
                 List<DichVu> dbDichVus = new DAO.DichVuDAO().getAll();
-                if (dbDichVus != null && !dbDichVus.isEmpty()) {
+                if (dbDichVus != null) {
                     for (DichVu d : dbDichVus) {
                         if ("Vật tư kho".equalsIgnoreCase(d.getLoaiDichVu()) || d.getSoLuongTon() > 0) {
                             khoItems.add(d);
@@ -108,7 +112,7 @@ public final class DataStore {
                 }
 
                 List<DatLich> dbDatLichs = new DAO.DatLichDAO().getAll();
-                if (dbDatLichs != null && !dbDatLichs.isEmpty()) {
+                if (dbDatLichs != null) {
                     for (DatLich d : dbDatLichs) {
                         backfillTenSan(d.getMaSan(), d::setTenSan);
                     }
@@ -116,7 +120,7 @@ public final class DataStore {
                 }
 
                 List<BaoTri> dbBaoTris = new DAO.BaoTriDAO().getAll();
-                if (dbBaoTris != null && !dbBaoTris.isEmpty()) {
+                if (dbBaoTris != null) {
                     for (BaoTri b : dbBaoTris) {
                         backfillTenSan(b.getMaSan(), b::setTenSan);
                     }
@@ -124,27 +128,44 @@ public final class DataStore {
                 }
 
                 List<KhachHang> dbKhachHangs = new DAO.KhachHangDAO().getAll();
-                if (dbKhachHangs != null && !dbKhachHangs.isEmpty()) {
+                if (dbKhachHangs != null) {
                     khachHangs.addAll(dbKhachHangs);
                 }
 
                 List<PhienLamViec> dbPhien = new DAO.PhienLamViecDAO().getAll();
-                if (dbPhien != null && !dbPhien.isEmpty()) {
+                if (dbPhien != null) {
                     phienHistory.addAll(dbPhien);
                 }
+
+                // Kết nối thành công và tải xong dữ liệu (dù trống vẫn giữ nguyên theo CSDL)
+                syncTrangThaiSanBaoTri();
+                return;
             } catch (Exception ex) {
-                System.err.println("Thông báo: Không thể kết nối CSDL MySQL qua DBConnect. Sử dụng dữ liệu mẫu DataStore.");
+                System.err.println("Thông báo: Lỗi nạp CSDL MySQL (" + ex.getMessage() + "). Sử dụng dữ liệu mẫu DataStore.");
+                // Dọn dẹp dữ liệu nạp dở dang để dùng dữ liệu mẫu
+                taiKhoans.clear();
+                chuSans.clear();
+                nhanViens.clear();
+                khuVucs.clear();
+                dichVus.clear();
+                khoItems.clear();
+                khos.clear();
+                datLichs.clear();
+                baoTris.clear();
+                phienHistory.clear();
+                khachHangs.clear();
             }
         }
 
-        if (taiKhoans.isEmpty()) seedDefaultTaiKhoans();
-        if (chuSans.isEmpty()) seedDefaultChuSans();
-        if (nhanViens.isEmpty()) seedDefaultNhanViens();
-        if (khachHangs.isEmpty()) seedDefaultKhachHangs();
-        if (dichVus.isEmpty() && khoItems.isEmpty()) seedDefaultDichVus();
-        if (khuVucs.isEmpty()) seedDefaultKhuVucs();
-        if (datLichs.isEmpty()) seedDefaultDatLichs();
-        if (baoTris.isEmpty()) seedDefaultBaoTris();
+        // Trường hợp không dùng CSDL hoặc kết nối lỗi: Nạp dữ liệu mẫu mock
+        seedDefaultTaiKhoans();
+        seedDefaultChuSans();
+        seedDefaultNhanViens();
+        seedDefaultKhachHangs();
+        seedDefaultDichVus();
+        seedDefaultKhuVucs();
+        seedDefaultDatLichs();
+        seedDefaultBaoTris();
 
         syncTrangThaiSanBaoTri();
     }
@@ -198,11 +219,11 @@ public final class DataStore {
     }
 
     private void seedDefaultKhuVucs() {
-        khuVucs.add(new KhuVucSan("SAN001", "Sân A1 (Sân 5)", "San5", 250000, "SanSang"));
-        khuVucs.add(new KhuVucSan("SAN002", "Sân A2 (Sân 5)", "San5", 250000, "SanSang"));
-        khuVucs.add(new KhuVucSan("SAN003", "Sân B1 (Sân 7)", "San7", 400000, "SanSang"));
-        khuVucs.add(new KhuVucSan("SAN004", "Sân B2 (Sân 7)", "San7", 400000, "SanSang"));
-        khuVucs.add(new KhuVucSan("SAN005", "Sân C1 (Sân 11)", "San11", 800000, "BaoTri"));
+        khuVucs.add(new KhuVucSan("SAN001", "Sân A1 (Sân 5)", "San5", 250000, "HOAT_DONG"));
+        khuVucs.add(new KhuVucSan("SAN002", "Sân A2 (Sân 5)", "San5", 250000, "HOAT_DONG"));
+        khuVucs.add(new KhuVucSan("SAN003", "Sân B1 (Sân 7)", "San7", 400000, "HOAT_DONG"));
+        khuVucs.add(new KhuVucSan("SAN004", "Sân B2 (Sân 7)", "San7", 400000, "HOAT_DONG"));
+        khuVucs.add(new KhuVucSan("SAN005", "Sân C1 (Sân 11)", "San11", 800000, "BAO_TRI"));
     }
 
     private void seedDefaultDatLichs() {

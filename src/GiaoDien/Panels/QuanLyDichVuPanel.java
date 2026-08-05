@@ -105,11 +105,6 @@ public class QuanLyDichVuPanel extends javax.swing.JPanel {
     }
 
     private void buildToolbar() {
-        JButton btnBanVatPham = new javax.swing.JButton(" Bán / Cho thuê vật phẩm");
-        btnBanVatPham.setIcon(Utils.IconUtils.getOpenIcon(16));
-        PageUI.styleSuccessButton(btnBanVatPham);
-        btnBanVatPham.addActionListener(e -> onBanVatPham());
-
         JButton btnAdd = new javax.swing.JButton(" Thêm DV");
         btnAdd.setIcon(Utils.IconUtils.getAddIcon(16));
         PageUI.stylePrimaryButton(btnAdd);
@@ -138,7 +133,6 @@ public class QuanLyDichVuPanel extends javax.swing.JPanel {
             JOptionPane.showMessageDialog(this, "Đã làm mới dữ liệu dịch vụ từ CSDL!", "Làm mới dữ liệu", JOptionPane.INFORMATION_MESSAGE);
         });
 
-        pnlToolbar.add(btnBanVatPham);
         pnlToolbar.add(btnAdd);
         pnlToolbar.add(btnDetail);
         pnlToolbar.add(btnEdit);
@@ -175,22 +169,7 @@ public class QuanLyDichVuPanel extends javax.swing.JPanel {
         lblCount.setText(n + " gói dịch vụ");
     }
 
-    private void onBanVatPham() {
-        JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
-        BanChoThueVatPhamDialog dialog = new BanChoThueVatPhamDialog(parent);
-        dialog.setVisible(true);
-        if (!dialog.isConfirmed()) return;
 
-        reload();
-        JOptionPane.showMessageDialog(this,
-                "THÀNH CÔNG: BÁN / CHO THUÊ VẬT PHẨM KHO HÀNG\n"
-                        + "• Vật phẩm: " + dialog.getSelectedVatPham().getTenHangHoa() + "\n"
-                        + "• Hình thức: " + dialog.getHinhThuc() + "\n"
-                        + "• Số lượng: " + dialog.getSoLuong() + "\n"
-                        + "• Thành tiền: " + String.format("%,.0f VNĐ", dialog.getTongTien()) + "\n"
-                        + "• Tồn kho còn lại: " + dialog.getSelectedVatPham().getSoLuongTon(),
-                "Kết quả bán / cho thuê", JOptionPane.INFORMATION_MESSAGE);
-    }
 
     private DichVu selected() {
         int row = table.getSelectedRow();

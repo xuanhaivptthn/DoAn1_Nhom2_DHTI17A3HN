@@ -5,12 +5,15 @@
 -- Tương thích MySQL 5.7+ / 8.0+ / MariaDB trên XAMPP
 -- ============================================================
 
-CREATE DATABASE IF NOT EXISTS `DoAn1_QuanLySanBong` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+DROP DATABASE IF EXISTS `DoAn1_QuanLySanBong`;
+CREATE DATABASE `DoAn1_QuanLySanBong` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE `DoAn1_QuanLySanBong`;
 
 -- ------------------------------------------------------------
 -- 1. BẢNG TÀI KHOẢN (tai_khoan) — Model.TaiKhoan / DAO.TaiKhoanDAO
 -- ------------------------------------------------------------
+DROP TABLE IF EXISTS `hoa_don`;
+DROP TABLE IF EXISTS `kho`;
 DROP TABLE IF EXISTS `nhan_vien`;
 DROP TABLE IF EXISTS `chu_san`;
 DROP TABLE IF EXISTS `bao_tri`;
@@ -77,15 +80,15 @@ CREATE TABLE `san_bong` (
   `tenSan` VARCHAR(100) NOT NULL,
   `loaiSan` VARCHAR(20) NOT NULL, -- San5 | San7 | San11
   `giaThueTheoGio` DECIMAL(12,2) NOT NULL DEFAULT 0,
-  `trangThai` VARCHAR(20) DEFAULT 'SanSang' -- SanSang | DangThue | BaoTri
+  `trangThai` VARCHAR(20) DEFAULT 'HOAT_DONG' -- HOAT_DONG | DANG_THUE | BAO_TRI
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `san_bong` (`maSan`, `tenSan`, `loaiSan`, `giaThueTheoGio`, `trangThai`) VALUES
-('SAN001', 'Sân A1 (Sân 5)', 'San5', 250000, 'SanSang'),
-('SAN002', 'Sân A2 (Sân 5)', 'San5', 250000, 'SanSang'),
-('SAN003', 'Sân B1 (Sân 7)', 'San7', 400000, 'SanSang'),
-('SAN004', 'Sân B2 (Sân 7)', 'San7', 400000, 'SanSang'),
-('SAN005', 'Sân C1 (Sân 11)', 'San11', 800000, 'BaoTri');
+('SAN001', 'Sân A1 (Sân 5)', 'San5', 250000, 'HOAT_DONG'),
+('SAN002', 'Sân A2 (Sân 5)', 'San5', 250000, 'HOAT_DONG'),
+('SAN003', 'Sân B1 (Sân 7)', 'San7', 400000, 'HOAT_DONG'),
+('SAN004', 'Sân B2 (Sân 7)', 'San7', 400000, 'HOAT_DONG'),
+('SAN005', 'Sân C1 (Sân 11)', 'San11', 800000, 'BAO_TRI');
 
 
 -- ------------------------------------------------------------
@@ -194,6 +197,34 @@ CREATE TABLE `PhienLamViec` (
 
 INSERT INTO `PhienLamViec` (`sessionId`, `tenDangNhap`, `hoTen`, `vaiTro`, `thoiGianDangNhap`, `thoiGianDangXuat`, `trangThai`, `diaChiIp`, `thietBi`) VALUES
 ('SES-1001', 'admin', 'admin', 'ADMIN', '2026-07-29 08:00:00', NULL, 'DangHoatDong', '127.0.0.1', 'Desktop App (Java Swing)');
+
+-- ------------------------------------------------------------
+-- 9. BẢNG HÓA ĐƠN (hoa_don) — Model.HoaDon
+-- ------------------------------------------------------------
+CREATE TABLE `hoa_don` (
+  `maHoaDon` VARCHAR(20) NOT NULL PRIMARY KEY,
+  `maLichDat` VARCHAR(20) NOT NULL UNIQUE,
+  `maNhanVien` VARCHAR(20) NOT NULL,
+  `ngayThanhToan` VARCHAR(50) NOT NULL,
+  `chiPhiSan` DECIMAL(12,2) NOT NULL DEFAULT 0,
+  `tongTienDichVu` DECIMAL(12,2) NOT NULL DEFAULT 0,
+  `giamGia` DECIMAL(12,2) NOT NULL DEFAULT 0,
+  `tongTien` DECIMAL(12,2) NOT NULL DEFAULT 0,
+  `phuongThucThanhToan` VARCHAR(100) NOT NULL,
+  FOREIGN KEY (`maLichDat`) REFERENCES `lich_dat_san`(`maLichDat`) ON DELETE CASCADE,
+  FOREIGN KEY (`maNhanVien`) REFERENCES `nhan_vien`(`maNhanVien`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ------------------------------------------------------------
+-- 10. BẢNG KHO HÀNG (kho) — Model.Kho
+-- ------------------------------------------------------------
+CREATE TABLE `kho` (
+  `maHangHoa` VARCHAR(20) NOT NULL PRIMARY KEY,
+  `tenHangHoa` VARCHAR(100) NOT NULL UNIQUE,
+  `soLuongTon` INT NOT NULL DEFAULT 0,
+  `donGia` DECIMAL(15,0) NOT NULL DEFAULT 0,
+  `nhaCungCap` VARCHAR(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
 -- HOÀN TẤT TẠO CSDL
