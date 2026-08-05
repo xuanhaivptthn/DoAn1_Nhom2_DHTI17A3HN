@@ -125,12 +125,13 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
     }
 
     private void buildToolbar() {
-        pnlToolbar.setLayout(new BorderLayout(0, 6));
+        pnlToolbar.removeAll();
+        pnlToolbar.setLayout(new BorderLayout(0, 0));
         pnlToolbar.setOpaque(false);
 
-        // HÀNG THỨ NHẤT: Lọc lịch sử + Thao tác lập/sửa/xem + Nút "Làm mới dữ liệu"
-        JPanel pnlTopRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
-        pnlTopRow.setOpaque(false);
+        // Bên TRÁI: Thao tác lập/sửa/xem phiếu bảo trì
+        JPanel pnlLeft = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        pnlLeft.setOpaque(false);
 
         JButton btnNew = new javax.swing.JButton(" Lập phiếu BT");
         btnNew.setIcon(Utils.IconUtils.getAddIcon(16));
@@ -147,13 +148,13 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
         PageUI.styleSecondaryButton(btnView);
         btnView.addActionListener(e -> viewTicket());
 
-        pnlTopRow.add(btnNew);
-        pnlTopRow.add(btnUpdate);
-        pnlTopRow.add(btnView);
+        pnlLeft.add(btnNew);
+        pnlLeft.add(btnUpdate);
+        pnlLeft.add(btnView);
 
-        // HÀNG THỨ HAI (CĂN BÊN PHẢI): nút thay đổi nhanh trạng thái phiếu bảo trì
-        JPanel pnlBottomRow = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
-        pnlBottomRow.setOpaque(false);
+        // Bên PHẢI: Nút thay đổi nhanh trạng thái phiếu bảo trì
+        JPanel pnlRight = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+        pnlRight.setOpaque(false);
 
         JLabel lblQuickNote = new JLabel("Cập nhật nhanh trạng thái:");
         lblQuickNote.setFont(UIConstants.FONT_SMALL);
@@ -164,11 +165,11 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
         PageUI.styleSuccessButton(btnDone);
         btnDone.addActionListener(e -> setStatus("HOAN_THANH"));
 
-        pnlBottomRow.add(lblQuickNote);
-        pnlBottomRow.add(btnDone);
+        pnlRight.add(lblQuickNote);
+        pnlRight.add(btnDone);
 
-        pnlToolbar.add(pnlTopRow, BorderLayout.NORTH);
-        pnlToolbar.add(pnlBottomRow, BorderLayout.SOUTH);
+        pnlToolbar.add(pnlLeft, BorderLayout.WEST);
+        pnlToolbar.add(pnlRight, BorderLayout.EAST);
     }
 
     private JPanel createCsvcCard() {
