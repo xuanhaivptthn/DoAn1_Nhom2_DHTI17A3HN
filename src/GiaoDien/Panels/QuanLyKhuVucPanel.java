@@ -22,22 +22,48 @@ import java.awt.FlowLayout;
 import java.util.List;
 
 /**
- * Quản lý khu vực sân bóng: cập nhật thông tin các sân.
- * Tương thích Apache NetBeans GUI Builder Drag & Drop.
+ * Panel Quản lý khu vực sân bóng (QuanLyKhuVucPanel).
+ * <p>
+ * Thực thi Use Case Quản lý khu vực sân bóng:
+ * Quản lý danh sách các khu vực sân bóng (Sân 5 người, Sân 7 người, Sân 11 người),
+ * thực hiện các chức năng xem, thêm sân mới, sửa giá thuê/loại sân/trạng thái hoạt động, xóa sân,
+ * đồng thời kết nối tự động với quy trình bảo trì sân.
+ * </p>
+ * 
+ * @author Nhóm 2 - DHTI17A3HN
+ * @version 1.0
  */
 public class QuanLyKhuVucPanel extends javax.swing.JPanel {
 
+    /**
+     * Model dữ liệu bảng khu vực sân bóng.
+     */
     private DefaultTableModel model;
+
+    /**
+     * Bảng hiển thị danh sách các khu vực sân bóng.
+     */
     private JTable table;
+
+    /**
+     * Nhãn hiển thị số lượng khu vực sân bóng.
+     */
     private JLabel lblCount;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    /** Panel thân nội dung chính */
     private javax.swing.JPanel pnlBody;
+    /** Panel bao bọc phần header tiêu đề trang */
     private javax.swing.JPanel pnlHeaderWrap;
+    /** Panel hình card chứa bảng danh sách khu vực sân */
     private javax.swing.JPanel pnlTableCard;
+    /** Panel thanh công cụ chứa các nút chức năng thêm, sửa, xóa sân */
     private javax.swing.JPanel pnlToolbar;
     // End of variables declaration//GEN-END:variables
 
+    /**
+     * Khởi tạo giao diện Quản lý khu vực sân bóng mới.
+     */
     public QuanLyKhuVucPanel() {
         initComponents();
         customInit();
@@ -45,6 +71,7 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
 
     /**
      * NetBeans GUI Builder generated code initialization.
+     * Khởi tạo linh kiện giao diện tự động bởi NetBeans GUI Builder.
      */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -74,10 +101,14 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
         add(pnlBody, java.awt.BorderLayout.CENTER);
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Cấu hình khởi tạo giao diện tùy chỉnh và bảng hiển thị danh sách khu vực sân bóng.
+     */
     private void customInit() {
         pnlHeaderWrap.add(PageUI.createPageHeader("Quản lý khu vực sân bóng",
                 "Quản lý khu vực sân bóng - Kết quả cập nhật khu vực"), BorderLayout.CENTER);
 
+        // Khởi tạo Model & JTable quản lý khu vực sân
         model = new DefaultTableModel(
                 new String[]{"Mã sân", "Tên sân", "Loại sân", "Giá/giờ", "Trạng thái"}, 0) {
             @Override
@@ -95,6 +126,9 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
         reload();
     }
 
+    /**
+     * Xây dựng thanh công cụ nút bấm chức năng thao tác sân bóng.
+     */
     private void buildToolbar() {
         pnlToolbar.setLayout(new BorderLayout(0, 6));
         pnlToolbar.setOpaque(false);
@@ -124,6 +158,9 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
         pnlToolbar.add(pnlLeft, BorderLayout.WEST);
     }
 
+    /**
+     * Xây dựng card chứa bảng danh sách khu vực sân bóng.
+     */
     private void buildTableCard() {
         JPanel top = new JPanel(new BorderLayout());
         top.setOpaque(false);
@@ -136,6 +173,9 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
         pnlTableCard.add(new javax.swing.JScrollPane(table), BorderLayout.CENTER);
     }
 
+    /**
+     * Nạp lại danh sách các khu vực sân bóng từ DataStore.
+     */
     public void reload() {
         model.setRowCount(0);
         List<KhuVucSan> list = DataStore.get().getKhuVucs();
@@ -149,6 +189,11 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
         lblCount.setText(list.size() + " khu vực");
     }
 
+    /**
+     * Lấy đối tượng KhuVucSan tương ứng với dòng được chọn trong bảng.
+     * 
+     * @return KhuVucSan hoặc null nếu chưa chọn dòng nào
+     */
     private KhuVucSan selected() {
         int row = table.getSelectedRow();
         if (row < 0) return null;
@@ -156,6 +201,9 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
         return DataStore.get().getKhuVucs().stream().filter(k -> maSan.equals(k.getMaSan())).findFirst().orElse(null);
     }
 
+    /**
+     * Xử lý mở hộp thoại thêm mới một khu vực sân bóng.
+     */
     private void onAdd() {
         JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
         KhuVucFormDialog dialog = new KhuVucFormDialog(parent, null);
@@ -180,6 +228,10 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
                 "Kết quả cập nhật khu vực", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    /**
+     * Xử lý mở hộp thoại chỉnh sửa thông tin khu vực sân bóng đang được chọn.
+     * Đồng thời tự động phát hiện chuyển đổi trạng thái Bảo trì ↔ Hoạt động để nhắc nhở quy trình bảo trì.
+     */
     private void onEdit() {
         KhuVucSan sel = selected();
         if (sel == null) {
@@ -197,6 +249,7 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
 
         boolean isSwitchingToBaoTri = !wasBaoTri && ("BaoTri".equalsIgnoreCase(form.getTrangThai()) || "BAO_TRI".equalsIgnoreCase(form.getTrangThai()));
 
+        // Nếu sân từ trạng thái Bảo trì quay lại Hoạt động, hỏi hoàn thành phiếu bảo trì
         if (wasBaoTri && ("SanSang".equalsIgnoreCase(form.getTrangThai()) || "HOAT_DONG".equalsIgnoreCase(form.getTrangThai()))) {
             checkAndUpdateRelatedMaintenance(sel);
         }
@@ -218,11 +271,16 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
         JOptionPane.showMessageDialog(this, "Đã cập nhật khu vực \"" + sel.getMaSan() + "\".",
                 "Kết quả cập nhật khu vực", JOptionPane.INFORMATION_MESSAGE);
 
+        // Nếu sân chuyển sang trạng thái Bảo trì, nhắc lập phiếu bảo trì mới
         if (isSwitchingToBaoTri) {
             promptCreateMaintenanceTicket(sel);
         }
     }
 
+    /**
+     * Xử lý xóa khu vực sân bóng đang chọn khỏi hệ thống.
+     * Ràng buộc: Không cho xóa nếu sân đang có lịch đặt chờ phục vụ hoặc đang diễn ra.
+     */
     private void onDelete() {
         KhuVucSan sel = selected();
         if (sel == null) {
@@ -230,7 +288,7 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
             return;
         }
 
-        // KIỂM TRA LỊCH ĐẶT SÂN ĐANG DIỄN RA / CHỜ PHỤC VỤ (CHƯA HOÀN THÀNH VÀ CHƯA HỦY)
+        // KIỂM TRA LỊCH ĐẶT SÂN ĐANG DIỄN RA / CHỜ PHỤC VỤ TRÊN SÂN
         List<Model.DatLich> activeBookings = DataStore.get().getDatLichs().stream()
                 .filter(d -> (d.getMaSan() != null && d.getMaSan().equalsIgnoreCase(sel.getMaSan()))
                         || (d.getTenSan() != null && d.getTenSan().toLowerCase().contains(sel.getTenSan().toLowerCase())))
@@ -276,6 +334,9 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
         JOptionPane.showMessageDialog(this, "Đã xóa khu vực sân bóng thành công.", "Kết quả cập nhật khu vực", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    /**
+     * Kiểm tra và hỏi xác nhận hoàn thành phiếu bảo trì liên quan khi sân bóng chuyển từ Bảo trì sang Hoạt động.
+     */
     private void checkAndUpdateRelatedMaintenance(KhuVucSan sel) {
         if (sel == null) return;
         List<Model.BaoTri> listBT = DataStore.get().getBaoTris();
@@ -310,6 +371,9 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
         }
     }
 
+    /**
+     * Nhắc nhở người dùng lập phiếu bảo trì mới khi sân bóng được chuyển sang trạng thái 'Bảo trì'.
+     */
     private void promptCreateMaintenanceTicket(KhuVucSan sel) {
         if (sel == null) return;
         int choice = JOptionPane.showConfirmDialog(this,
@@ -353,6 +417,11 @@ public class QuanLyKhuVucPanel extends javax.swing.JPanel {
         }
     }
 
+    /**
+     * Chuyển nhanh trạng thái hoạt động của sân được chọn.
+     * 
+     * @param targetStatus Trạng thái mục tiêu (SanSang, BaoTri, HOAT_DONG, BAO_TRI)
+     */
     private void onQuickSetStatus(String targetStatus) {
         KhuVucSan sel = selected();
         if (sel == null) {

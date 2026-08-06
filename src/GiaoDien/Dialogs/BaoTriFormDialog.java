@@ -23,34 +23,70 @@ import java.awt.Insets;
 import java.util.List;
 
 /**
- * Dialog lập / cập nhật phiếu bảo trì cơ sở vật chất.
- * Tương thích Apache NetBeans GUI Builder Drag & Drop.
+ * Dialog lập / cập nhật phiếu bảo trì cơ sở vật chất sân bóng.
+ * <p>
+ * Cho phép tạo phiếu bảo trì mới hoặc chỉnh sửa thông tin bảo trì hiện có.
+ * Hỗ trợ chọn ngày từ ChonNgayDialog và tự động cảnh báo nếu ngày bảo trì bị trùng với các lịch đặt sân hiện tại.
+ * </p>
+ *
+ * @author Nhóm 2 - DHTI17A3HN
+ * @version 1.0
  */
 public class BaoTriFormDialog extends JDialog {
 
+    /** Combobox chọn khu vực sân bóng cần bảo trì */
     private JComboBox<KhuVucSan> cboSan;
+
+    /** Ô nhập nội dung chi tiết công việc bảo trì */
     private JTextField txtNoiDung;
+
+    /** Ô nhập ngày bắt đầu bảo trì (YYYY-MM-DD) */
     private JTextField txtNgayBatDau;
+
+    /** Ô nhập ngày kết thúc bảo trì (YYYY-MM-DD) */
     private JTextField txtNgayKetThuc;
+
+    /** Combobox chọn trạng thái phiếu bảo trì ("Đang bảo trì", "Hoàn thành", "Đã hủy") */
     private JComboBox<String> cboTrangThai;
 
+    /** Trạng thái chế độ form: true nếu đang sửa thông tin, false nếu tạo mới */
     private boolean isEdit;
+
+    /** Đối tượng phiếu bảo trì ban đầu được truyền vào để chỉnh sửa */
     private BaoTri original;
+
+    /** Đối tượng phiếu bảo trì kết quả thu được sau khi nhấn Lưu thành công */
     private BaoTri result;
+
+    /** Trạng thái xác nhận của hộp thoại */
     private boolean confirmed;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    /** Nhãn tiêu đề header */
     private javax.swing.JLabel lblHeaderTitle;
+    /** Panel bọc phần nội dung trung tâm */
     private javax.swing.JPanel pnlCenterWrap;
+    /** Panel chứa các nút bấm hoàn tất/hủy phía dưới */
     private javax.swing.JPanel pnlFooter;
+    /** Panel chứa các ô thông tin form nhập liệu */
     private javax.swing.JPanel pnlFormCard;
+    /** Panel header màu sắc chính ở phía trên */
     private javax.swing.JPanel pnlHeader;
     // End of variables declaration//GEN-END:variables
 
+    /**
+     * Constructor mặc định phục vụ GUI Builder.
+     */
     public BaoTriFormDialog() {
         this(null, null);
     }
 
+    /**
+     * Khởi tạo dialog lập mới hoặc cập nhật thông tin phiếu bảo trì.
+     *
+     * @param parent   Cửa sổ cha (JFrame)
+     * @param existing Phiếu bảo trì hiện tại nếu sửa, hoặc null nếu tạo phiếu mới
+     */
     public BaoTriFormDialog(JFrame parent, BaoTri existing) {
         super(parent, existing == null ? "Lập phiếu bảo trì" : "Cập nhật phiếu bảo trì", true);
         this.isEdit = existing != null;
@@ -61,7 +97,7 @@ public class BaoTriFormDialog extends JDialog {
     }
 
     /**
-     * NetBeans GUI Builder generated code initialization.
+     * Khởi tạo các thành phần giao diện do NetBeans GUI Builder tạo ra.
      */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -107,6 +143,11 @@ public class BaoTriFormDialog extends JDialog {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Cấu hình giao diện mở rộng, thêm trường chọn ngày và liên kết các sự kiện form.
+     *
+     * @param parent Cửa sổ cha
+     */
     private void customInit(JFrame parent) {
         setSize(480, 540);
         if (parent != null) setLocationRelativeTo(parent);
@@ -118,6 +159,7 @@ public class BaoTriFormDialog extends JDialog {
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
+        // 1. Nạp danh sách khu vực sân từ DataStore
         List<KhuVucSan> sans = DataStore.get().getKhuVucs();
         cboSan = new JComboBox<>(sans.toArray(new KhuVucSan[0]));
         styleCombo(cboSan);
@@ -125,21 +167,26 @@ public class BaoTriFormDialog extends JDialog {
         int row = 0;
         row = addField(pnlFormCard, gbc, row, "Khu vực sân *", cboSan);
 
+        // 2. Ô nội dung bảo trì
         txtNoiDung = new javax.swing.JTextField(18);
         row = addField(pnlFormCard, gbc, row, "Nội dung bảo trì *", txtNoiDung);
 
+        // 3. Chọn ngày bắt đầu bảo trì
         txtNgayBatDau = new javax.swing.JTextField();
         JPanel pnlNbd = createDatePickerPanel(txtNgayBatDau, parent);
         row = addField(pnlFormCard, gbc, row, "Ngày bắt đầu *", pnlNbd);
 
+        // 4. Chọn ngày kết thúc bảo trì
         txtNgayKetThuc = new javax.swing.JTextField();
         JPanel pnlNkt = createDatePickerPanel(txtNgayKetThuc, parent);
         row = addField(pnlFormCard, gbc, row, "Ngày kết thúc", pnlNkt);
 
+        // 5. Combobox trạng thái phiếu bảo trì
         cboTrangThai = new JComboBox<>(new String[]{"Đang bảo trì", "Hoàn thành", "Đã hủy"});
         styleCombo(cboTrangThai);
         addField(pnlFormCard, gbc, row, "Trạng thái BT", cboTrangThai);
 
+        // 6. Nút Hủy và Lưu
         JButton btnCancel = new javax.swing.JButton("Hủy");
         Utils.PageUI.styleSecondaryButton(btnCancel);
         btnCancel.addActionListener(e -> {
@@ -154,6 +201,7 @@ public class BaoTriFormDialog extends JDialog {
         pnlFooter.add(btnCancel);
         pnlFooter.add(btnSave);
 
+        // Nếu là sửa thông tin thì đổ dữ liệu cũ, ngược lại để ngày bắt đầu mặc định là hôm nay
         if (isEdit && original != null) {
             fillForm(original);
         } else {
@@ -163,6 +211,16 @@ public class BaoTriFormDialog extends JDialog {
         getRootPane().setDefaultButton(btnSave);
     }
 
+    /**
+     * Thêm một dòng thông tin gồm nhãn và ô điều khiển vào panel form.
+     *
+     * @param form  Panel form
+     * @param gbc   GridBagConstraints
+     * @param row   Chỉ số dòng
+     * @param label Tiêu đề nhãn
+     * @param field Thành phần UI điều khiển
+     * @return Dòng kế tiếp
+     */
     private int addField(JPanel form, GridBagConstraints gbc, int row, String label, java.awt.Component field) {
         gbc.gridx = 0;
         gbc.gridy = row;
@@ -177,12 +235,22 @@ public class BaoTriFormDialog extends JDialog {
         return row + 1;
     }
 
+    /**
+     * Thiết lập font chữ và màu sắc cho JComboBox.
+     *
+     * @param combo Combobox cần áp dụng kiểu dáng
+     */
     private void styleCombo(JComboBox<?> combo) {
         combo.setFont(UIConstants.FONT_NORMAL);
         combo.setBackground(Color.WHITE);
         combo.setForeground(UIConstants.TEXT_PRIMARY);
     }
 
+    /**
+     * Đổ dữ liệu từ đối tượng phiếu bảo trì có sẵn vào các ô điều khiển trên giao diện.
+     *
+     * @param b Đối tượng BaoTri chứa thông tin cũ
+     */
     private void fillForm(BaoTri b) {
         for (int i = 0; i < cboSan.getItemCount(); i++) {
             KhuVucSan k = cboSan.getItemAt(i);
@@ -198,23 +266,30 @@ public class BaoTriFormDialog extends JDialog {
         cboTrangThai.setSelectedItem(b.getTrangThaiHienThi());
     }
 
+    /**
+     * Xử lý lưu thông tin phiếu bảo trì.
+     * Thực hiện kiểm tra tính hợp lệ dữ liệu, phát hiện trùng lịch đặt sân và tạo đối tượng BaoTri kết quả.
+     */
     private void onSave() {
         KhuVucSan san = (KhuVucSan) cboSan.getSelectedItem();
         String nd = txtNoiDung.getText().trim();
         String nbd = txtNgayBatDau.getText().trim();
 
+        // 1. Validate khu vực sân
         if (san == null) {
             JOptionPane.showMessageDialog(this, "Vui lòng chọn khu vực sân bóng cần bảo trì.", "Thông báo", JOptionPane.WARNING_MESSAGE);
             cboSan.requestFocus();
             return;
         }
 
+        // 2. Validate nội dung bảo trì
         if (nd.isEmpty() || nd.length() < 3) {
             JOptionPane.showMessageDialog(this, "Nội dung bảo trì không hợp lệ! Vui lòng nhập từ 3 ký tự trở lên.", "Thông báo", JOptionPane.WARNING_MESSAGE);
             txtNoiDung.requestFocus();
             return;
         }
 
+        // 3. Validate ngày bắt đầu
         if (nbd.isEmpty() || !nbd.matches("^\\d{4}-\\d{2}-\\d{2}$")) {
             JOptionPane.showMessageDialog(this, "Ngày bắt đầu bảo trì không hợp lệ! Vui lòng nhập theo định dạng YYYY-MM-DD (ví dụ: 2026-08-05).", "Thông báo", JOptionPane.WARNING_MESSAGE);
             txtNgayBatDau.requestFocus();
@@ -230,6 +305,7 @@ public class BaoTriFormDialog extends JDialog {
             return;
         }
 
+        // 4. Validate ngày kết thúc (nếu có)
         String nkt = txtNgayKetThuc.getText().trim();
         if (!nkt.isEmpty()) {
             if (!nkt.matches("^\\d{4}-\\d{2}-\\d{2}$")) {
@@ -251,7 +327,7 @@ public class BaoTriFormDialog extends JDialog {
             }
         }
 
-        // KIỂM TRA LỊCH ĐẶT SÂN ĐÃ CÓ TRONG THỜI GIAN BẢO TRÌ NÀY
+        // 5. KIỂM TRA LỊCH ĐẶT SÂN ĐÃ CÓ TRONG THỜI GIAN BẢO TRÌ NÀY
         List<Model.DatLich> conflictingBookings = DataStore.get().getDatLichs().stream()
                 .filter(d -> san.getMaSan() != null && san.getMaSan().equals(d.getMaSan())
                         && !"DaHuy".equalsIgnoreCase(d.getTrangThai())
@@ -283,12 +359,14 @@ public class BaoTriFormDialog extends JDialog {
             JOptionPane.showMessageDialog(this, sb.toString(), "Cảnh báo trùng lịch đặt sân", JOptionPane.WARNING_MESSAGE);
         }
 
+        // 6. Ánh xạ trạng thái hiển thị thành mã trạng thái dữ liệu
         String trangThaiPhieu = switch ((String) cboTrangThai.getSelectedItem()) {
             case "Hoàn thành" -> "HOAN_THANH";
             case "Đã hủy" -> "HUY";
             default -> "DANG_BAO_TRI"; // "Đang bảo trì"
         };
 
+        // 7. Tạo đối tượng kết quả
         result = new BaoTri();
         result.setMaPhieuBaoTri(isEdit ? original.getMaPhieuBaoTri() : "");
         result.setMaSan(san.getMaSan());
@@ -302,6 +380,14 @@ public class BaoTriFormDialog extends JDialog {
         dispose();
     }
 
+    /**
+     * Kiểm tra xem ngày đặt sân có rơi vào khoảng thời gian bảo trì hay không.
+     *
+     * @param bookingDateStr Chuỗi ngày đặt sân (YYYY-MM-DD)
+     * @param startDateStr   Chuỗi ngày bắt đầu bảo trì (YYYY-MM-DD)
+     * @param endDateStr     Chuỗi ngày kết thúc bảo trì (YYYY-MM-DD)
+     * @return true nếu ngày đặt sân nằm trong khoảng bảo trì
+     */
     private boolean isDateInMaintenanceRange(String bookingDateStr, String startDateStr, String endDateStr) {
         if (bookingDateStr == null || bookingDateStr.isBlank()) return false;
         if (startDateStr == null || startDateStr.isBlank()) return false;
@@ -320,10 +406,32 @@ public class BaoTriFormDialog extends JDialog {
         }
     }
 
+    /**
+     * Lấy trạng thái người dùng đã xác nhận hay chưa.
+     *
+     * @return true nếu đã bấm nút Lưu/Cập nhật thành công
+     */
     public boolean isConfirmed() { return confirmed; }
+
+    /**
+     * Lấy đối tượng BaoTri được tạo hoặc chỉnh sửa từ form.
+     *
+     * @return Đối tượng BaoTri kết quả
+     */
     public BaoTri getResult() { return result; }
+
+    /**
+     * Lấy khu vực sân đang được chọn trên combobox.
+     *
+     * @return Đối tượng KhuVucSan
+     */
     public KhuVucSan getSelectedSan() { return (KhuVucSan) cboSan.getSelectedItem(); }
 
+    /**
+     * Chọn sẵn khu vực sân bóng hiển thị trên combobox.
+     *
+     * @param targetSan KhuVucSan cần chọn mặc định
+     */
     public void setSelectedSan(KhuVucSan targetSan) {
         if (targetSan == null || cboSan == null) return;
         for (int i = 0; i < cboSan.getItemCount(); i++) {
@@ -335,6 +443,13 @@ public class BaoTriFormDialog extends JDialog {
         }
     }
 
+    /**
+     * Tạo một panel kết hợp ô nhập ngày và nút bấm biểu tượng lịch chọn ngày.
+     *
+     * @param txtField Trường JTextField để nhận ngày
+     * @param parent   Cửa sổ cha JFrame
+     * @return JPanel chứa thành phần chọn ngày
+     */
     private JPanel createDatePickerPanel(JTextField txtField, JFrame parent) {
         JPanel pnl = new JPanel(new BorderLayout(4, 0));
         pnl.setOpaque(false);
@@ -358,6 +473,12 @@ public class BaoTriFormDialog extends JDialog {
         return pnl;
     }
 
+    /**
+     * Mở ChonNgayDialog để người dùng chọn ngày từ giao diện lịch cả tháng.
+     *
+     * @param txtField Ô JTextField cần gán kết quả ngày
+     * @param parent   Cửa sổ cha JFrame
+     */
     private void openDatePickerFor(JTextField txtField, JFrame parent) {
         java.time.LocalDate initDate = java.time.LocalDate.now();
         try {

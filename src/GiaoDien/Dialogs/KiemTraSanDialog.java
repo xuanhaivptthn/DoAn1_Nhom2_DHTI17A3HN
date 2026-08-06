@@ -22,38 +22,73 @@ import java.awt.Insets;
 import java.util.List;
 
 /**
- * Dialog kiểm tra sân khả dụng.
+ * Hộp thoại (JDialog) hỗ trợ kiểm tra tính khả dụng của sân bóng theo ngày và khung giờ chọn.
+ * <p>
+ * Dialog hỗ trợ lọc danh sách sân bóng không bảo trì, chọn ngày qua bộ chọn lịch
+ * và cảnh báo nếu sân chọn đang thuộc lịch bảo trì thiết bị/cơ sở vật chất.
+ * </p>
  * Tương thích Apache NetBeans GUI Builder Drag & Drop.
  */
 public class KiemTraSanDialog extends JDialog {
 
+    /** Combobox lựa chọn sân bóng cần kiểm tra */
     private JComboBox<KhuVucSan> cboSan;
+
+    /** Ô nhập/hiển thị ngày kiểm tra */
     private JTextField txtNgay;
+
+    /** Ô nhập giờ bắt đầu (HH:mm) */
     private JTextField txtGioBatDau;
+
+    /** Ô nhập giờ kết thúc (HH:mm) */
     private JTextField txtGioKetThuc;
 
+    /** Sân bóng được lựa chọn sau khi người dùng bấm Kiểm tra */
     private KhuVucSan selectedSan;
+
+    /** Ngày kiểm tra đã chọn */
     private String ngay;
+
+    /** Giờ bắt đầu đã chọn */
     private String gioBatDau;
+
+    /** Giờ kết thúc đã chọn */
     private String gioKetThuc;
+
+    /** Cờ xác nhận đã bấm kiểm tra thành công */
     private boolean confirmed;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    /** Nhãn tiêu đề header dialog */
     private javax.swing.JLabel lblHeaderTitle;
+    /** Panel bọc phần nội dung trung tâm */
     private javax.swing.JPanel pnlCenterWrap;
+    /** Panel footer chứa các nút hành động */
     private javax.swing.JPanel pnlFooter;
+    /** Panel card form GridBagLayout */
     private javax.swing.JPanel pnlFormCard;
+    /** Panel header trên cùng */
     private javax.swing.JPanel pnlHeader;
     // End of variables declaration//GEN-END:variables
 
+    /**
+     * Khởi tạo dialog kiểm tra sân mặc định.
+     */
     public KiemTraSanDialog() {
         this(null);
     }
 
+    /**
+     * Khởi tạo dialog kiểm tra sân với cửa sổ cha chỉ định.
+     *
+     * @param parent Cửa sổ cha (JFrame)
+     */
     public KiemTraSanDialog(JFrame parent) {
         super(parent, "Kiểm tra sân khả dụng", true);
 
+        // Khởi tạo thành phần GUI NetBeans
         initComponents();
+        // Cấu hình bố cục chi tiết
         customInit(parent);
     }
 
@@ -102,6 +137,11 @@ public class KiemTraSanDialog extends JDialog {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Khởi tạo giao diện nhập liệu chi tiết và nạp danh sách sân bóng không bảo trì.
+     *
+     * @param parent Cửa sổ cha dùng để căn giữa dialog
+     */
     private void customInit(JFrame parent) {
         setSize(450, 380);
         if (parent != null) setLocationRelativeTo(parent);
@@ -111,6 +151,7 @@ public class KiemTraSanDialog extends JDialog {
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
+        // Tải danh sách các sân bóng hoạt động bình thường
         List<KhuVucSan> sans = DataStore.get().getKhuVucsKhongBaoTri();
         cboSan = new JComboBox<>(sans.toArray(new KhuVucSan[0]));
         styleCombo(cboSan);
@@ -118,25 +159,30 @@ public class KiemTraSanDialog extends JDialog {
         int row = 0;
         row = addField(pnlFormCard, gbc, row, "Khu vực sân *", cboSan);
 
+        // Ô chọn ngày kiểm tra tích hợp bộ chọn lịch
         txtNgay = new javax.swing.JTextField();
         txtNgay.setText(java.time.LocalDate.now().toString());
         JPanel pnlNgay = createDatePickerPanel(txtNgay, (JFrame) getOwner());
         row = addField(pnlFormCard, gbc, row, "Ngày kiểm tra *", pnlNgay);
 
+        // Khung nhập giờ bắt đầu
         txtGioBatDau = new javax.swing.JTextField(16);
         txtGioBatDau.setText("18:00");
         row = addField(pnlFormCard, gbc, row, "Giờ bắt đầu *", txtGioBatDau);
 
+        // Khung nhập giờ kết thúc
         txtGioKetThuc = new javax.swing.JTextField(16);
         txtGioKetThuc.setText("19:00");
         addField(pnlFormCard, gbc, row, "Giờ kết thúc *", txtGioKetThuc);
 
+        // Nút Đóng
         JButton btnCancel = new javax.swing.JButton("Đóng");
         btnCancel.addActionListener(e -> {
             confirmed = false;
             dispose();
         });
 
+        // Nút Kiểm tra
         JButton btnCheck = new javax.swing.JButton("Kiểm tra");
         btnCheck.addActionListener(e -> onCheck());
 
@@ -146,6 +192,16 @@ public class KiemTraSanDialog extends JDialog {
         getRootPane().setDefaultButton(btnCheck);
     }
 
+    /**
+     * Thêm hàng gồm nhãn và trường dữ liệu vào form GridBagLayout.
+     *
+     * @param form  Panel form
+     * @param gbc   Cấu hình GridBagConstraints
+     * @param row   Chỉ số hàng
+     * @param label Tiêu đề nhãn
+     * @param field Thành phần nhập liệu
+     * @return Chỉ số hàng tiếp theo
+     */
     private int addField(JPanel form, GridBagConstraints gbc, int row, String label, java.awt.Component field) {
         gbc.gridx = 0;
         gbc.gridy = row;
@@ -160,23 +216,33 @@ public class KiemTraSanDialog extends JDialog {
         return row + 1;
     }
 
+    /**
+     * Áp dụng kiểu phông và màu cho combobox.
+     *
+     * @param combo Combobox cần định dạng
+     */
     private void styleCombo(JComboBox<?> combo) {
         combo.setFont(UIConstants.FONT_NORMAL);
         combo.setBackground(Color.WHITE);
         combo.setForeground(UIConstants.TEXT_PRIMARY);
     }
 
+    /**
+     * Kiểm tra tính hợp lệ dữ liệu và trạng thái bảo trì của sân bóng đã chọn.
+     */
     private void onCheck() {
         selectedSan = (KhuVucSan) cboSan.getSelectedItem();
         ngay = txtNgay.getText().trim();
         gioBatDau = txtGioBatDau.getText().trim();
         gioKetThuc = txtGioKetThuc.getText().trim();
 
+        // 1. Vui lòng điền đầy đủ các ô dữ liệu
         if (selectedSan == null || ngay.isEmpty() || gioBatDau.isEmpty() || gioKetThuc.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin.", "Thông báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
+        // 2. Kiểm tra nếu sân chọn đang bị bảo trì vào ngày đã nhập
         if (DataStore.get().isSanBaoTriVoiNgay(selectedSan, ngay)) {
             JOptionPane.showMessageDialog(this,
                     "[!] KHÔNG THỂ ĐẶT SÂN ĐANG BẢO TRÌ!\n\n"
@@ -190,12 +256,48 @@ public class KiemTraSanDialog extends JDialog {
         dispose();
     }
 
+    /**
+     * Trả về kết quả người dùng đã bấm Kiểm tra thành công hay chưa.
+     *
+     * @return {@code true} nếu thành công, {@code false} nếu chưa
+     */
     public boolean isConfirmed() { return confirmed; }
+
+    /**
+     * Lấy sân bóng được chọn.
+     *
+     * @return Đối tượng {@link KhuVucSan}
+     */
     public KhuVucSan getSelectedSan() { return selectedSan; }
+
+    /**
+     * Lấy ngày kiểm tra.
+     *
+     * @return Chuỗi ngày (YYYY-MM-DD)
+     */
     public String getNgay() { return ngay; }
+
+    /**
+     * Lấy giờ bắt đầu.
+     *
+     * @return Chuỗi giờ (HH:mm)
+     */
     public String getGioBatDau() { return gioBatDau; }
+
+    /**
+     * Lấy giờ kết thúc.
+     *
+     * @return Chuỗi giờ (HH:mm)
+     */
     public String getGioKetThuc() { return gioKetThuc; }
 
+    /**
+     * Tạo panel chứa ô nhập ngày cùng nút icon mở bộ chọn lịch.
+     *
+     * @param txtField Ô JTextField nhập ngày
+     * @param parent   Cửa sổ cha (JFrame)
+     * @return Panel chứa giao diện bộ chọn ngày
+     */
     private JPanel createDatePickerPanel(JTextField txtField, JFrame parent) {
         JPanel pnl = new JPanel(new BorderLayout(4, 0));
         pnl.setOpaque(false);
@@ -219,6 +321,12 @@ public class KiemTraSanDialog extends JDialog {
         return pnl;
     }
 
+    /**
+     * Mở hộp thoại chọn ngày dạng lịch cho ô text được chỉ định.
+     *
+     * @param txtField Ô JTextField cần cập nhật ngày
+     * @param parent   Cửa sổ cha (JFrame)
+     */
     private void openDatePickerFor(JTextField txtField, JFrame parent) {
         java.time.LocalDate initDate = java.time.LocalDate.now();
         try {

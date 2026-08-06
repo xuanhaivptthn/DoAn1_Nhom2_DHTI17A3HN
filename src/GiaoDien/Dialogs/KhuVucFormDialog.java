@@ -22,42 +22,79 @@ import java.awt.GridBagConstraints;
 import java.awt.Insets;
 
 /**
- * Dialog thêm / sửa khu vực sân bóng.
- * Mã sân bóng tự động phát sinh và ẩn khỏi giao diện nhập liệu.
+ * Hộp thoại (JDialog) hỗ trợ thêm mới và cập nhật khu vực sân bóng (Sân 5, Sân 7, Sân 11).
+ * <p>
+ * Mã sân bóng sẽ được tự động sinh mã hệ thống, ẩn khỏi giao diện nhập liệu.
+ * Dialog hỗ trợ kiểm tra tên sân trùng lặp, đơn giá thuê theo giờ phải lớn hơn 0,
+ * cũng như quản lý trạng thái hoạt động / bảo trì của sân bóng.
+ * </p>
  */
 public class KhuVucFormDialog extends JDialog {
 
+    /** Ô nhập tên sân bóng */
     private JTextField txtTenSan;
+
+    /** Combobox chọn loại sân bóng (Sân 5 người, Sân 7 người, Sân 11 người) */
     private JComboBox<String> cboLoaiSan;
+
+    /** Ô nhập giá thuê sân bóng theo giờ (VNĐ) */
     private JTextField txtGiaTheoGio;
+
+    /** Combobox chọn trạng thái sân (Sẵn sàng / Đang Bảo trì) */
     private JComboBox<String> cboTrangThai;
 
+    /** Cờ đánh dấu chế độ chỉnh sửa (true) hay thêm mới (false) */
     private boolean isEdit;
+
+    /** Đối tượng khu vực sân bóng gốc trước khi chỉnh sửa */
     private KhuVucSan original;
+
+    /** Đối tượng khu vực sân bóng kết quả sau khi lưu thành công */
     private KhuVucSan result;
+
+    /** Cờ đánh dấu người dùng đã xác nhận lưu hay chưa */
     private boolean confirmed;
 
     // Variables declaration - do not modify
+    /** Nhãn tiêu đề header dialog */
     private javax.swing.JLabel lblHeaderTitle;
+    /** Panel bọc phần nội dung trung tâm */
     private javax.swing.JPanel pnlCenterWrap;
+    /** Panel footer chứa các nút bấm hành động */
     private javax.swing.JPanel pnlFooter;
+    /** Panel chứa các ô nhập liệu dạng GridBagLayout */
     private javax.swing.JPanel pnlFormCard;
+    /** Panel header tiêu đề dialog */
     private javax.swing.JPanel pnlHeader;
     // End of variables declaration
 
+    /**
+     * Khởi tạo dialog khu vực sân mặc định.
+     */
     public KhuVucFormDialog() {
         this(null, null);
     }
 
+    /**
+     * Khởi tạo dialog khu vực sân bóng với thông tin có sẵn hoặc thêm mới.
+     *
+     * @param parent   Cửa sổ cha (JFrame)
+     * @param existing Đối tượng {@link KhuVucSan} cần cập nhật hoặc {@code null} nếu thêm mới
+     */
     public KhuVucFormDialog(JFrame parent, KhuVucSan existing) {
         super(parent, existing == null ? "Thêm khu vực sân bóng" : "Cập nhật khu vực sân bóng", true);
         this.isEdit = existing != null;
         this.original = existing;
 
+        // Khởi tạo thành phần GUI cơ bản
         initComponents();
+        // Cấu hình giao diện tùy chỉnh
         customInit(parent);
     }
 
+    /**
+     * Khởi tạo giao diện cấu trúc theo NetBeans GUI Builder.
+     */
     private void initComponents() {
         pnlHeader = new javax.swing.JPanel();
         lblHeaderTitle = new javax.swing.JLabel();
@@ -100,6 +137,11 @@ public class KhuVucFormDialog extends JDialog {
         setLocationRelativeTo(null);
     }
 
+    /**
+     * Khởi tạo các ô nhập tên sân, loại sân, giá giờ và trạng thái sân.
+     *
+     * @param parent Cửa sổ cha dùng định vị vị trí hiển thị dialog
+     */
     private void customInit(JFrame parent) {
         setSize(460, 360);
         if (parent != null) setLocationRelativeTo(parent);
@@ -112,32 +154,39 @@ public class KhuVucFormDialog extends JDialog {
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         int row = 0;
+        // Ô nhập tên sân
         txtTenSan = new javax.swing.JTextField(16);
         row = addField(pnlFormCard, gbc, row, "Tên sân *", txtTenSan);
 
+        // Combobox quy mô / loại sân bóng
         cboLoaiSan = new JComboBox<>(new String[]{"Sân 5 người", "Sân 7 người", "Sân 11 người"});
         styleCombo(cboLoaiSan);
         row = addField(pnlFormCard, gbc, row, "Loại sân *", cboLoaiSan);
 
+        // Ô nhập đơn giá theo giờ
         txtGiaTheoGio = new javax.swing.JTextField(16);
         row = addField(pnlFormCard, gbc, row, "Giá/giờ (VNĐ) *", txtGiaTheoGio);
 
+        // Combobox chọn trạng thái hoạt động của sân
         cboTrangThai = new JComboBox<>(new String[]{"Sẵn sàng", "Đang Bảo trì"});
         styleCombo(cboTrangThai);
         addField(pnlFormCard, gbc, row, "Trạng thái *", cboTrangThai);
 
+        // Nút Hủy
         JButton btnCancel = new javax.swing.JButton("Hủy");
         btnCancel.addActionListener(e -> {
             confirmed = false;
             dispose();
         });
 
+        // Nút Lưu/Cập nhật
         JButton btnSave = new javax.swing.JButton(isEdit ? "Cập nhật" : "Lưu");
         btnSave.addActionListener(e -> onSave());
 
         pnlFooter.add(btnCancel);
         pnlFooter.add(btnSave);
 
+        // Đổ thông tin dữ liệu sân có sẵn
         if (isEdit && original != null) {
             fillForm(original);
         }
@@ -145,6 +194,16 @@ public class KhuVucFormDialog extends JDialog {
         getRootPane().setDefaultButton(btnSave);
     }
 
+    /**
+     * Thêm hàng gồm tiêu đề và ô nhập liệu vào panel form GridBag.
+     *
+     * @param form  Panel chứa form
+     * @param gbc   GridBagConstraints
+     * @param row   Chỉ số hàng
+     * @param label Chuỗi nhãn tiêu đề
+     * @param field Thành phần nhập liệu
+     * @return Chỉ số hàng tiếp theo
+     */
     private int addField(JPanel form, GridBagConstraints gbc, int row, String label, java.awt.Component field) {
         gbc.gridx = 0;
         gbc.gridy = row;
@@ -159,12 +218,22 @@ public class KhuVucFormDialog extends JDialog {
         return row + 1;
     }
 
+    /**
+     * Định dạng combobox theo chuẩn thiết kế UIConstants.
+     *
+     * @param combo Combobox cần định dạng
+     */
     private void styleCombo(JComboBox<?> combo) {
         combo.setFont(UIConstants.FONT_NORMAL);
         combo.setBackground(Color.WHITE);
         combo.setForeground(UIConstants.TEXT_PRIMARY);
     }
 
+    /**
+     * Đổ dữ liệu đối tượng KhuVucSan lên giao diện form.
+     *
+     * @param k Đối tượng khu vực sân bóng
+     */
     private void fillForm(KhuVucSan k) {
         txtTenSan.setText(k.getTenSan());
         cboLoaiSan.setSelectedItem(k.getLoaiSanHienThi());
@@ -177,18 +246,24 @@ public class KhuVucFormDialog extends JDialog {
         }
     }
 
+    /**
+     * Thực hiện kiểm tra tính hợp lệ dữ liệu đầu vào và lưu thông tin khu vực sân.
+     */
     private void onSave() {
         String ten = txtTenSan.getText().trim();
         String giaStr = txtGiaTheoGio.getText().trim().replace(",", "").replace(".", "");
 
+        // 1. Kiểm tra tên sân
         if (ten.isEmpty() || ten.length() < 2) {
             JOptionPane.showMessageDialog(this, "Tên sân không hợp lệ! Vui lòng nhập từ 2 ký tự trở lên.", "Thông báo", JOptionPane.WARNING_MESSAGE);
             txtTenSan.requestFocus();
             return;
         }
 
+        // Tự động phát sinh mã sân mới nếu thêm mới
         String ma = isEdit ? original.getMaSan() : Utils.CodeGen.next("SAN", DataStore.get().getKhuVucs().stream().map(KhuVucSan::getMaSan).toList(), 3);
 
+        // 2. Kiểm tra trùng tên sân trong hệ thống
         boolean tenExists = DataStore.get().getKhuVucs().stream()
                 .anyMatch(k -> k.getTenSan() != null && k.getTenSan().equalsIgnoreCase(ten)
                         && (isEdit ? !k.getMaSan().equalsIgnoreCase(original.getMaSan()) : true));
@@ -200,6 +275,7 @@ public class KhuVucFormDialog extends JDialog {
             return;
         }
 
+        // 3. Kiểm tra giá thuê theo giờ phải là số dương lớn hơn 0
         double price;
         try {
             price = Double.parseDouble(giaStr);
@@ -214,21 +290,35 @@ public class KhuVucFormDialog extends JDialog {
             return;
         }
 
+        // Ánh xạ mã loại sân
         String loaiCode = switch ((String) cboLoaiSan.getSelectedItem()) {
             case "Sân 7 người" -> "San7";
             case "Sân 11 người" -> "San11";
             default -> "San5";
         };
+        // Ánh xạ mã trạng thái
         String ttCode = switch ((String) cboTrangThai.getSelectedItem()) {
             case "Đang Bảo trì" -> "BAO_TRI";
             default -> "HOAT_DONG";
         };
 
+        // Đóng gói đối tượng KhuVucSan kết quả
         result = new KhuVucSan(ma, ten, loaiCode, price, ttCode);
         confirmed = true;
         dispose();
     }
 
+    /**
+     * Trả về trạng thái lưu thành công.
+     *
+     * @return {@code true} nếu đã xác nhận, ngược lại {@code false}
+     */
     public boolean isConfirmed() { return confirmed; }
+
+    /**
+     * Lấy đối tượng khu vực sân bóng kết quả.
+     *
+     * @return Đối tượng {@link KhuVucSan}
+     */
     public KhuVucSan getResult() { return result; }
 }

@@ -25,53 +25,107 @@ import java.awt.Insets;
 import java.util.function.Predicate;
 
 /**
- * Dialog thêm / sửa tài khoản dùng chung cho cả Chủ sân và Nhân viên.
+ * Hộp thoại (JDialog) thêm mới và cập nhật tài khoản người dùng hệ thống dùng chung cho cả Chủ sân và Nhân viên.
+ * <p>
+ * Dialog hỗ trợ đăng ký/sửa thông tin tài khoản, độ dài tên đăng nhập, xác nhận mật khẩu,
+ * phân quyền vai trò (Admin, Nhân viên, Chủ sân) và tự động thay đổi hiển thị các trường liên quan (như Địa chỉ khi chọn vai trò Nhân viên).
+ * </p>
  */
 public class TaiKhoanFormDialog extends JDialog {
 
+    /** Ô nhập tên đăng nhập */
     private JTextField txtTenDangNhap;
+
+    /** Ô nhập mật khẩu */
     private JPasswordField txtMatKhau;
+
+    /** Ô nhập xác nhận lại mật khẩu */
     private JPasswordField txtXacNhanMatKhau;
+
+    /** Combobox chọn vai trò (Admin / Nhân viên / Chủ sân) */
     private JComboBox<String> cboVaiTro;
+
+    /** Combobox chọn trạng thái tài khoản (Hoạt động / Khóa) */
     private JComboBox<String> cboTrangThai;
 
+    /** Ô nhập họ và tên chủ tài khoản */
     private JTextField txtHoTen;
+
+    /** Ô nhập số điện thoại chủ tài khoản */
     private JTextField txtSoDienThoai;
+
+    /** Nhãn tiêu đề cho ô Địa chỉ (ẩn/hiện tùy thuộc vai trò) */
     private JLabel lblDiaChi;
+
+    /** Ô nhập địa chỉ liên hệ (dành cho nhân viên) */
     private JTextField txtDiaChi;
 
+    /** Cờ đánh dấu chế độ sửa (true) hay thêm mới (false) */
     private boolean isEdit;
+
+    /** Đối tượng tài khoản gốc trước khi sửa */
     private TaiKhoan original;
+
+    /** Hàm kiểm tra trùng tên đăng nhập */
     private Predicate<String> usernameExistsChecker;
 
+    /** Đối tượng tài khoản kết quả sau khi lưu */
     private TaiKhoan result;
+
+    /** Cờ đánh dấu người dùng đã lưu thành công hay chưa */
     private boolean confirmed;
+
+    /** Họ tên bổ sung cho chủ tài khoản */
     private String hoTen;
+
+    /** Số điện thoại bổ sung cho chủ tài khoản */
     private String soDienThoai;
+
+    /** Địa chỉ bổ sung cho nhân viên */
     private String diaChi;
 
     // Variables declaration - do not modify
+    /** Nhãn tiêu đề header dialog */
     private javax.swing.JLabel lblHeaderTitle;
+    /** Panel bọc phần nội dung trung tâm */
     private javax.swing.JPanel pnlCenterWrap;
+    /** Panel footer chứa các nút hành động */
     private javax.swing.JPanel pnlFooter;
+    /** Panel form card chứa GridBagLayout */
     private javax.swing.JPanel pnlFormCard;
+    /** Panel header tiêu đề dialog */
     private javax.swing.JPanel pnlHeader;
     // End of variables declaration
 
+    /**
+     * Khởi tạo dialog tài khoản mặc định.
+     */
     public TaiKhoanFormDialog() {
         this(null, null, null);
     }
 
+    /**
+     * Khởi tạo dialog tài khoản với đối tượng sẵn có và hàm kiểm tra trùng tên đăng nhập.
+     *
+     * @param parent                 Cửa sổ cha (JFrame)
+     * @param existing               Đối tượng {@link TaiKhoan} cần sửa hoặc {@code null} nếu thêm mới
+     * @param usernameExistsChecker  Hàm lambda kiểm tra tên đăng nhập đã tồn tại trong hệ thống chưa
+     */
     public TaiKhoanFormDialog(JFrame parent, TaiKhoan existing, Predicate<String> usernameExistsChecker) {
         super(parent, existing == null ? "Thêm tài khoản mới" : "Sửa thông tin tài khoản", true);
         this.isEdit = existing != null;
         this.original = existing;
         this.usernameExistsChecker = usernameExistsChecker;
 
+        // Khởi tạo các thành phần giao diện NetBeans
         initComponents();
+        // Cấu hìnhform nhập liệu chi tiết
         customInit(parent);
     }
 
+    /**
+     * Khởi tạo cấu trúc giao diện đồ họa cơ bản.
+     */
     private void initComponents() {
         pnlHeader = new javax.swing.JPanel();
         lblHeaderTitle = new javax.swing.JLabel();
@@ -114,6 +168,11 @@ public class TaiKhoanFormDialog extends JDialog {
         setLocationRelativeTo(null);
     }
 
+    /**
+     * Thiết lập thông số kích thước, bố cục form nhập liệu và sự kiện kiểm tra vai trò.
+     *
+     * @param parent Cửa sổ cha dùng để định vị hiển thị dialog
+     */
     private void customInit(JFrame parent) {
         setSize(500, 580);
         if (parent != null) setLocationRelativeTo(parent);
@@ -127,35 +186,44 @@ public class TaiKhoanFormDialog extends JDialog {
 
         int row = 0;
 
+        // Ô nhập tên đăng nhập
         txtTenDangNhap = new javax.swing.JTextField(20);
         row = addField(pnlFormCard, gbc, row, new JLabel("Tên đăng nhập *"), txtTenDangNhap);
 
+        // Ô nhập mật khẩu
         txtMatKhau = new javax.swing.JPasswordField(20);
         row = addField(pnlFormCard, gbc, row, new JLabel(isEdit ? "Mật khẩu (để trống nếu giữ nguyên)" : "Mật khẩu *"), txtMatKhau);
 
+        // Ô nhập xác nhận lại mật khẩu
         txtXacNhanMatKhau = new javax.swing.JPasswordField(20);
         row = addField(pnlFormCard, gbc, row, new JLabel(isEdit ? "Xác nhận mật khẩu" : "Xác nhận mật khẩu *"), txtXacNhanMatKhau);
 
+        // Combobox vai trò
         cboVaiTro = new JComboBox<>(UIConstants.VAI_TRO_HIEN_THI);
         styleCombo(cboVaiTro);
         row = addField(pnlFormCard, gbc, row, new JLabel("Vai trò *"), cboVaiTro);
 
+        // Ô nhập Họ và tên người dùng
         txtHoTen = new javax.swing.JTextField(20);
         row = addField(pnlFormCard, gbc, row, new JLabel("Họ và tên *"), txtHoTen);
 
+        // Ô nhập số điện thoại
         txtSoDienThoai = new javax.swing.JTextField(20);
         row = addField(pnlFormCard, gbc, row, new JLabel("Số điện thoại *"), txtSoDienThoai);
 
+        // Ô nhập địa chỉ (dành cho Nhân viên)
         lblDiaChi = new JLabel("Địa chỉ");
         txtDiaChi = new javax.swing.JTextField(20);
         row = addField(pnlFormCard, gbc, row, lblDiaChi, txtDiaChi);
 
+        // Tự động ẩn/hiện trường địa chỉ khi chọn lại vai trò
         cboVaiTro.addItemListener(e -> {
             if (e.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
                 updateRoleFields();
             }
         });
 
+        // Combobox chọn trạng thái tài khoản
         cboTrangThai = new JComboBox<>(UIConstants.TRANG_THAI_HIEN_THI);
         styleCombo(cboTrangThai);
         row = addField(pnlFormCard, gbc, row, new JLabel("Trạng thái *"), cboTrangThai);
@@ -165,18 +233,21 @@ public class TaiKhoanFormDialog extends JDialog {
         gbc.weighty = 1;
         pnlFormCard.add(new JLabel(), gbc);
 
+        // Nút Hủy
         JButton btnCancel = new javax.swing.JButton("Hủy");
         btnCancel.addActionListener(e -> {
             confirmed = false;
             dispose();
         });
 
+        // Nút Lưu/Cập nhật
         JButton btnSave = new javax.swing.JButton(isEdit ? "Cập nhật" : "Lưu");
         btnSave.addActionListener(e -> onSave());
 
         pnlFooter.add(btnCancel);
         pnlFooter.add(btnSave);
 
+        // Nạp dữ liệu cũ nếu ở chế độ sửa
         if (isEdit && original != null) {
             fillForm(original);
         }
@@ -185,12 +256,25 @@ public class TaiKhoanFormDialog extends JDialog {
         getRootPane().setDefaultButton(btnSave);
     }
 
+    /**
+     * Cập nhật ẩn/hiện các ô nhập liệu tùy thuộc theo vai trò tài khoản được chọn trong combobox.
+     */
     private void updateRoleFields() {
         boolean isNhanVien = "Nhân viên".equals(cboVaiTro.getSelectedItem());
         if (lblDiaChi != null) lblDiaChi.setVisible(isNhanVien);
         if (txtDiaChi != null) txtDiaChi.setVisible(isNhanVien);
     }
 
+    /**
+     * Thêm nhãn và thành phần giao diện vào panel form GridBag.
+     *
+     * @param form      Panel form
+     * @param gbc       GridBagConstraints
+     * @param row       Chỉ số hàng
+     * @param labelComp Thành phần nhãn JLabel
+     * @param field     Thành phần nhập liệu
+     * @return Chỉ số hàng tiếp theo
+     */
     private int addField(JPanel form, GridBagConstraints gbc, int row, JLabel labelComp, java.awt.Component field) {
         gbc.gridx = 0;
         gbc.gridy = row;
@@ -205,6 +289,11 @@ public class TaiKhoanFormDialog extends JDialog {
         return row + 1;
     }
 
+    /**
+     * Định dạng combobox theo chuẩn giao diện.
+     *
+     * @param combo Combobox cần định dạng
+     */
     private void styleCombo(JComboBox<String> combo) {
         combo.setFont(UIConstants.FONT_NORMAL);
         combo.setBackground(Color.WHITE);
@@ -212,6 +301,11 @@ public class TaiKhoanFormDialog extends JDialog {
         combo.setBorder(javax.swing.BorderFactory.createLineBorder(UIConstants.BORDER));
     }
 
+    /**
+     * Đổ thông tin tài khoản có sẵn và các hồ sơ thông tin cá nhân liên quan (Chủ sân / Nhân viên).
+     *
+     * @param tk Đối tượng TaiKhoan
+     */
     private void fillForm(TaiKhoan tk) {
         txtTenDangNhap.setText(tk.getTenDangNhap());
         txtTenDangNhap.setEditable(false);
@@ -235,6 +329,9 @@ public class TaiKhoanFormDialog extends JDialog {
         }
     }
 
+    /**
+     * Thực hiện xác minh dữ liệu nhập vào (tên đăng nhập, mật khẩu, họ tên, SĐT) và lưu tài khoản.
+     */
     private void onSave() {
         String tenDangNhap = txtTenDangNhap.getText().trim();
         String matKhau = new String(txtMatKhau.getPassword());
@@ -246,6 +343,7 @@ public class TaiKhoanFormDialog extends JDialog {
         String sdt = txtSoDienThoai.getText().trim();
         String dChi = txtDiaChi.getText().trim();
 
+        // 1. Kiểm tra tên đăng nhập
         if (tenDangNhap.isEmpty()) {
             showError("Vui lòng nhập tên đăng nhập.");
             txtTenDangNhap.requestFocus();
@@ -256,6 +354,8 @@ public class TaiKhoanFormDialog extends JDialog {
             txtTenDangNhap.requestFocus();
             return;
         }
+
+        // 2. Kiểm tra mật khẩu (khi thêm mới hoặc khi đổi mật khẩu)
         if (!isEdit) {
             if (matKhau.isEmpty()) {
                 showError("Vui lòng nhập mật khẩu.");
@@ -292,11 +392,14 @@ public class TaiKhoanFormDialog extends JDialog {
             }
         }
 
+        // 3. Kiểm tra Họ và tên
         if (hTen.isEmpty() || hTen.length() < 2) {
             showError("Họ và tên không hợp lệ! Vui lòng nhập từ 2 ký tự trở lên.");
             txtHoTen.requestFocus();
             return;
         }
+
+        // 4. Kiểm tra số điện thoại 10 chữ số
         if (sdt.isEmpty()) {
             showError("Vui lòng nhập số điện thoại.");
             txtSoDienThoai.requestFocus();
@@ -308,6 +411,7 @@ public class TaiKhoanFormDialog extends JDialog {
             return;
         }
 
+        // Giữ mật khẩu cũ nếu chỉnh sửa và để trống mật khẩu mới
         String finalPassword;
         if (isEdit) {
             finalPassword = matKhau.isEmpty() ? original.getMatKhau() : matKhau;
@@ -315,6 +419,7 @@ public class TaiKhoanFormDialog extends JDialog {
             finalPassword = matKhau;
         }
 
+        // Ánh xạ vai trò và trạng thái thành mã hệ thống
         String quyenHan = switch (UIConstants.VAI_TRO[vaiTroIdx]) {
             case "Admin" -> "ADMIN";
             case "NhanVien" -> "NHAN_VIEN";
@@ -326,6 +431,7 @@ public class TaiKhoanFormDialog extends JDialog {
             default -> UIConstants.TRANG_THAI[trangThaiIdx].toUpperCase();
         };
 
+        // Đóng gói đối tượng TaiKhoan kết quả
         result = new TaiKhoan(
                 isEdit ? original.getMaTaiKhoan() : null,
                 tenDangNhap,
@@ -341,18 +447,50 @@ public class TaiKhoanFormDialog extends JDialog {
         dispose();
     }
 
+    /**
+     * Lấy họ tên chủ tài khoản nhập trên form.
+     *
+     * @return Chuỗi họ tên
+     */
     public String getHoTen() { return hoTen; }
+
+    /**
+     * Lấy số điện thoại chủ tài khoản nhập trên form.
+     *
+     * @return Chuỗi số điện thoại
+     */
     public String getSoDienThoai() { return soDienThoai; }
+
+    /**
+     * Lấy địa chỉ của nhân viên nhập trên form.
+     *
+     * @return Chuỗi địa chỉ
+     */
     public String getDiaChi() { return diaChi; }
 
+    /**
+     * Hiển thị cảnh báo lỗi cho người dùng bằng JOptionPane.
+     *
+     * @param message Thông điệp lỗi
+     */
     private void showError(String message) {
         JOptionPane.showMessageDialog(this, message, "Thông báo", JOptionPane.WARNING_MESSAGE);
     }
 
+    /**
+     * Trả về cờ đánh dấu đã xác nhận thành công.
+     *
+     * @return {@code true} nếu đã lưu thành công, ngược lại {@code false}
+     */
     public boolean isConfirmed() {
         return confirmed;
     }
 
+    /**
+     * Lấy đối tượng tài khoản kết quả.
+     *
+     * @return Đối tượng {@link TaiKhoan}
+     */
     public TaiKhoan getResult() {
         return result;
     }

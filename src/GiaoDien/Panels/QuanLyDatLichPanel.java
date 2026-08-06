@@ -40,64 +40,135 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Giao diện Đặt sân / Lịch sân theo dạng Lưới khung giờ (Timeline Matrix).
- * Hỗ trợ chọn ô xem chi tiết, thanh toán, đổi lịch, hủy lịch.
- * Tương thích Apache NetBeans GUI Builder Drag & Drop.
+ * Giao diện Đặt sân bóng & Quản lý lịch sân theo dạng Lưới khung giờ (Timeline Matrix Schedule Grid).
+ * <p>
+ * Cho phép xem trực quan trạng thái từng khung giờ theo các khu vực sân bóng,
+ * tương tác nhấp đúp đặt lịch nhanh, xem thông tin chi tiết trên Inspector Panel,
+ * bán dịch vụ/đồ ăn kèm, chuyển đổi trạng thái, sửa phiếu đặt, hủy phiếu và xuất hóa đơn.
+ * </p>
+ * 
+ * @author Nhóm 2 - DHTI17A3HN
+ * @version 1.0
  */
 public class QuanLyDatLichPanel extends javax.swing.JPanel {
 
+    /**
+     * Mảng chứa các mốc khung giờ phục vụ trong ngày từ 06:00 đến 23:00.
+     */
     private static final String[] TIME_SLOTS = {
             "06:00", "07:00", "08:00", "09:00", "10:00", "11:00",
             "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00",
             "19:00", "20:00", "21:00", "22:00", "23:00"
     };
 
+    /**
+     * Ngày được chọn xem lịch hiện tại (mặc định là ngày hôm nay).
+     */
     private LocalDate selectedDate = LocalDate.now();
+
+    /**
+     * Trình định dạng hiển thị ngày dd/MM/yyyy.
+     */
     private final DateTimeFormatter fmtDate = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
+    /**
+     * Nhãn hiển thị tiêu đề ngày kèm thứ trong tuần.
+     */
     private JLabel lblDateTitle;
+
+    /**
+     * Bảng hiển thị ma trận khung giờ lịch đặt sân bóng.
+     */
     private JTable tableSchedule;
+
+    /**
+     * Model dữ liệu bảng ma trận khung giờ lịch đặt.
+     */
     private DefaultTableModel modelSchedule;
+
+    /**
+     * Danh sách khu vực sân bóng đang có trong hệ thống.
+     */
     private List<KhuVucSan> courtList = new ArrayList<>();
 
-    // Inspector Details Panel components
+    // Thành phần trên Inspector Panel thông tin chi tiết
+    /** Nhãn tiêu đề tên sân và khung giờ được chọn trên Inspector */
     private JLabel lblDetailSlotHeader;
+    /** Nhãn hiển thị trạng thái phiếu đặt lịch trên Inspector */
     private JLabel lblDetailTrangThai;
+    /** Nhãn hiển thị tên khách hàng trên Inspector */
     private JLabel lblDetailKhach;
+    /** Nhãn hiển thị số điện thoại khách hàng trên Inspector */
     private JLabel lblDetailSdt;
+    /** Nhãn hiển thị loại sân bóng trên Inspector */
     private JLabel lblDetailLoaiSan;
+    /** Nhãn hiển thị tiền thuê sân bóng trên Inspector */
     private JLabel lblDetailTienSan;
+    /** Nhãn hiển thị tổng tiền dịch vụ & đồ ăn kèm trên Inspector */
     private JLabel lblDetailDichVu;
+    /** Nhãn hiển thị ghi chú của phiếu đặt trên Inspector */
     private JLabel lblDetailGhiChu;
+    /** Nhãn hiển thị tổng số tiền của phiếu đặt sân trên Inspector */
     private JLabel lblDetailConLai;
 
+    /** Nút đổi trạng thái lịch đặt */
     private JButton btnChangeStatus;
+    /** Nút bán dịch vụ & đồ ăn bổ sung */
     private JButton btnSellSvc;
+    /** Nút sửa thông tin phiếu đặt */
     private JButton btnChangeSchedule;
+    /** Nút hủy phiếu đặt */
     private JButton btnCancelBooking;
+    /** Nút xem và xuất hóa đơn thanh toán */
     private JButton btnExportInvoice;
 
+    /** Nhãn hiển thị tài khoản làm việc bên trái thanh trạng thái */
     private JLabel lblStatusLeft;
+    /** Nhãn hiển thị thống kê tổng quan ngày bên phải thanh trạng thái */
     private JLabel lblStatusRight;
 
+    /**
+     * Phiếu đặt lịch hiện đang được chọn trên ma trận khung giờ.
+     */
     private DatLich currentlySelectedBooking = null;
+
+    /**
+     * Chỉ số cột sân bóng đang chọn trên ma trận (-1 nếu không chọn).
+     */
     private int selectedCourtIndex = -1;
+
+    /**
+     * Chỉ số hàng khung giờ đang chọn trên ma trận (-1 nếu không chọn).
+     */
     private int selectedTimeIndex = -1;
 
+    /** Controller xử lý nghiệp vụ đặt lịch sân bóng */
     private final Controller.DatLichController datLichController = new Controller.DatLichController();
+    /** Controller xử lý nghiệp vụ hóa đơn thanh toán */
     private final Controller.HoaDonController hoaDonController = new Controller.HoaDonController();
+    /** Controller xử lý nghiệp vụ kho hàng & vật tư */
     private final Controller.KhoController khoController = new Controller.KhoController();
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    /** Panel thân nội dung chính */
     private javax.swing.JPanel pnlBody;
+    /** Panel thanh trạng thái dưới cùng */
     private javax.swing.JPanel pnlBottomBar;
+    /** Panel inspector hiển thị chi tiết bên phải */
     private javax.swing.JPanel pnlDetailCard;
+    /** Panel bao bọc header tiêu đề trang */
     private javax.swing.JPanel pnlHeaderWrap;
+    /** Panel chứa vùng ma trận và vùng inspector */
     private javax.swing.JPanel pnlMainContent;
+    /** Panel chứa ma trận lưới khung giờ và thanh chú thích */
     private javax.swing.JPanel pnlScheduleGridWrap;
+    /** Panel điều khiển thời gian và ngày phía trên */
     private javax.swing.JPanel pnlTopControls;
     // End of variables declaration//GEN-END:variables
 
+    /**
+     * Khởi tạo giao diện Quản lý đặt lịch sân bóng mới.
+     */
     public QuanLyDatLichPanel() {
         initComponents();
         customInit();
@@ -105,6 +176,7 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
 
     /**
      * NetBeans GUI Builder generated code initialization.
+     * Khởi tạo linh kiện giao diện tự động bởi NetBeans GUI Builder.
      */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -152,22 +224,32 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         add(pnlBody, java.awt.BorderLayout.CENTER);
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Cấu hình thiết lập giao diện tùy chỉnh và khởi tạo ma trận lịch đặt sân bóng.
+     */
     private void customInit() {
         pnlHeaderWrap.add(PageUI.createPageHeader("Đặt sân & Lịch sân bóng",
                 "Xem trực quan ma trận lịch đặt sân theo khung giờ — Mặc định lịch hôm nay"), BorderLayout.CENTER);
 
+        // Khởi tạo các phần giao diện chính
         buildTopControls();
         buildScheduleGrid();
         buildDetailInspector();
         buildStatusBar();
 
+        // Nạp ma trận lịch đặt
         reloadSchedule();
     }
 
+    /**
+     * Xây dựng thanh công cụ chuyển đổi ngày xem lịch (Trước, Hôm nay, Sau, Chọn ngày)
+     * và nút bấm tạo mới lịch đặt.
+     */
     private void buildTopControls() {
         JPanel left = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
         left.setOpaque(false);
 
+        // Nút chuyển sang ngày hôm trước
         JButton btnPrevDay = new javax.swing.JButton();
         btnPrevDay.setIcon(Utils.IconUtils.getPrevIcon(16));
         btnPrevDay.setPreferredSize(new Dimension(45, 32));
@@ -177,6 +259,7 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
             reloadSchedule();
         });
 
+        // Nút quay về ngày hôm nay
         JButton btnToday = new javax.swing.JButton("Hôm nay");
         btnToday.setPreferredSize(new Dimension(85, 32));
         btnToday.addActionListener(e -> {
@@ -185,6 +268,7 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
             reloadSchedule();
         });
 
+        // Nút chuyển sang ngày kế tiếp
         JButton btnNextDay = new javax.swing.JButton();
         btnNextDay.setIcon(Utils.IconUtils.getNextIcon(16));
         btnNextDay.setPreferredSize(new Dimension(45, 32));
@@ -194,10 +278,12 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
             reloadSchedule();
         });
 
+        // Nút mở hộp thoại chọn ngày nhanh
         JButton btnPickDate = new javax.swing.JButton("Chọn ngày");
         btnPickDate.setPreferredSize(new Dimension(120, 32));
         btnPickDate.addActionListener(e -> onQuickPickDate());
 
+        // Nhãn tiêu đề hiển thị ngày xem lịch
         lblDateTitle = new JLabel();
         lblDateTitle.setFont(new Font("Segoe UI", Font.BOLD, 15));
         lblDateTitle.setForeground(UIConstants.PRIMARY_DARK);
@@ -221,6 +307,7 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 4));
         right.setOpaque(false);
 
+        // Nút tạo mới lịch đặt sân
         JButton btnNewBooking = new javax.swing.JButton("+ Tạo lịch đặt");
         btnNewBooking.setPreferredSize(new Dimension(135, 34));
         btnNewBooking.addActionListener(e -> onBookNew());
@@ -231,6 +318,9 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         pnlTopControls.add(right, BorderLayout.EAST);
     }
 
+    /**
+     * Mở hộp thoại ChonNgayDialog để cho phép người dùng chọn một ngày bất kỳ.
+     */
     private void onQuickPickDate() {
         JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
         ChonNgayDialog dialog = new ChonNgayDialog(parent, selectedDate);
@@ -242,6 +332,9 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         }
     }
 
+    /**
+     * Cập nhật văn bản hiển thị tiêu đề ngày kèm thứ trong tuần tiếng Việt.
+     */
     private void updateDateTitle() {
         String dayOfWeekVN = switch (selectedDate.getDayOfWeek()) {
             case MONDAY -> "Thứ 2";
@@ -255,6 +348,9 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         lblDateTitle.setText(selectedDate.format(fmtDate) + " (" + dayOfWeekVN + ")");
     }
 
+    /**
+     * Xây dựng ma trận bảng lưới khung giờ hiển thị lịch các sân bóng và thanh ghi chú legend.
+     */
     private void buildScheduleGrid() {
         courtList = DataStore.get().getKhuVucs();
         List<String> headers = new ArrayList<>();
@@ -284,8 +380,10 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
 
         tableSchedule.getColumnModel().getColumn(0).setPreferredWidth(75);
 
+        // Áp dụng renderer tô màu ma trận khung giờ tùy chỉnh
         tableSchedule.setDefaultRenderer(Object.class, new ScheduleMatrixCellRenderer());
 
+        // Lắng nghe sự kiện nhấp chuột chọn ô và nhấp đúp ô trống
         tableSchedule.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -302,7 +400,7 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
 
         pnlScheduleGridWrap.add(new javax.swing.JScrollPane(tableSchedule), BorderLayout.CENTER);
 
-        // Legend bar
+        // Thanh chú thích legend quy định màu sắc
         JPanel pnlLegend = new JPanel(new FlowLayout(FlowLayout.LEFT, 16, 6));
         pnlLegend.setOpaque(false);
         pnlLegend.add(createLegendItem(Color.WHITE, UIConstants.BORDER, "Trống"));
@@ -313,6 +411,9 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         pnlScheduleGridWrap.add(pnlLegend, BorderLayout.SOUTH);
     }
 
+    /**
+     * Tạo một ô ghi chú quy định màu sắc trong thanh chú thích legend.
+     */
     private JPanel createLegendItem(Color bg, Color border, String label) {
         JPanel item = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
         item.setOpaque(false);
@@ -328,6 +429,9 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         return item;
     }
 
+    /**
+     * Xây dựng Panel Inspector hiển thị thông tin chi tiết lịch đặt bên phải giao diện.
+     */
     private void buildDetailInspector() {
         pnlDetailCard.removeAll();
         pnlDetailCard.setLayout(new BorderLayout(0, 10));
@@ -350,7 +454,7 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         pnlTop.add(title, BorderLayout.NORTH);
         pnlTop.add(lblDetailSlotHeader, BorderLayout.SOUTH);
 
-        // Fields panel
+        // Bố cục thông tin chi tiết theo danh sách trường
         JPanel form = new JPanel(new GridBagLayout());
         form.setOpaque(false);
         GridBagConstraints gbc = new GridBagConstraints();
@@ -394,7 +498,7 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         pnlCenterWrap.add(pnlTop, BorderLayout.NORTH);
         pnlCenterWrap.add(form, BorderLayout.CENTER);
 
-        // Actions panel with GridLayout for guaranteed non-zero rendering
+        // Danh sách các nút thao tác nghiệp vụ trên Inspector
         JPanel actions = new JPanel(new java.awt.GridLayout(5, 1, 0, 6));
         actions.setOpaque(false);
 
@@ -438,6 +542,9 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         pnlDetailCard.add(actions, BorderLayout.SOUTH);
     }
 
+    /**
+     * Thêm một hàng thuộc tính nhãn-giá trị trên Inspector Panel.
+     */
     private int addInspectorRow(JPanel form, GridBagConstraints gbc, int row, String label, JLabel val) {
         gbc.gridx = 0;
         gbc.gridy = row;
@@ -451,6 +558,9 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         return row + 1;
     }
 
+    /**
+     * Tạo nhãn chữ in đậm định dạng giá trị.
+     */
     private JLabel createBoldValue(String text) {
         JLabel l = new JLabel(text);
         l.setFont(UIConstants.FONT_BOLD);
@@ -458,6 +568,9 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         return l;
     }
 
+    /**
+     * Xây dựng thanh trạng thái dưới cùng của panel.
+     */
     private void buildStatusBar() {
         lblStatusLeft = new JLabel("Đăng nhập: " + (SessionManager.get().getCurrentUser() != null ? SessionManager.get().getCurrentUser().getTenDangNhap() : "Admin"));
         lblStatusLeft.setFont(UIConstants.FONT_SMALL);
@@ -471,15 +584,20 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         pnlBottomBar.add(lblStatusRight, BorderLayout.EAST);
     }
 
+    /**
+     * Nạp lại dữ liệu ma trận lưới khung giờ theo ngày được chọn hiện tại.
+     */
     public void reloadSchedule() {
         courtList = DataStore.get().getKhuVucs();
         modelSchedule.setRowCount(0);
 
         String curDateStr = selectedDate.toString();
+        // Lấy danh sách phiếu đặt không bị hủy trong ngày
         List<DatLich> dayBookings = DataStore.get().getDatLichs().stream()
                 .filter(d -> curDateStr.equals(d.getNgayDat()) && !"DaHuy".equals(d.getTrangThai()))
                 .toList();
 
+        // Lấy danh sách các phiếu bảo trì đang áp dụng trong ngày
         List<BaoTri> dayMaints = DataStore.get().getBaoTris().stream()
                 .filter(b -> !"DaHuy".equalsIgnoreCase(b.getTrangThaiPhieu())
                         && !"Huy".equalsIgnoreCase(b.getTrangThaiPhieu())
@@ -489,6 +607,7 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
                         && isDateInMaintenanceRange(curDateStr, b.getNgayBatDau(), b.getNgayKetThuc()))
                 .toList();
 
+        // Duyệt từng mốc khung giờ và điền ô tương ứng từng sân
         for (String slotTime : TIME_SLOTS) {
             Object[] rowData = new Object[courtList.size() + 1];
             rowData[0] = slotTime;
@@ -496,14 +615,14 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
             for (int col = 0; col < courtList.size(); col++) {
                 KhuVucSan court = courtList.get(col);
 
-                // Check maintenance status for court
+                // Kiểm tra trạng thái bảo trì của sân
                 BaoTri maint = dayMaints.stream().filter(b -> court.getMaSan() != null && court.getMaSan().equals(b.getMaSan())).findFirst().orElse(null);
                 if (maint != null || DataStore.get().isSanBaoTriVoiNgay(court, curDateStr)) {
                     rowData[col + 1] = maint != null ? "Bảo trì - " + maint.getNoiDung() : "Đang bảo trì";
                     continue;
                 }
 
-                // Check booking
+                // Kiểm tra phiếu đặt giao thoa với khung giờ
                 DatLich booking = dayBookings.stream()
                         .filter(d -> court.getMaSan() != null && court.getMaSan().equals(d.getMaSan()) && isTimeOverlap(d.getGioBatDau(), d.getGioKetThuc(), slotTime))
                         .findFirst().orElse(null);
@@ -521,20 +640,22 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
             modelSchedule.addRow(rowData);
         }
 
-        // Summary stats for bottom bar
+        // Cập nhật nhãn thống kê trên thanh trạng thái
         long activeCount = dayBookings.size();
         double totalRev = dayBookings.stream().mapToDouble(DatLich::getTongTien).sum();
         lblStatusRight.setText("Hôm nay: " + activeCount + " lịch  •  Doanh thu ước tính: " + String.format("%,.0f VNĐ", (double) (totalRev)));
 
-        // Auto select first occupied or empty cell if none selected
+        // Tự động chọn lại vị trí ô được chọn trước đó
         if (selectedCourtIndex >= 0 && selectedTimeIndex >= 0) {
             onSelectSlot(selectedTimeIndex, selectedCourtIndex);
         } else {
-            // Find slot at 18:00 for Court 2 if available
             onSelectSlot(2, 1);
         }
     }
 
+    /**
+     * Kiểm tra xem khung giờ mốc có trùng khớp hay nằm trong khoảng giờ bắt đầu và kết thúc hay không.
+     */
     private boolean isTimeOverlap(String start, String end, String slotTime) {
         try {
             int slotH = Integer.parseInt(slotTime.split(":")[0]);
@@ -546,6 +667,9 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         }
     }
 
+    /**
+     * Kiểm tra xem ngày chỉ định có thuộc khoảng thời gian bắt đầu và kết thúc bảo trì hay không.
+     */
     private boolean isDateInMaintenanceRange(String targetDateStr, String startDateStr, String endDateStr) {
         if (targetDateStr == null || targetDateStr.isBlank()) return false;
         if (startDateStr == null || startDateStr.isBlank()) return false;
@@ -564,6 +688,12 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         }
     }
 
+    /**
+     * Cập nhật thông tin chi tiết trên Inspector Panel khi người dùng nhấp chọn ô trên ma trận.
+     * 
+     * @param timeIdx  Chỉ số khung giờ (hàng trong bảng)
+     * @param courtIdx Chỉ số sân bóng (cột trong bảng)
+     */
     private void onSelectSlot(int timeIdx, int courtIdx) {
         if (courtIdx < 0 || courtIdx >= courtList.size() || timeIdx < 0 || timeIdx >= TIME_SLOTS.length) return;
 
@@ -576,6 +706,7 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
 
         lblDetailSlotHeader.setText(court.getTenSan() + " · " + slotTime + "–" + getNextHour(slotTime));
 
+        // Tìm kiếm phiếu đặt sân tương ứng tại ô ma trận
         currentlySelectedBooking = DataStore.get().getDatLichs().stream()
                 .filter(d -> curDateStr.equals(d.getNgayDat())
                         && court.getMaSan() != null && court.getMaSan().equals(d.getMaSan())
@@ -584,6 +715,7 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
                 .findFirst().orElse(null);
 
         if (currentlySelectedBooking != null) {
+            // Nạp thông tin phiếu đặt sân đang có
             String tt = currentlySelectedBooking.getTrangThaiHienThi();
             if ("DaThanhToan".equalsIgnoreCase(currentlySelectedBooking.getTrangThaiTT())) {
                 tt += " (Đã TT)";
@@ -608,12 +740,14 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
 
             boolean isPaid = "DaThanhToan".equals(currentlySelectedBooking.getTrangThaiTT());
 
+            // Kích hoạt các nút bấm chức năng trên Inspector
             btnChangeStatus.setEnabled(true);
             btnSellSvc.setEnabled(!isPaid);
             btnChangeSchedule.setEnabled(true);
             btnExportInvoice.setEnabled(true);
             btnCancelBooking.setEnabled(true);
         } else {
+            // Trường hợp ô trống không có lịch đặt
             lblDetailTrangThai.setText("Sân trống");
             lblDetailKhach.setText("(Chưa đặt)");
             lblDetailSdt.setText("—");
@@ -623,6 +757,7 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
             lblDetailGhiChu.setText("—");
             lblDetailConLai.setText(String.format("%,.0f VNĐ", (double) (court.getGiaThueTheoGio())));
 
+            // Vô hiệu hóa các nút chức năng đối với ô trống
             btnChangeStatus.setEnabled(false);
             btnSellSvc.setEnabled(false);
             btnChangeSchedule.setEnabled(false);
@@ -631,6 +766,9 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         }
     }
 
+    /**
+     * Xử lý thay đổi trạng thái của phiếu đặt sân được chọn.
+     */
     private void onChangeStatus() {
         if (currentlySelectedBooking == null) return;
 
@@ -687,6 +825,9 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
                 "Cập nhật thành công", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    /**
+     * Lấy mốc giờ kế tiếp bằng cách cộng 1 giờ.
+     */
     private String getNextHour(String slotTime) {
         try {
             int h = Integer.parseInt(slotTime.split(":")[0]) + 1;
@@ -696,6 +837,9 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         }
     }
 
+    /**
+     * Mở hộp thoại lập mới phiếu đặt sân bóng.
+     */
     private void onBookNew() {
         JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
         DatLichFormDialog dialog = new DatLichFormDialog(parent, null);
@@ -732,6 +876,12 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         JOptionPane.showMessageDialog(this, "Đã tạo mới lịch đặt sân " + ma + " thành công!", "Kết quả đặt lịch", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    /**
+     * Thực hiện đặt sân nhanh khi người dùng nhấp đúp vào một ô trống trên ma trận.
+     * 
+     * @param timeIdx  Chỉ số khung giờ tương ứng với hàng
+     * @param courtIdx Chỉ số sân tương ứng với cột
+     */
     private void onQuickBookEmptySlot(int timeIdx, int courtIdx) {
         if (courtIdx < 0 || courtIdx >= courtList.size() || timeIdx < 0 || timeIdx >= TIME_SLOTS.length) return;
 
@@ -785,8 +935,9 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         }
     }
 
-
-
+    /**
+     * Mở thoại bán bổ sung dịch vụ / vật tư / đồ ăn cho phiếu đặt sân đang chọn.
+     */
     private void onSellSvc() {
         if (currentlySelectedBooking == null) return;
         JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
@@ -826,6 +977,9 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
                 "Bán dịch vụ thành công", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    /**
+     * Mở thoại chỉnh sửa thông tin của phiếu đặt sân hiện tại.
+     */
     private void onChangeSchedule() {
         if (currentlySelectedBooking == null) return;
         JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
@@ -855,10 +1009,18 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         JOptionPane.showMessageDialog(this, "Đã cập nhật thông tin phiếu đặt sân " + maPhieu + " thành công!", "Cập nhật thành công", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    /**
+     * Xuất hóa đơn mặc định thanh toán tiền mặt.
+     */
     private void onExportInvoice() {
         onExportInvoice("Tiền mặt");
     }
 
+    /**
+     * Mở hộp thoại xem và in/xuất hóa đơn thanh toán cho phiếu đặt lịch.
+     * 
+     * @param phuongThucTT Phương thức thanh toán (Tiền mặt, Chuyển khoản...)
+     */
     private void onExportInvoice(String phuongThucTT) {
         if (currentlySelectedBooking == null) return;
         JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
@@ -866,6 +1028,9 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
         dialog.setVisible(true);
     }
 
+    /**
+     * Xử lý xác nhận và thực hiện hủy phiếu đặt lịch sân bóng.
+     */
     private void onCancelBooking() {
         if (currentlySelectedBooking == null) return;
         if (JOptionPane.showConfirmDialog(this, "Bạn có chắc muốn hủy phiếu " + currentlySelectedBooking.getMaLichDat() + " của khách " + currentlySelectedBooking.getTenKhach() + "?", "Xác nhận hủy", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.YES_OPTION) {
@@ -876,7 +1041,8 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
     }
 
     /**
-     * Custom Table Cell Renderer for Matrix Timeline Schedule Grid.
+     * Trình vẽ ô giao diện tùy chỉnh (Cell Renderer) cho ma trận lưới khung giờ (Timeline Matrix Grid).
+     * Tô màu nền linh hoạt: Trống (Trắng), Bảo trì (Vàng), Đã thanh toán (Xanh lá), Đặt trước (Xanh dương).
      */
     private class ScheduleMatrixCellRenderer extends DefaultTableCellRenderer {
         @Override
@@ -888,12 +1054,14 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
             setFont(column == 0 ? UIConstants.FONT_BOLD : UIConstants.FONT_NORMAL);
             setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 8));
 
+            // Định dạng cột mốc khung giờ (Cột 0)
             if (column == 0) {
                 c.setBackground(new Color(245, 245, 245));
                 c.setForeground(UIConstants.TEXT_PRIMARY);
                 return c;
             }
 
+            // Định dạng màu highlight khi ô đang được chọn
             if (isSelected) {
                 c.setBackground(new Color(37, 99, 235));
                 c.setForeground(Color.WHITE);
@@ -901,16 +1069,17 @@ public class QuanLyDatLichPanel extends javax.swing.JPanel {
                 return c;
             }
 
+            // Định dạng màu nền ô theo nội dung trạng thái
             if (text.contains("Bảo trì")) {
-                c.setBackground(new Color(254, 243, 199)); // Yellow
+                c.setBackground(new Color(254, 243, 199)); // Vàng nhạt
                 c.setForeground(new Color(180, 83, 9));
                 setFont(UIConstants.FONT_BOLD);
             } else if (text.contains("ĐTT")) {
-                c.setBackground(new Color(220, 252, 231)); // Green
+                c.setBackground(new Color(220, 252, 231)); // Xanh lá nhạt
                 c.setForeground(new Color(22, 163, 74));
                 setFont(UIConstants.FONT_BOLD);
             } else if (!text.contains("— trống —")) {
-                c.setBackground(new Color(219, 234, 254)); // Light Blue
+                c.setBackground(new Color(219, 234, 254)); // Xanh dương nhạt
                 c.setForeground(new Color(29, 78, 216));
                 setFont(UIConstants.FONT_BOLD);
             } else {

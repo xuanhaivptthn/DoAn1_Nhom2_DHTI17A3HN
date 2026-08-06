@@ -22,42 +22,100 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Khung giao diện chính — Hệ thống Quản lý Hoạt động Cho thuê Sân bóng.
+ * Khung giao diện chính (MainFrame) — Hệ thống Quản lý Hoạt động Cho thuê Sân bóng.
+ * <p>
+ * Lớp này chịu trách nhiệm khởi tạo cửa sổ chính của ứng dụng Swing, chứa thanh
+ * sidebar điều hướng động dựa trên phân quyền người dùng (Chủ sân / Nhân viên)
+ * và vùng nội dung trung tâm sử dụng {@link CardLayout} để chuyển đổi linh hoạt giữa các panel chức năng.
+ * </p>
+ * 
+ * @author Nhóm 2 - DHTI17A3HN
+ * @version 1.0
  */
 public class MainFrame extends JFrame {
 
+    /**
+     * Tên hiển thị mặc định của ứng dụng trên thanh tiêu đề cửa sổ.
+     */
     public static final String SYSTEM_NAME = "Hệ thống Quản lý hoạt động cho thuê sân bóng";
 
+    /**
+     * Trình quản lý bố cục dạng CardLayout cho vùng nội dung chính.
+     */
     private final CardLayout cardLayout = new CardLayout();
+
+    /**
+     * Danh sách lưu trữ các nút điều hướng menu thanh bên, định dạng (Key -> JButton).
+     */
     private final Map<String, JButton> navButtons = new LinkedHashMap<>();
 
+    /**
+     * Panel Quản lý tài chính, báo cáo kinh doanh và thống kê doanh thu.
+     */
     private QuanLyKinhDoanhPanel kinhDoanhPanel;
+
+    /**
+     * Panel Quản lý danh mục gói dịch vụ & tiện ích sân bóng.
+     */
     private QuanLyDichVuPanel dichVuPanel;
+
+    /**
+     * Panel Quản lý đặt lịch, ma trận khung giờ và thao tác phiếu đặt sân.
+     */
     private QuanLyDatLichPanel datLichPanel;
+
+    /**
+     * Panel Quản lý kho hàng, vật tư và nguyên liệu kinh doanh.
+     */
     private QuanLyKhoPanel khoPanel;
+
+    /**
+     * Panel Quản lý lịch trình và phiếu bảo trì cơ sở vật chất sân bóng.
+     */
     private QuanLyBaoTriPanel baoTriPanel;
+
+    /**
+     * Panel Quản lý danh sách khu vực và thông tin sân bóng.
+     */
     private QuanLyKhuVucPanel khuVucPanel;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    /** Nút bấm thực hiện đăng xuất phiên làm việc */
     private javax.swing.JButton btnLogout;
+    /** Nhãn biểu tượng và tiêu đề thương hiệu ứng dụng */
     private javax.swing.JLabel lblLogo;
+    /** Nhãn hiển thị mô tả ngắn và nguồn kết nối CSDL */
     private javax.swing.JLabel lblTag;
+    /** Nhãn hiển thị thông tin người dùng đang đăng nhập */
     private javax.swing.JLabel lblUserInfo;
+    /** Panel thương hiệu phía trên thanh sidebar */
     private javax.swing.JPanel pnlBrand;
+    /** Panel chứa nội dung chính sử dụng CardLayout */
     private javax.swing.JPanel pnlContent;
+    /** Panel chứa danh sách nút điều hướng menu */
     private javax.swing.JPanel pnlNav;
+    /** Panel bao bọc pnlNav để căn chỉnh layout */
     private javax.swing.JPanel pnlNavContainer;
+    /** Panel thanh sidebar điều hướng bên trái */
     private javax.swing.JPanel pnlSidebar;
+    /** Panel chứa thông tin người dùng và nút đăng xuất ở đáy sidebar */
     private javax.swing.JPanel pnlUserBottom;
     // End of variables declaration//GEN-END:variables
 
+    /**
+     * Khởi tạo một đối tượng cửa sổ chính MainFrame mới.
+     * Thực hiện khởi tạo các thành phần giao diện kéo thả NetBeans và cấu hình tùy chỉnh.
+     */
     public MainFrame() {
+        // Khởi tạo linh kiện giao diện NetBeans GUI Builder
         initComponents();
+        // Thiết lập giao diện tùy chỉnh và nạp dữ liệu khởi tạo
         customInit();
     }
 
     /**
      * NetBeans GUI Builder generated code initialization.
+     * Mã khởi tạo linh kiện giao diện tự động sinh bởi NetBeans.
      */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -130,57 +188,81 @@ public class MainFrame extends JFrame {
         getContentPane().add(pnlContent, java.awt.BorderLayout.CENTER);
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Cấu hình khởi tạo tùy chỉnh bổ sung cho giao diện MainFrame.
+     * Thiết lập icon logo, hiển thị chế độ kết nối CSDL (MySQL hoặc In-Memory),
+     * tái dựng thanh điều hướng sidebar, khởi tạo các trang giao diện con và mặc định mở trang Đặt lịch.
+     */
     private void customInit() {
-//        setIconImage(Utils.IconUtils.getBallIcon(32).getImage());
+        // Cấu hình biểu tượng logo tiêu đề thương hiệu
         lblLogo.setIcon(Utils.IconUtils.getBallWhiteIcon(28));
         lblLogo.setIconTextGap(8);
 
+        // Hiển thị trạng thái nguồn dữ liệu trên tiêu đề cửa sổ
         String modeTag = DataStore.isUseDatabase() ? "CSDL MySQL (XAMPP)" : "Dữ liệu mẫu (DataStore)";
         setTitle(SYSTEM_NAME + " — [" + modeTag + "]");
 
+        // Định dạng nhãn hiển thị chế độ dữ liệu dưới logo
         String modeHtml = DataStore.isUseDatabase()
                 ? "<span style='color:#81C784; font-weight:bold;'>● CSDL MySQL (XAMPP)</span>"
                 : "<span style='color:#FFB74D; font-weight:bold;'>● Dữ liệu mẫu (DataStore)</span>";
         lblTag.setText("<html>Quản lý hoạt động sân bóng<br>Nguồn: " + modeHtml + "</html>");
 
+        // Dựng danh sách điều hướng sidebar theo quyền hạn
         rebuildSidebar();
+        // Khởi tạo các panel con và thêm vào CardLayout
         buildPages();
+        // Cập nhật thông tin tài khoản người dùng ở góc dưới
         refreshUserBar();
+        // Mặc định điều hướng hiển thị trang Đặt lịch
         showPage("datlich");
     }
 
+    /**
+     * Xây dựng lại menu điều hướng trên thanh sidebar tùy thuộc vào vai trò và quyền hạn
+     * của tài khoản đang làm việc (Chủ sân / Admin hoặc Nhân viên).
+     */
     private void rebuildSidebar() {
+        // Dọn dẹp danh sách nút cũ
         pnlNav.removeAll();
         navButtons.clear();
 
         SessionManager sm = SessionManager.get();
 
-        // NHÓM 2: QUẢN LÝ SÂN BÓNG & LỊCH ĐẶT
+        // NHÓM 2: QUẢN LÝ SÂN BÓNG & LỊCH ĐẶT (Tất cả vai trò đều xem được đặt lịch & bảo trì)
         addSectionLabel(pnlNav, "— SÂN BÓNG & LỊCH ĐẶT —");
         addNav(pnlNav, "datlich", "Quản lý đặt lịch sân");
         if (sm.isAdmin()) {
+            // Chỉ Chủ sân mới được quản lý khu vực sân
             addNav(pnlNav, "khuvuc", "Quản lý khu vực sân bóng");
         }
         addNav(pnlNav, "baotri", "Quản lý bảo trì sân bóng");
 
-        // NHÓM 3: DỊCH VỤ & KHO HÀNG VẬT TƯ — chỉ chủ sân
+        // NHÓM 3: DỊCH VỤ & KHO HÀNG VẬT TƯ — Chỉ dành cho Chủ sân (Admin)
         if (sm.isAdmin()) {
             addSectionLabel(pnlNav, "— DỊCH VỤ & KHO HÀNG —");
             addNav(pnlNav, "dichvu", "Quản lý dịch vụ");
             addNav(pnlNav, "kho", "Quản lý kho hàng & vật tư");
         }
 
-        // NHÓM 4: TÀI CHÍNH & QUẢN TRỊ HỆ THỐNG — chỉ chủ sân
+        // NHÓM 4: TÀI CHÍNH & QUẢN TRỊ HỆ THỐNG — Chỉ dành cho Chủ sân (Admin)
         if (sm.isAdmin()) {
             addSectionLabel(pnlNav, "— TÀI CHÍNH & QUẢN TRỊ —");
             addNav(pnlNav, "kinhdoanh", "Quản lý tài chính & báo cáo");
             addNav(pnlNav, "taikhoan", "Quản lý tài khoản hệ thống");
         }
 
+        // Cập nhật lại vẽ lại giao diện sidebar
         pnlNav.revalidate();
         pnlNav.repaint();
     }
 
+    /**
+     * Thêm một tiêu đề phân nhóm (Section Header) vào panel chứa danh sách điều hướng.
+     * 
+     * @param nav  Panel chứa các nút điều hướng
+     * @param text Nội dung văn bản tiêu đề phân nhóm
+     */
     private void addSectionLabel(JPanel nav, String text) {
         JLabel lbl = new JLabel(text);
         lbl.setFont(new Font("Segoe UI", Font.BOLD, 10));
@@ -189,6 +271,13 @@ public class MainFrame extends JFrame {
         nav.add(lbl);
     }
 
+    /**
+     * Tạo nút điều hướng menu mới và thêm vào panel thanh bên.
+     * 
+     * @param nav   Panel chứa danh sách điều hướng
+     * @param key   Mã khóa đại diện cho trang (ví dụ: "datlich", "kho")
+     * @param label Nhãn văn bản hiển thị trên nút bấm
+     */
     private void addNav(JPanel nav, String key, String label) {
         JButton btn = new JButton(label);
         btn.setHorizontalAlignment(SwingConstants.LEFT);
@@ -203,6 +292,12 @@ public class MainFrame extends JFrame {
         styleNav(btn, false);
     }
 
+    /**
+     * Định dạng kiểu dáng màu sắc cho nút điều hướng thanh bên tùy theo trạng thái được chọn (active).
+     * 
+     * @param btn    Nút bấm cần định dạng kiểu dáng
+     * @param active True nếu nút đang được chọn đại diện cho trang hiển thị hiện tại, ngược lại False
+     */
     private void styleNav(JButton btn, boolean active) {
         if (active) {
             btn.setBackground(UIConstants.PRIMARY_LIGHT);
@@ -215,32 +310,51 @@ public class MainFrame extends JFrame {
         }
     }
 
+    /**
+     * Khởi tạo danh sách tất cả các panel chức năng con và đăng ký vào {@link CardLayout} container.
+     */
     private void buildPages() {
+        // Tạo trang Quản lý dịch vụ
         dichVuPanel = new QuanLyDichVuPanel();
         pnlContent.add(dichVuPanel, "dichvu");
 
+        // Tạo trang Quản lý kho hàng & vật tư
         khoPanel = new QuanLyKhoPanel();
         pnlContent.add(khoPanel, "kho");
 
+        // Tạo trang Quản lý tài chính & báo cáo
         kinhDoanhPanel = new QuanLyKinhDoanhPanel();
         pnlContent.add(kinhDoanhPanel, "kinhdoanh");
 
+        // Tạo trang Quản lý khu vực sân bóng
         khuVucPanel = new QuanLyKhuVucPanel();
         pnlContent.add(khuVucPanel, "khuvuc");
 
+        // Tạo trang Quản lý đặt lịch sân bóng
         datLichPanel = new QuanLyDatLichPanel();
         pnlContent.add(datLichPanel, "datlich");
 
+        // Tạo trang Quản lý bảo trì sân bóng
         baoTriPanel = new QuanLyBaoTriPanel();
         pnlContent.add(baoTriPanel, "baotri");
 
+        // Tạo trang Quản lý tài khoản hệ thống
         pnlContent.add(new QuanLyTaiKhoanPanel(true), "taikhoan");
     }
 
+    /**
+     * Hiển thị trang chức năng tương ứng với mã khóa {@code key}.
+     * Thực hiện kiểm tra quyền hạn của tài khoản đăng nhập trước khi chuyển đổi trang,
+     * đồng thời kích hoạt tự động làm mới dữ liệu cho panel mục tiêu.
+     * 
+     * @param key Mã định danh của trang cần chuyển đến (ví dụ: "datlich", "kinhdoanh", "kho"...)
+     */
     public void showPage(String key) {
+        // Đồng bộ trạng thái sân bảo trì trước khi chuyển trang
         DataStore.get().syncTrangThaiSanBaoTri();
         SessionManager sm = SessionManager.get();
 
+        // Kiểm tra phân quyền truy cập dành cho tài khoản Nhân viên
         if (sm.isNhanVienOnly()) {
             if ("kinhdoanh".equals(key) || "khuvuc".equals(key) || "taikhoan".equals(key)
                     || "dichvu".equals(key) || "kho".equals(key)) {
@@ -262,10 +376,12 @@ public class MainFrame extends JFrame {
             }
         }
 
+        // Chuyển card hiển thị trang mục tiêu
         cardLayout.show(pnlContent, key);
+        // Cập nhật trạng thái active highlight cho các nút menu sidebar
         navButtons.forEach((k, b) -> styleNav(b, k.equals(key)));
 
-        // AUTO-RELOAD TARGET PANELS ON PAGE SWITCH
+        // TỰ ĐỘNG TẢI LẠI DỮ LIỆU CỦA PANEL ĐƯỢC CHỌN KHI CHUYỂN TRANG
         if ("datlich".equals(key) && datLichPanel != null) datLichPanel.reloadSchedule();
         if ("kinhdoanh".equals(key) && kinhDoanhPanel != null) kinhDoanhPanel.refresh();
         if ("dichvu".equals(key) && dichVuPanel != null) dichVuPanel.reload();
@@ -274,6 +390,9 @@ public class MainFrame extends JFrame {
         if ("khuvuc".equals(key) && khuVucPanel != null) khuVucPanel.reload();
     }
 
+    /**
+     * Làm mới dữ liệu hiển thị trên các panel dùng chung dữ liệu sân (Đặt lịch, Bảo trì, Khu vực).
+     */
     public void refreshDataPanels() {
         DataStore.get().syncTrangThaiSanBaoTri();
         if (datLichPanel != null) datLichPanel.reloadSchedule();
@@ -281,6 +400,9 @@ public class MainFrame extends JFrame {
         if (khuVucPanel != null) khuVucPanel.reload();
     }
 
+    /**
+     * Cập nhật thông tin hiển thị tài khoản người dùng và chế độ CSDL ở góc dưới thanh sidebar.
+     */
     private void refreshUserBar() {
         rebuildSidebar();
         TaiKhoan u = SessionManager.get().getCurrentUser();
@@ -297,6 +419,10 @@ public class MainFrame extends JFrame {
                 + roleNote + dbNote + "</html>");
     }
 
+    /**
+     * Xử lý hành động đăng xuất khỏi phiên làm việc hiện tại,
+     * hủy cửa sổ chính và quay về màn hình đăng nhập ứng dụng.
+     */
     private void doLogout() {
         int choice = JOptionPane.showConfirmDialog(this,
                 "Bạn có chắc chắn muốn đăng xuất phiên hoạt động hiện tại?",

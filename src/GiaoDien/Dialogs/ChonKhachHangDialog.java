@@ -26,37 +26,63 @@ import java.util.List;
 
 /**
  * Dialog chọn khách hàng quen với khung tìm kiếm thời gian thực.
- * Thiết kế đồng bộ chuẩn UIConstants.
+ * <p>
+ * Cho phép lọc danh sách thông tin khách hàng dựa theo tên hoặc số điện thoại.
+ * Hỗ trợ chọn nhanh bằng cách nhấp đúp chuột vào bảng hoặc nhấn nút 'Chọn khách hàng'.
+ * </p>
+ *
+ * @author Nhóm 2 - DHTI17A3HN
+ * @version 1.0
  */
 public class ChonKhachHangDialog extends JDialog {
 
+    /** Ô nhập liệu từ khóa tìm kiếm tên hoặc SĐT khách hàng */
     private JTextField txtSearch;
+
+    /** Bảng hiển thị danh sách khách hàng */
     private JTable tableKhach;
+
+    /** Model điều khiển dữ liệu cho bảng khách hàng */
     private DefaultTableModel modelKhach;
+
+    /** Danh sách lưu tạm các khách hàng sau khi lọc theo từ khóa */
     private final List<KhachHang> displayList = new ArrayList<>();
 
+    /** Đối tượng khách hàng được chọn */
     private KhachHang selectedCustomer = null;
+
+    /** Cờ đánh dấu đã xác nhận chọn thành công */
     private boolean confirmed = false;
 
+    /**
+     * Khởi tạo thoại chọn khách hàng.
+     *
+     * @param parent Cửa sổ cha (JFrame)
+     */
     public ChonKhachHangDialog(JFrame parent) {
         super(parent, "Danh sách khách hàng quen", true);
         initComponents(parent);
     }
 
+    /**
+     * Xây dựng và kết nối các thành phần giao diện người dùng dialog.
+     *
+     * @param parent Cửa sổ cha
+     */
     private void initComponents(JFrame parent) {
         setSize(650, 480);
         setResizable(false);
         if (parent != null) setLocationRelativeTo(parent);
 
-        // Header Panel
+        // ── 1. Header Panel ──────────────────────────────────────────────────
         JPanel pnlHeader = PageUI.createPageHeader("Chọn khách hàng quen", "Tìm kiếm theo Tên hoặc Số điện thoại để chọn nhanh");
         getContentPane().add(pnlHeader, BorderLayout.NORTH);
 
-        // Main Center Panel
+        // ── 2. Main Center Panel ─────────────────────────────────────────────
         JPanel pnlCenter = new JPanel(new BorderLayout(0, 10));
         pnlCenter.setBorder(javax.swing.BorderFactory.createEmptyBorder(12, 16, 12, 16));
 
-        // Search Bar Panel
+        // Thanh tìm kiếm nhanh
         JPanel pnlSearch = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         pnlSearch.setOpaque(false);
 
@@ -74,7 +100,7 @@ public class ChonKhachHangDialog extends JDialog {
 
         pnlCenter.add(pnlSearch, BorderLayout.NORTH);
 
-        // Table
+        // ── 3. Table Bảng thông tin khách hàng ──────────────────────────────
         modelKhach = new DefaultTableModel(
                 new String[]{"Mã KH", "Họ và tên", "Số điện thoại"}, 0) {
             @Override
@@ -90,6 +116,7 @@ public class ChonKhachHangDialog extends JDialog {
         tableKhach.getColumnModel().getColumn(1).setPreferredWidth(250);
         tableKhach.getColumnModel().getColumn(2).setPreferredWidth(180);
 
+        // Bắt sự kiện nhấp đúp chuột để chọn
         tableKhach.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -102,7 +129,7 @@ public class ChonKhachHangDialog extends JDialog {
         pnlCenter.add(new JScrollPane(tableKhach), BorderLayout.CENTER);
         getContentPane().add(pnlCenter, BorderLayout.CENTER);
 
-        // Footer Panel
+        // ── 4. Footer Panel ──────────────────────────────────────────────────
         JPanel pnlFooter = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 12));
         pnlFooter.setBackground(UIConstants.BG);
         pnlFooter.setBorder(javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, UIConstants.BORDER));
@@ -124,10 +151,13 @@ public class ChonKhachHangDialog extends JDialog {
 
         getContentPane().add(pnlFooter, BorderLayout.SOUTH);
 
-        // Load data
+        // Tiến hành nạp dữ liệu ban đầu vào bảng
         filterCustomers();
     }
 
+    /**
+     * Lọc danh sách khách hàng từ DataStore theo từ khóa tìm kiếm (họ tên hoặc số điện thoại).
+     */
     private void filterCustomers() {
         String keyword = txtSearch.getText().trim().toLowerCase();
         displayList.clear();
@@ -147,11 +177,15 @@ public class ChonKhachHangDialog extends JDialog {
             }
         }
 
+        // Tự động chọn dòng đầu tiên nếu có dữ liệu
         if (modelKhach.getRowCount() > 0) {
             tableKhach.setRowSelectionInterval(0, 0);
         }
     }
 
+    /**
+     * Lấy khách hàng đang chọn từ dòng của bảng và hoàn tất dialog.
+     */
     private void onSelect() {
         int selectedRow = tableKhach.getSelectedRow();
         if (selectedRow >= 0 && selectedRow < displayList.size()) {
@@ -165,10 +199,20 @@ public class ChonKhachHangDialog extends JDialog {
         }
     }
 
+    /**
+     * Kiểm tra dialog có được xác nhận chọn khách hàng hay không.
+     *
+     * @return true nếu đã chọn khách hàng thành công
+     */
     public boolean isConfirmed() {
         return confirmed;
     }
 
+    /**
+     * Lấy đối tượng khách hàng được chọn.
+     *
+     * @return Đối tượng KhachHang
+     */
     public KhachHang getSelectedCustomer() {
         return selectedCustomer;
     }

@@ -15,46 +15,84 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Hộp thoại xác nhận và tích lại dịch vụ / đồ ăn theo Ghi chú
- * khi chuyển trạng thái lịch đặt sang "Hoàn thành (Đã thanh toán)".
+ * Hộp thoại (JDialog) xác nhận và tích chọn lại các dịch vụ / đồ ăn phát sinh thực tế
+ * theo Ghi chú hoặc yêu cầu của khách hàng trước khi chuyển trạng thái phiếu đặt sang "Hoàn thành (Đã thanh toán)".
+ * <p>
+ * Dialog hỗ trợ 2 Tab:
+ * 1. Dịch vụ sân bóng (Trọng tài, HLV, Quay phim...)
+ * 2. Đồ ăn / Mặt hàng kho (Nước uống, Áo bib, Bóng...)
+ * Tự động tính toán tổng tiền thanh toán mới và cập nhật chuỗi ghi chú dịch vụ đi kèm vào phiếu đặt lịch.
+ * </p>
  */
 public class XacNhanDichVuThanhToanDialog extends JDialog {
 
+    /** Đối tượng phiếu đặt lịch cần hoàn tất thanh toán */
     private final DatLich booking;
+
+    /** Cờ xác nhận người dùng đồng ý hoàn tất dịch vụ & thanh toán */
     private boolean confirmed = false;
 
+    /** Map danh sách các dịch vụ được chọn (key: ID dịch vụ, value: 1 nếu chọn, 0 nếu không chọn) */
     private final Map<Integer, Integer> checkedDvMap = new HashMap<>();
+
+    /** Map danh sách hàng kho / đồ ăn được chọn (key: ID hàng kho, value: số lượng chọn) */
     private final Map<Integer, Integer> checkedDoAnMap = new HashMap<>();
 
+    /** Model bảng dữ liệu dịch vụ riêng */
     private DefaultTableModel modelDv;
+
+    /** Model bảng dữ liệu đồ ăn / mặt hàng kho */
     private DefaultTableModel modelDoAn;
+
+    /** Bảng JTable hiển thị dịch vụ riêng */
     private JTable tableDv;
+
+    /** Bảng JTable hiển thị đồ ăn / mặt hàng kho */
     private JTable tableDoAn;
 
+    /** Nhãn hiển thị tiền sân bóng */
     private JLabel lblTienSan;
+
+    /** Nhãn hiển thị tổng tiền dịch vụ / đồ ăn phát sinh */
     private JLabel lblTienDichVu;
+
+    /** Nhãn hiển thị tổng số tiền phải thanh toán */
     private JLabel lblTongTien;
 
+    /** Tổng giá trị dịch vụ & đồ ăn kèm theo hiện tại */
     private double totalSvcCost = 0;
 
+    /**
+     * Khởi tạo dialog xác nhận tích chọn lại dịch vụ trước khi thanh toán.
+     *
+     * @param parent  Cửa sổ cha (JFrame)
+     * @param booking Đối tượng phiếu đặt lịch {@link DatLich}
+     */
     public XacNhanDichVuThanhToanDialog(JFrame parent, DatLich booking) {
         super(parent, "Xác nhận & Tích lại dịch vụ thanh toán - " + (booking != null ? booking.getMaLichDat() : ""), true);
         this.booking = booking;
 
+        // Đổ thông tin các dịch vụ và đồ ăn đã được tích chọn trước đó từ phiếu đặt
         if (booking != null) {
             if (booking.getSelectedDvMap() != null) checkedDvMap.putAll(booking.getSelectedDvMap());
             if (booking.getSelectedDoAnMap() != null) checkedDoAnMap.putAll(booking.getSelectedDoAnMap());
         }
 
+        // Khởi tạo thành phần UI
         initUI(parent);
     }
 
+    /**
+     * Xây dựng cấu trúc giao diện tab, các bảng JTable và panel tổng hợp chi phí.
+     *
+     * @param parent Cửa sổ cha dùng căn giữa dialog
+     */
     private void initUI(JFrame parent) {
         setSize(760, 680);
         if (parent != null) setLocationRelativeTo(parent);
         setLayout(new BorderLayout());
 
-        // Header Panel
+        // --- Header Panel ---
         JPanel pnlHeader = PageUI.createPageHeader(
                 " TÍCH CHỌN DỊCH VỤ THEO GHI CHÚ KHI THANH TOÁN",
                 "Phiếu đặt: " + (booking != null ? booking.getMaLichDat() : "") + " | Khách: " + (booking != null ? booking.getTenKhach() : "")
@@ -62,11 +100,11 @@ public class XacNhanDichVuThanhToanDialog extends JDialog {
         pnlHeader.setBackground(UIConstants.PRIMARY);
         getContentPane().add(pnlHeader, BorderLayout.NORTH);
 
-        // Center Panel
+        // --- Center Panel ---
         JPanel pnlCenter = new JPanel(new BorderLayout(0, 10));
         pnlCenter.setBorder(BorderFactory.createEmptyBorder(12, 16, 12, 16));
 
-        // Top Info & Note Card
+        // Khung hiển thị Ghi chú của phiếu đặt lịch
         JPanel pnlInfoNoteCard = new JPanel(new BorderLayout(8, 8));
         pnlInfoNoteCard.setBackground(Color.WHITE);
         pnlInfoNoteCard.setBorder(BorderFactory.createCompoundBorder(
@@ -97,7 +135,7 @@ public class XacNhanDichVuThanhToanDialog extends JDialog {
         JTabbedPane tabPane = new JTabbedPane();
         tabPane.setFont(UIConstants.FONT_BOLD);
 
-        // Tab 1: Dịch vụ sân bóng
+        // --- Tab 1: Dịch vụ sân bóng ---
         JPanel pnlDvTab = new JPanel(new BorderLayout());
         modelDv = new DefaultTableModel(new String[]{"Mã DV", "Tên dịch vụ", "Đơn giá", "Tích chọn (Thanh toán)"}, 0) {
             @Override
@@ -118,6 +156,7 @@ public class XacNhanDichVuThanhToanDialog extends JDialog {
         centerRender.setHorizontalAlignment(SwingConstants.CENTER);
         tableDv.getColumnModel().getColumn(0).setCellRenderer(centerRender);
 
+        // Đăng ký listener sự kiện thay đổi dữ liệu bảng dịch vụ
         modelDv.addTableModelListener(e -> {
             if (e.getType() == TableModelEvent.UPDATE && e.getColumn() == 3) {
                 int r = e.getFirstRow();
@@ -137,7 +176,7 @@ public class XacNhanDichVuThanhToanDialog extends JDialog {
         pnlDvTab.add(new JScrollPane(tableDv), BorderLayout.CENTER);
         tabPane.addTab("1. Dịch vụ riêng (Trọng tài, HLV, Quay phim...)", pnlDvTab);
 
-        // Tab 2: Đồ ăn / Vật tư kho
+        // --- Tab 2: Đồ ăn / Vật tư kho ---
         JPanel pnlDoAnTab = new JPanel(new BorderLayout());
         modelDoAn = new DefaultTableModel(new String[]{"Mã SP", "Tên sản phẩm / đồ ăn", "Đơn giá", "Tồn kho", "Số lượng dùng (Thanh toán)"}, 0) {
             @Override
@@ -156,6 +195,7 @@ public class XacNhanDichVuThanhToanDialog extends JDialog {
         tableDoAn.getColumnModel().getColumn(4).setPreferredWidth(140);
         tableDoAn.getColumnModel().getColumn(0).setCellRenderer(centerRender);
 
+        // Đăng ký listener sự kiện thay đổi số lượng sử dụng mặt hàng kho
         modelDoAn.addTableModelListener(e -> {
             if (e.getType() == TableModelEvent.UPDATE && e.getColumn() == 4) {
                 int r = e.getFirstRow();
@@ -167,6 +207,7 @@ public class XacNhanDichVuThanhToanDialog extends JDialog {
                     if (item != null) {
                         Object val = modelDoAn.getValueAt(r, 4);
                         int qty = (val instanceof Integer num) ? num : 0;
+                        // Cảnh báo nếu số lượng chọn vượt quá số lượng tồn kho khả dụng
                         if (qty > item.getSoLuongTon()) {
                             JOptionPane.showMessageDialog(this, "Số lượng chọn vượt quá số tồn kho (" + item.getSoLuongTon() + ")!", "Cảnh báo kho", JOptionPane.WARNING_MESSAGE);
                             qty = item.getSoLuongTon();
@@ -184,7 +225,7 @@ public class XacNhanDichVuThanhToanDialog extends JDialog {
         pnlCenter.add(tabPane, BorderLayout.CENTER);
         getContentPane().add(pnlCenter, BorderLayout.CENTER);
 
-        // Footer Summary & Buttons
+        // --- Footer Summary & Buttons ---
         JPanel pnlFooter = new JPanel(new BorderLayout(12, 0));
         pnlFooter.setBackground(UIConstants.BG);
         pnlFooter.setBorder(BorderFactory.createCompoundBorder(
@@ -218,6 +259,7 @@ public class XacNhanDichVuThanhToanDialog extends JDialog {
         JPanel pnlButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         pnlButtons.setOpaque(false);
 
+        // Nút Hủy
         JButton btnCancel = new JButton("Hủy");
         btnCancel.setFont(UIConstants.FONT_BUTTON);
         btnCancel.addActionListener(e -> {
@@ -225,6 +267,7 @@ public class XacNhanDichVuThanhToanDialog extends JDialog {
             dispose();
         });
 
+        // Nút Xác nhận & Thanh toán
         JButton btnConfirm = new JButton("✔ Xác nhận & Thanh toán");
         btnConfirm.setFont(UIConstants.FONT_BUTTON);
         btnConfirm.setBackground(UIConstants.SUCCESS);
@@ -237,9 +280,13 @@ public class XacNhanDichVuThanhToanDialog extends JDialog {
         pnlFooter.add(pnlButtons, BorderLayout.EAST);
         getContentPane().add(pnlFooter, BorderLayout.SOUTH);
 
+        // Nạp danh sách dữ liệu lên bảng
         reloadTables();
     }
 
+    /**
+     * Tải dữ liệu các dịch vụ và mặt hàng kho vào 2 bảng JTable tương ứng.
+     */
     private void reloadTables() {
         modelDv.setRowCount(0);
         for (DichVu dv : DataStore.get().getDichVus()) {
@@ -267,6 +314,9 @@ public class XacNhanDichVuThanhToanDialog extends JDialog {
         recalcTotal();
     }
 
+    /**
+     * Tính toán lại tổng chi phí dịch vụ/kho và cập nhật số tiền hiển thị trên các nhãn tổng cộng.
+     */
     private void recalcTotal() {
         totalSvcCost = 0;
         for (DichVu dv : DataStore.get().getDichVus()) {
@@ -289,6 +339,9 @@ public class XacNhanDichVuThanhToanDialog extends JDialog {
         if (lblTongTien != null) lblTongTien.setText(String.format("Tổng thanh toán: %,.0f VNĐ", totalVal));
     }
 
+    /**
+     * Xử lý xác nhận lưu danh sách dịch vụ và đồ ăn đã chọn vào đối tượng phiếu đặt lịch.
+     */
     private void onConfirm() {
         if (booking != null) {
             booking.setSelectedDvMap(checkedDvMap);
@@ -297,6 +350,7 @@ public class XacNhanDichVuThanhToanDialog extends JDialog {
             StringBuilder newDichVuKem = new StringBuilder();
             double newSvcTotal = 0;
 
+            // Xây dựng mô tả chi tiết dịch vụ riêng kèm tiền
             for (DichVu dv : DataStore.get().getDichVus()) {
                 int qty = checkedDvMap.getOrDefault(dv.getId(), 0);
                 if (qty > 0) {
@@ -307,6 +361,7 @@ public class XacNhanDichVuThanhToanDialog extends JDialog {
                 }
             }
 
+            // Xây dựng mô tả chi tiết đồ ăn / hàng kho kèm tiền
             for (DichVu item : DataStore.get().getKhoItems()) {
                 int qty = checkedDoAnMap.getOrDefault(item.getId(), 0);
                 if (qty > 0) {
@@ -326,6 +381,11 @@ public class XacNhanDichVuThanhToanDialog extends JDialog {
         dispose();
     }
 
+    /**
+     * Trả về cờ xác nhận người dùng đã đồng ý lưu và hoàn tất thanh toán.
+     *
+     * @return {@code true} nếu đã xác nhận, ngược lại {@code false}
+     */
     public boolean isConfirmed() {
         return confirmed;
     }

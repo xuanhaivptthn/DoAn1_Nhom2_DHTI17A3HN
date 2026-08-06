@@ -19,23 +19,47 @@ import java.awt.BorderLayout;
 import java.util.List;
 
 /**
- * UC Quản lý dịch vụ trải nghiệm & Tiện ích:
- * Bữa sáng VĐV, Giặt là trang phục thi đấu, Massage hồi phục, Thuê trọng tài, HLV cá nhân...
- * Tương thích Apache NetBeans GUI Builder Drag & Drop.
+ * Panel Quản lý danh mục Dịch vụ & Tiện ích sân bóng (QuanLyDichVuPanel).
+ * <p>
+ * Thực thi Use Case Quản lý dịch vụ trải nghiệm & Tiện ích:
+ * Quản lý danh mục các gói dịch vụ riêng như Bữa sáng vận động viên, Giặt là trang phục thi đấu,
+ * Massage hồi phục cơ bắp, Thuê trọng tài, Huấn luyện viên cá nhân...
+ * </p>
+ * 
+ * @author Nhóm 2 - DHTI17A3HN
+ * @version 1.0
  */
 public class QuanLyDichVuPanel extends javax.swing.JPanel {
 
+    /**
+     * Model dữ liệu bảng danh mục các gói dịch vụ.
+     */
     private DefaultTableModel model;
+
+    /**
+     * Bảng hiển thị danh sách dịch vụ sân bóng.
+     */
     private JTable table;
+
+    /**
+     * Nhãn hiển thị số lượng gói dịch vụ trong danh mục.
+     */
     private JLabel lblCount;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    /** Panel thân nội dung chứa bảng dữ liệu */
     private javax.swing.JPanel pnlBody;
+    /** Panel bao bọc phần header tiêu đề trang */
     private javax.swing.JPanel pnlHeaderWrap;
+    /** Panel hình card chứa bảng danh sách dịch vụ */
     private javax.swing.JPanel pnlTableCard;
+    /** Panel thanh công cụ chứa các nút chức năng thêm, sửa, xóa, xem chi tiết */
     private javax.swing.JPanel pnlToolbar;
     // End of variables declaration//GEN-END:variables
 
+    /**
+     * Khởi tạo giao diện Quản lý dịch vụ mới.
+     */
     public QuanLyDichVuPanel() {
         initComponents();
         customInit();
@@ -43,6 +67,7 @@ public class QuanLyDichVuPanel extends javax.swing.JPanel {
 
     /**
      * NetBeans GUI Builder generated code initialization.
+     * Khởi tạo linh kiện giao diện được sinh tự động bởi NetBeans.
      */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -72,10 +97,14 @@ public class QuanLyDichVuPanel extends javax.swing.JPanel {
         add(pnlBody, java.awt.BorderLayout.CENTER);
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Cấu hình thiết lập giao diện tùy chỉnh và khởi tạo bảng dữ liệu dịch vụ.
+     */
     private void customInit() {
         pnlHeaderWrap.add(PageUI.createPageHeader("Quản lý dịch vụ & Tiện ích sân bóng",
                 "Các gói dịch vụ: Bữa sáng VĐV, Giặt là trang phục, Massage hồi phục, Trọng tài, HLV cá nhân..."), BorderLayout.CENTER);
 
+        // Khởi tạo model bảng dữ liệu dịch vụ
         model = new DefaultTableModel(
                 new String[]{"Mã DV", "Tên dịch vụ", "Loại dịch vụ", "Giá (VNĐ)", "Mô tả"}, 0) {
             @Override
@@ -85,6 +114,7 @@ public class QuanLyDichVuPanel extends javax.swing.JPanel {
         PageUI.styleTable(table);
         table.getColumnModel().getColumn(0).setPreferredWidth(65);
 
+        // Sự kiện nhấp đúp xem chi tiết dịch vụ
         table.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -104,6 +134,9 @@ public class QuanLyDichVuPanel extends javax.swing.JPanel {
         reload();
     }
 
+    /**
+     * Xây dựng thanh công cụ nút bấm chức năng.
+     */
     private void buildToolbar() {
         JButton btnAdd = new javax.swing.JButton(" Thêm DV");
         btnAdd.setIcon(Utils.IconUtils.getAddIcon(16));
@@ -131,6 +164,9 @@ public class QuanLyDichVuPanel extends javax.swing.JPanel {
         pnlToolbar.add(btnDel);
     }
 
+    /**
+     * Xây dựng card chứa bảng danh sách các gói dịch vụ.
+     */
     private void buildTableCard() {
         JPanel top = new JPanel(new BorderLayout());
         top.setOpaque(false);
@@ -143,11 +179,13 @@ public class QuanLyDichVuPanel extends javax.swing.JPanel {
         pnlTableCard.add(new javax.swing.JScrollPane(table), BorderLayout.CENTER);
     }
 
+    /**
+     * Nạp lại dữ liệu danh sách dịch vụ từ DataStore hiển thị lên bảng.
+     */
     public void reload() {
         model.setRowCount(0);
         int n = 0;
 
-        // Bảng Dịch vụ quản lý các gói dịch vụ riêng
         List<DichVu> list = DataStore.get().getDichVus();
         for (DichVu d : list) {
             model.addRow(new Object[]{
@@ -160,8 +198,11 @@ public class QuanLyDichVuPanel extends javax.swing.JPanel {
         lblCount.setText(n + " gói dịch vụ");
     }
 
-
-
+    /**
+     * Lấy đối tượng DichVu tương ứng với dòng được chọn trong bảng.
+     * 
+     * @return DichVu hoặc null nếu chưa chọn dòng nào
+     */
     private DichVu selected() {
         int row = table.getSelectedRow();
         if (row < 0) return null;
@@ -172,6 +213,9 @@ public class QuanLyDichVuPanel extends javax.swing.JPanel {
                 .findFirst().orElse(null);
     }
 
+    /**
+     * Xử lý mở hộp thoại xem thông tin chi tiết gói dịch vụ đang được chọn.
+     */
     private void onViewInfo() {
         DichVu sel = selected();
         if (sel == null) {
@@ -186,7 +230,9 @@ public class QuanLyDichVuPanel extends javax.swing.JPanel {
         }
     }
 
-
+    /**
+     * Xử lý mở hộp thoại thêm mới một gói dịch vụ vào hệ thống.
+     */
     private void onAdd() {
         JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
         DichVuFormDialog dialog = new DichVuFormDialog(parent, null);
@@ -211,6 +257,9 @@ public class QuanLyDichVuPanel extends javax.swing.JPanel {
                 "Kết quả dịch vụ", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    /**
+     * Xử lý mở hộp thoại chỉnh sửa thông tin gói dịch vụ đang được chọn.
+     */
     private void onEdit() {
         DichVu sel = selected();
         if (sel == null) {
@@ -236,6 +285,10 @@ public class QuanLyDichVuPanel extends javax.swing.JPanel {
                 "Kết quả dịch vụ", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    /**
+     * Xử lý xóa gói dịch vụ đang được chọn khỏi hệ thống.
+     * Thực hiện kiểm tra ràng buộc: không cho xóa nếu có lịch đặt sân đang hoạt động chứa dịch vụ này.
+     */
     private void onDelete() {
         DichVu sel = selected();
         if (sel == null) {
@@ -243,7 +296,7 @@ public class QuanLyDichVuPanel extends javax.swing.JPanel {
             return;
         }
 
-        // KIỂM TRA LỊCH ĐẶT SÂN ĐANG DIỄN RA / CHỜ PHỤC VỤ (CHƯA HOÀN THÀNH VÀ CHƯA HỦY) DÙNG DỊCH VỤ NÀY
+        // KIỂM TRA LỊCH ĐẶT SÂN ĐANG DIỄN RA / CHỜ PHỤC VỤ DÙNG DỊCH VỤ NÀY
         List<Model.DatLich> activeBookings = DataStore.get().getDatLichs().stream()
                 .filter(d -> !"DaHuy".equalsIgnoreCase(d.getTrangThai())
                         && !"DA_HUY".equalsIgnoreCase(d.getTrangThai())
@@ -286,6 +339,9 @@ public class QuanLyDichVuPanel extends javax.swing.JPanel {
                 "Kết quả cập nhật dịch vụ", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    /**
+     * Kiểm tra xem thông tin dịch vụ chỉ định có xuất hiện trong phiếu đặt sân hay không.
+     */
     private boolean isServiceInBooking(DichVu dv, Model.DatLich booking) {
         if (dv == null || booking == null) return false;
         String dvKem = booking.getDichVuKem();

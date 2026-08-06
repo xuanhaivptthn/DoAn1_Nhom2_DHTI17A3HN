@@ -27,28 +27,57 @@ import java.awt.GridLayout;
 import java.util.List;
 
 /**
- * UC Quản lý bảo trì:
- * Đăng nhập · Xem tình trạng CSVC dạng Bảng (JTable) · Cập nhật trạng thái BT
- * · Xem lịch sử bảo trì · Lập phiếu bảo trì
- * Tương thích Apache NetBeans GUI Builder Drag & Drop.
+ * Panel Quản lý bảo trì sân bóng (QuanLyBaoTriPanel).
+ * <p>
+ * Thực thi Use Case Quản lý bảo trì:
+ * Xem Bảng tình trạng cơ sở vật chất (CSVC) sân bóng, cập nhật trạng thái bảo trì,
+ * xem lịch sử phiếu bảo trì và lập phiếu bảo trì mới cho các sân bóng.
+ * </p>
+ * 
+ * @author Nhóm 2 - DHTI17A3HN
+ * @version 1.0
  */
 public class QuanLyBaoTriPanel extends javax.swing.JPanel {
 
+    /**
+     * Model dữ liệu bảng danh sách phiếu bảo trì sân bóng.
+     */
     private DefaultTableModel model;
+
+    /**
+     * Bảng hiển thị danh sách lịch sử & phiếu bảo trì.
+     */
     private JTable table;
+
+    /**
+     * Nhãn hiển thị tổng số lượng phiếu bảo trì trong danh sách.
+     */
     private JLabel lblCount;
 
-    // Table Tình trạng cơ sở vật chất (JTable)
+    /**
+     * Model dữ liệu bảng Tình trạng Cơ sở vật chất sân bóng.
+     */
     private DefaultTableModel modelCsvc;
+
+    /**
+     * Bảng hiển thị tình trạng cơ sở vật chất các khu vực sân bóng.
+     */
     private JTable tableCsvc;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    /** Panel thân nội dung chính chứa hai card bảng dữ liệu */
     private javax.swing.JPanel pnlBody;
+    /** Panel bao bọc header tiêu đề trang */
     private javax.swing.JPanel pnlHeaderWrap;
+    /** Panel ở giữa xếp chồng 2 bảng dữ liệu */
     private javax.swing.JPanel pnlMid;
+    /** Panel thanh công cụ chứa các nút chức năng thao tác */
     private javax.swing.JPanel pnlToolbar;
     // End of variables declaration//GEN-END:variables
 
+    /**
+     * Khởi tạo giao diện Quản lý bảo trì mới.
+     */
     public QuanLyBaoTriPanel() {
         initComponents();
         customInit();
@@ -56,6 +85,7 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
 
     /**
      * NetBeans GUI Builder generated code initialization.
+     * Khởi tạo các linh kiện giao diện sinh tự động từ GUI Builder.
      */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -86,11 +116,15 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
         add(pnlBody, java.awt.BorderLayout.CENTER);
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Cấu hình khởi tạo giao diện và các bảng dữ liệu tùy chỉnh.
+     */
     private void customInit() {
+        // Tạo tiêu đề trang quản lý bảo trì
         pnlHeaderWrap.add(PageUI.createPageHeader("Quản lý bảo trì sân bóng",
                 "Xem Bảng tình trạng CSVC sân bóng · Lập phiếu bảo trì · Cập nhật trạng thái · Xem lịch sử"), BorderLayout.CENTER);
 
-        // Model Lịch sử bảo trì
+        // Khởi tạo Model & JTable Lịch sử bảo trì
         model = new DefaultTableModel(new String[]{
                 "Mã phiếu", "Sân", "Nội dung", "Bắt đầu", "Kết thúc", "Trạng thái"
         }, 0) {
@@ -105,7 +139,7 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
         lblCount.setFont(UIConstants.FONT_SMALL);
         lblCount.setForeground(UIConstants.TEXT_SECONDARY);
 
-        // Model Bảng Tình trạng cơ sở vật chất (JTable)
+        // Khởi tạo Model & JTable Tình trạng cơ sở vật chất sân bóng
         modelCsvc = new DefaultTableModel(new String[]{
                 "Mã sân", "Tên sân", "Loại sân", "Giá/giờ", "Trạng thái"
         }, 0) {
@@ -116,20 +150,25 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
         PageUI.styleTable(tableCsvc);
         tableCsvc.getColumnModel().getColumn(0).setPreferredWidth(80);
 
+        // Dựng thanh công cụ và các card chứa bảng
         buildToolbar();
         pnlMid.add(createCsvcCard());
         pnlMid.add(createHistoryCard());
 
+        // Cập nhật dữ liệu khởi tạo
         refreshCsvc();
         reload();
     }
 
+    /**
+     * Xây dựng thanh công cụ chứa các nút thao tác phiếu bảo trì.
+     */
     private void buildToolbar() {
         pnlToolbar.removeAll();
         pnlToolbar.setLayout(new BorderLayout(0, 0));
         pnlToolbar.setOpaque(false);
 
-        // Bên TRÁI: Thao tác lập/sửa/xem phiếu bảo trì
+        // Nút thao tác phía bên trái thanh công cụ
         JPanel pnlLeft = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         pnlLeft.setOpaque(false);
 
@@ -155,6 +194,11 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
         pnlToolbar.add(pnlLeft, BorderLayout.WEST);
     }
 
+    /**
+     * Xây dựng card chứa bảng tình trạng cơ sở vật chất các sân bóng.
+     * 
+     * @return JPanel chứa tiêu đề và bảng thông tin CSVC
+     */
     private JPanel createCsvcCard() {
         JPanel card = new javax.swing.JPanel();
         card.setLayout(new BorderLayout(0, 8));
@@ -169,6 +213,11 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
         return card;
     }
 
+    /**
+     * Xây dựng card chứa bảng danh sách lịch sử phiếu bảo trì.
+     * 
+     * @return JPanel chứa tiêu đề, nhãn số lượng và bảng phiếu bảo trì
+     */
     private JPanel createHistoryCard() {
         JPanel card = new javax.swing.JPanel();
         card.setLayout(new BorderLayout(0, 8));
@@ -184,6 +233,9 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
         return card;
     }
 
+    /**
+     * Làm mới dữ liệu hiển thị trên bảng Tình trạng Cơ sở vật chất các sân bóng.
+     */
     private void refreshCsvc() {
         if (modelCsvc == null) return;
         modelCsvc.setRowCount(0);
@@ -200,6 +252,9 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
         }
     }
 
+    /**
+     * Nạp lại toàn bộ dữ liệu tình trạng CSVC sân bóng và danh sách phiếu bảo trì từ DataStore.
+     */
     public void reload() {
         refreshCsvc();
         model.setRowCount(0);
@@ -216,6 +271,9 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
         lblCount.setText("Tổng: " + c + " phiếu");
     }
 
+    /**
+     * Xử lý mở hộp thoại tạo mới một phiếu bảo trì sân bóng.
+     */
     private void onCreate() {
         JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
         BaoTriFormDialog dialog = new BaoTriFormDialog(parent, null);
@@ -224,6 +282,7 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
             BaoTri form = dialog.getResult();
             KhuVucSan san = dialog.getSelectedSan();
 
+            // Sinh mã phiếu bảo trì tiếp theo
             String ma = Utils.CodeGen.next("BT", DataStore.get().getBaoTris().stream().map(BaoTri::getMaPhieuBaoTri).toList(), 3);
 
             BaoTri b = new BaoTri();
@@ -240,6 +299,7 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
                 try { new DAO.BaoTriDAO().insert(b); } catch (Exception ignored) {}
             }
 
+            // Đổi trạng thái sân sang Bảo trì nếu có chọn sân cụ thể
             if (san != null) {
                 san.setTrangThai("BaoTri");
             }
@@ -248,6 +308,9 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
         }
     }
 
+    /**
+     * Xử lý mở hộp thoại cập nhật thông tin phiếu bảo trì đang chọn trong bảng.
+     */
     private void onUpdate() {
         int r = table.getSelectedRow();
         if (r < 0) {
@@ -272,6 +335,7 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
                     .filter(k -> k.getMaSan() != null && k.getMaSan().equalsIgnoreCase(target.getMaSan()))
                     .findFirst().orElse(null);
 
+            // Cập nhật tự động trạng thái sân hoạt động lại nếu hoàn thành hoặc hủy phiếu bảo trì
             if (san != null) {
                 if ("HOAN_THANH".equalsIgnoreCase(form.getTrangThaiPhieu()) || "HUY".equalsIgnoreCase(form.getTrangThaiPhieu())) {
                     san.setTrangThai("HOAT_DONG");
@@ -285,11 +349,19 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
         }
     }
 
+    /**
+     * Làm mới danh sách phiếu bảo trì.
+     */
     private void onHistory() {
         reload();
         JOptionPane.showMessageDialog(this, "Đã làm mới danh sách lịch sử bảo trì.", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    /**
+     * Thay đổi trực tiếp trạng thái cho phiếu bảo trì đang được chọn trên bảng.
+     * 
+     * @param status Mã trạng thái mới cần đặt (HOAN_THANH, DANG_BAO_TRI, HUY)
+     */
     private void setStatus(String status) {
         int r = table.getSelectedRow();
         if (r < 0) {
@@ -314,6 +386,9 @@ public class QuanLyBaoTriPanel extends javax.swing.JPanel {
         }
     }
 
+    /**
+     * Hiển thị hộp thoại thông tin chi tiết của phiếu bảo trì đang được chọn.
+     */
     private void viewTicket() {
         int r = table.getSelectedRow();
         if (r < 0) {

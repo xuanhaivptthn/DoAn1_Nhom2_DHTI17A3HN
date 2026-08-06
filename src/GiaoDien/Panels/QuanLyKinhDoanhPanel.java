@@ -37,32 +37,57 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Quản lý kinh doanh & Báo cáo tài chính chuyên nghiệp dạng Bảng (JTable).
- * Thống kê doanh thu sân bóng, doanh thu dịch vụ/đồ ăn, báo cáo chi tiết & Xuất Excel (CSV).
- * Tương thích Apache NetBeans GUI Builder Drag & Drop.
+ * Panel Quản lý tài chính & Báo cáo kinh doanh (QuanLyKinhDoanhPanel).
+ * <p>
+ * Thực thi Use Case Báo cáo tài chính & Phân tích kinh doanh:
+ * Tổng hợp thống kê doanh thu sân bóng, doanh thu tiền sân, doanh thu dịch vụ/đồ ăn,
+ * hiển thị bảng phân tích chi tiết theo khu vực sân, bảng chỉ số tài chính, danh mục dịch vụ
+ * và hỗ trợ xuất báo cáo định dạng Excel (CSV hỗ trợ UTF-8 BOM).
+ * </p>
+ * 
+ * @author Nhóm 2 - DHTI17A3HN
+ * @version 1.0
  */
 public class QuanLyKinhDoanhPanel extends javax.swing.JPanel {
 
+    /** Card hiển thị tổng doanh thu tài chính trên thanh KPI */
     private JPanel cardDoanhThu;
+    /** Card hiển thị doanh thu tiền thuê sân bóng trên thanh KPI */
     private JPanel cardTienSan;
+    /** Card hiển thị doanh thu dịch vụ và đồ ăn trên thanh KPI */
     private JPanel cardTienDichVu;
+    /** Card hiển thị giá trị trung bình trên mỗi phiếu đặt */
     private JPanel cardTB;
 
+    /** Model dữ liệu bảng doanh thu phân tích theo khu vực sân bóng */
     private DefaultTableModel modelBySan;
+    /** Model dữ liệu bảng báo cáo tài chính tổng hợp */
     private DefaultTableModel modelSummaryTable;
+    /** Model dữ liệu bảng chi tiết doanh thu dịch vụ và đồ ăn */
     private DefaultTableModel modelByDichVu;
+    /** ComboBox chọn bộ lọc trạng thái phiếu đặt sân */
     private JComboBox<String> cboFilter;
+    /** ComboBox chọn khoảng thời gian báo cáo (Tất cả, Ngày, Tháng, Năm, Khoảng ngày...) */
     private JComboBox<String> cboTimeRange;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    /** Panel thân nội dung chứa dữ liệu báo cáo */
     private javax.swing.JPanel pnlBody;
+    /** Panel thanh bộ lọc thời gian và trạng thái */
     private javax.swing.JPanel pnlFilterBar;
+    /** Panel bao bọc phần header tiêu đề trang */
     private javax.swing.JPanel pnlHeaderWrap;
+    /** Panel giữa chứa các bảng dữ liệu thống kê */
     private javax.swing.JPanel pnlMid;
+    /** Panel chứa 4 thẻ KPI thống kê tài chính */
     private javax.swing.JPanel pnlStats;
+    /** Panel phía trên chứa bộ lọc và thẻ KPI */
     private javax.swing.JPanel pnlTop;
     // End of variables declaration//GEN-END:variables
 
+    /**
+     * Khởi tạo giao diện Quản lý kinh doanh mới.
+     */
     public QuanLyKinhDoanhPanel() {
         initComponents();
         customInit();
@@ -70,6 +95,7 @@ public class QuanLyKinhDoanhPanel extends javax.swing.JPanel {
 
     /**
      * NetBeans GUI Builder generated code initialization.
+     * Khởi tạo các linh kiện giao diện sinh tự động từ NetBeans GUI Builder.
      */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -111,11 +137,14 @@ public class QuanLyKinhDoanhPanel extends javax.swing.JPanel {
         add(pnlBody, java.awt.BorderLayout.CENTER);
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Cấu hình thiết lập giao diện tùy chỉnh, 4 thẻ KPI và các bảng báo cáo tài chính.
+     */
     private void customInit() {
         pnlHeaderWrap.add(PageUI.createPageHeader("Báo cáo Tài chính & Doanh thu",
                 "Tổng hợp doanh thu sân bóng, doanh thu dịch vụ/đồ ăn & Bảng phân tích kinh doanh"), BorderLayout.CENTER);
 
-        // 4 Sleek KPI Metric Cards
+        // Khởi tạo 4 Thẻ KPI Metric hiển thị doanh thu
         cardDoanhThu = PageUI.createStatCard("TỔNG DOANH THU", "0 đ", UIConstants.PRIMARY);
         cardTienSan = PageUI.createStatCard("DOANH THU TIỀN SÂN", "0 đ", new ColorBlue());
         cardTienDichVu = PageUI.createStatCard("DOANH THU DV & ĐỒ ĂN", "0 đ", UIConstants.SUCCESS);
@@ -126,7 +155,7 @@ public class QuanLyKinhDoanhPanel extends javax.swing.JPanel {
         pnlStats.add(cardTienDichVu);
         pnlStats.add(cardTB);
 
-        // Filter Controls
+        // Thiết lập bộ lọc thời gian
         LocalDate now = LocalDate.now();
         String todayStr = now.toString();
         String currentMonthStr = String.format("%04d-%02d", now.getYear(), now.getMonthValue());
@@ -162,6 +191,7 @@ public class QuanLyKinhDoanhPanel extends javax.swing.JPanel {
             refresh();
         });
 
+        // Bộ lọc trạng thái phiếu đặt
         cboFilter = new JComboBox<>(new String[]{
                 "Tất cả trạng thái", "Chỉ phiếu Hoàn thành", "Hoàn thành + Đã xác nhận"
         });
@@ -181,15 +211,13 @@ public class QuanLyKinhDoanhPanel extends javax.swing.JPanel {
         btnReport.addActionListener(e -> onTongHopBaoCao());
         pnlFilterBar.add(btnReport);
 
-
-
         JButton btnExport = new javax.swing.JButton(" Xuất Excel (CSV)");
         btnExport.setIcon(Utils.IconUtils.getExportIcon(16));
         PageUI.styleSuccessButton(btnExport);
         btnExport.addActionListener(e -> onExportExcel());
         pnlFilterBar.add(btnExport);
 
-        // Left Panel: Doanh thu theo Sân
+        // Bảng bên trái: Doanh thu phân tích theo từng Sân bóng
         JPanel left = new javax.swing.JPanel(new BorderLayout(0, 8));
         JLabel lt = new JLabel("Bảng Doanh thu theo Khu vực sân bóng");
         lt.setFont(UIConstants.FONT_SUBTITLE);
@@ -205,14 +233,13 @@ public class QuanLyKinhDoanhPanel extends javax.swing.JPanel {
         PageUI.styleTable(tableSan);
         tableSan.getColumnModel().getColumn(0).setPreferredWidth(75);
         tableSan.getColumnModel().getColumn(1).setPreferredWidth(160);
-        tableSan.getColumnModel().getColumn(2).setPreferredWidth(85);
         tableSan.getColumnModel().getColumn(2).setPreferredWidth(70);
         tableSan.getColumnModel().getColumn(3).setPreferredWidth(110);
         tableSan.getColumnModel().getColumn(4).setPreferredWidth(110);
         tableSan.getColumnModel().getColumn(5).setPreferredWidth(130);
         left.add(new javax.swing.JScrollPane(tableSan), BorderLayout.CENTER);
 
-        // Right Panel: Tabbed Detailed Reports (Bảng Báo cáo Tổng hợp & Bảng Doanh thu dịch vụ)
+        // Bảng bên phải: Tabbed Detailed Reports (Báo cáo Tổng hợp & Chi tiết Dịch vụ)
         JPanel right = new javax.swing.JPanel(new BorderLayout(0, 8));
         JLabel rt = new JLabel("Bảng Báo cáo & Phân tích Tài chính Chi tiết");
         rt.setFont(UIConstants.FONT_SUBTITLE);
@@ -221,7 +248,7 @@ public class QuanLyKinhDoanhPanel extends javax.swing.JPanel {
 
         JTabbedPane tabReports = new JTabbedPane();
 
-        // Tab 1: BẢNG BÁO CÁO TỔNG HỢP (JTable)
+        // Tab 1: Bảng Báo cáo Tổng hợp chỉ số tài chính
         modelSummaryTable = new DefaultTableModel(
                 new String[]{"Chỉ số tài chính / Báo cáo", "Giá trị thực tế"}, 0) {
             @Override
@@ -235,7 +262,7 @@ public class QuanLyKinhDoanhPanel extends javax.swing.JPanel {
         JScrollPane spSummary = new JScrollPane(tableSummary);
         tabReports.addTab("Báo cáo Tổng hợp", spSummary);
 
-        // Tab 2: Bảng chi tiết doanh thu Dịch vụ & Đồ ăn
+        // Tab 2: Bảng Chi tiết Doanh thu Dịch vụ & Đồ ăn
         modelByDichVu = new DefaultTableModel(
                 new String[]{"ID", "Tên Dịch vụ / Đồ ăn", "Đơn giá", "Đơn vị", "Loại", "Doanh thu ước tính"}, 0) {
             @Override
@@ -256,13 +283,22 @@ public class QuanLyKinhDoanhPanel extends javax.swing.JPanel {
         pnlMid.add(left);
         pnlMid.add(right);
 
+        // Cập nhật tính toán dữ liệu
         refresh();
     }
 
+    /** Ngày lọc cụ thể được chọn */
     private LocalDate selectedDateFilter = LocalDate.now();
+    /** Ngày bắt đầu của khoảng lọc */
     private LocalDate fromDateFilter = LocalDate.now().minusDays(7);
+    /** Ngày kết thúc của khoảng lọc */
     private LocalDate toDateFilter = LocalDate.now();
 
+    /**
+     * Lấy mô tả nhãn chuỗi hiển thị kỳ báo cáo thời gian đang áp dụng bộ lọc.
+     * 
+     * @return Chuỗi tên kỳ báo cáo
+     */
     private String getTimePeriodLabel() {
         int timeMode = cboTimeRange == null ? 0 : cboTimeRange.getSelectedIndex();
         LocalDate now = LocalDate.now();
@@ -276,6 +312,9 @@ public class QuanLyKinhDoanhPanel extends javax.swing.JPanel {
         };
     }
 
+    /**
+     * Thực hiện làm mới dữ liệu và hiển thị thông báo tổng hợp báo cáo thành công.
+     */
     private void onTongHopBaoCao() {
         refresh();
         JOptionPane.showMessageDialog(this,
@@ -286,6 +325,9 @@ public class QuanLyKinhDoanhPanel extends javax.swing.JPanel {
                 "Tổng hợp báo cáo", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    /**
+     * Xuất dữ liệu thống kê doanh thu và báo cáo tài chính ra file Excel định dạng CSV (UTF-8 BOM).
+     */
     private void onExportExcel() {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Xuất báo cáo kinh doanh ra Excel (CSV)");
@@ -307,7 +349,7 @@ public class QuanLyKinhDoanhPanel extends javax.swing.JPanel {
         }
 
         try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(fileToSave), StandardCharsets.UTF_8)) {
-            writer.write("\uFEFF"); // UTF-8 BOM for Microsoft Excel compatibility
+            writer.write("\uFEFF"); // Ghi byte ký tự UTF-8 BOM để Excel đọc đúng tiếng Việt có dấu
 
             List<DatLich> all = DataStore.get().getDatLichs();
             int mode = cboFilter == null ? 2 : cboFilter.getSelectedIndex();
@@ -317,6 +359,7 @@ public class QuanLyKinhDoanhPanel extends javax.swing.JPanel {
             String monthPrefix = String.format("%04d-%02d", now.getYear(), now.getMonthValue());
             String yearPrefix = String.valueOf(now.getYear());
 
+            // Lọc danh sách phiếu tính doanh thu theo bộ lọc
             List<DatLich> revenueList = all.stream().filter(d -> {
                 String dNgay = d.getNgayDat() != null ? d.getNgayDat().trim() : "";
                 if (timeMode == 1 && !todayStr.equalsIgnoreCase(dNgay)) return false;
@@ -341,13 +384,14 @@ public class QuanLyKinhDoanhPanel extends javax.swing.JPanel {
             double tienSanTotal = revenueList.stream().mapToDouble(DatLich::getTienSan).sum();
             double tienDvTotal = revenueList.stream().mapToDouble(DatLich::getTienDichVu).sum();
             long done = revenueList.stream().filter(d -> "HoanThanh".equals(d.getTrangThai())).count();
-            long cancel = all.stream().filter(d -> "DaHuy".equals(d.getTrangThai())).count();
             double avg = revenueList.isEmpty() ? 0 : total / revenueList.size();
 
+            // Ghi phần Header tổng quan
             writer.write("BÁO CÁO TỔNG HỢP KINH DOANH & TÀI CHÍNH SÂN BÓNG\n");
             writer.write("Kỳ báo cáo," + getTimePeriodLabel() + "\n");
             writer.write("Ngày xuất file," + LocalDate.now().toString() + "\n\n");
 
+            // Ghi Mục 1: Chỉ số tài chính tổng quan
             writer.write("1. TỔNG QUAN TÀI CHÍNH KỲ BÁO CÁO\n");
             writer.write("Chỉ số tài chính,Giá trị (VNĐ)\n");
             writer.write("Số phiếu trong kỳ báo cáo," + revenueList.size() + "\n");
@@ -357,6 +401,7 @@ public class QuanLyKinhDoanhPanel extends javax.swing.JPanel {
             writer.write("Số phiếu hoàn thành," + done + "\n");
             writer.write("Trung bình / phiếu DT,\"" + String.format("%,.0f VNĐ", (double) (avg)) + "\"\n\n");
 
+            // Ghi Mục 2: Phân tích theo sân bóng
             writer.write("2. PHÂN TÍCH DOANH THU THEO SÂN BÓNG\n");
             writer.write("Tên sân bóng,Số lượt đặt,Doanh thu tiền sân,Doanh thu dịch vụ,Tổng doanh thu\n");
 
@@ -377,6 +422,7 @@ public class QuanLyKinhDoanhPanel extends javax.swing.JPanel {
                         String.format("%,.0f VNĐ", (double) (subtotal))));
             }
 
+            // Ghi Mục 3: Danh sách chi tiết phiếu đặt sân
             writer.write("\n3. CHI TIẾT PHIẾU ĐẶT SÂN TÍNH DOANH THU\n");
             writer.write("Mã phiếu,Sân bóng,Khách hàng,Số điện thoại,Ngày đặt,Khung giờ,Tiền sân,Tiền dịch vụ,Tổng tiền,Đồ kèm,Trạng thái\n");
             for (DatLich d : revenueList) {
@@ -402,10 +448,14 @@ public class QuanLyKinhDoanhPanel extends javax.swing.JPanel {
         }
     }
 
+    /** Lớp màu xanh dương tùy chỉnh cho thẻ KPI Doanh thu tiền sân */
     private static class ColorBlue extends java.awt.Color {
         ColorBlue() { super(25, 118, 210); }
     }
 
+    /**
+     * Nạp lại và tính toán toàn bộ chỉ số tài chính, cập nhật các thẻ KPI và 3 bảng hiển thị báo cáo.
+     */
     public void refresh() {
         List<DatLich> all = DataStore.get().getDatLichs();
         int mode = cboFilter == null ? 2 : cboFilter.getSelectedIndex();
@@ -415,6 +465,7 @@ public class QuanLyKinhDoanhPanel extends javax.swing.JPanel {
         String monthPrefix = String.format("%04d-%02d", now.getYear(), now.getMonthValue());
         String yearPrefix = String.valueOf(now.getYear());
 
+        // Lọc danh sách phiếu tính toán doanh thu
         List<DatLich> revenueList = all.stream().filter(d -> {
             String dNgay = d.getNgayDat() != null ? d.getNgayDat().trim() : "";
             if (timeMode == 1 && !todayStr.equalsIgnoreCase(dNgay)) return false;
@@ -443,12 +494,13 @@ public class QuanLyKinhDoanhPanel extends javax.swing.JPanel {
         long cancel = all.stream().filter(d -> "DaHuy".equals(d.getTrangThai())).count();
         double avg = revenueList.isEmpty() ? 0 : total / revenueList.size();
 
+        // Cập nhật 4 thẻ KPI
         PageUI.updateStatCard(cardDoanhThu, String.format("%,.0f VNĐ", (double) (total)));
         PageUI.updateStatCard(cardTienSan, String.format("%,.0f VNĐ", (double) (tienSanTotal)));
         PageUI.updateStatCard(cardTienDichVu, String.format("%,.0f VNĐ", (double) (tienDvTotal)));
         PageUI.updateStatCard(cardTB, String.format("%,.0f VNĐ", (double) (avg)));
 
-        // 1. Fill Doanh Thu Theo Sân Table
+        // 1. Nạp dữ liệu Bảng Doanh thu theo Khu vực Sân
         Map<String, double[]> bySan = new LinkedHashMap<>();
         for (DatLich d : revenueList) {
             bySan.computeIfAbsent(d.getTenSan(), k -> new double[3]);
@@ -473,7 +525,7 @@ public class QuanLyKinhDoanhPanel extends javax.swing.JPanel {
             }
         }
 
-        // 2. Fill Báo Cáo Tổng Hợp JTable (WITHOUT GHI CHÚ VÀ TỶ TRỌNG)
+        // 2. Nạp dữ liệu Bảng Báo cáo Tổng hợp các chỉ số tài chính
         if (modelSummaryTable != null) {
             modelSummaryTable.setRowCount(0);
 
@@ -511,7 +563,7 @@ public class QuanLyKinhDoanhPanel extends javax.swing.JPanel {
             });
         }
 
-        // 3. Fill Doanh Thu Chi Tiết Dịch Vụ JTable
+        // 3. Nạp dữ liệu Bảng Chi tiết Doanh thu Dịch vụ & Đồ ăn
         if (modelByDichVu != null) {
             modelByDichVu.setRowCount(0);
 

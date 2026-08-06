@@ -25,16 +25,37 @@ import java.awt.Insets;
 import java.util.List;
 
 /**
- * Dialog hiển thị Bảng Tổng hợp thông tin phiếu đặt lịch sân bóng.
- * Cho phép người dùng kiểm tra lại thông tin, bấm xác nhận hoặc hủy trước khi lưu.
+ * Hộp thoại (JDialog) hiển thị Bảng Tổng hợp thông tin phiếu đặt lịch sân bóng.
+ * <p>
+ * Dialog cung cấp cái nhìn tổng quan đầy đủ gồm 3 mục card:
+ * 1. Thông tin sân bóng & Khách hàng
+ * 2. Danh sách dịch vụ & Đồ ăn kèm theo dạng bảng JTable
+ * 3. Tổng chi phí tạm tính (Tiền sân + Tiền phụ trợ)
+ * Người dùng có thể kiểm tra kỹ thông tin trước khi bấm "Xác nhận lưu" hoặc "Hủy / Quay lại sửa".
+ * </p>
  */
 public class TongHopThongTinDialog extends JDialog {
 
+    /** Đối tượng phiếu đặt lịch cần tổng hợp thông tin */
     private final DatLich booking;
+
+    /** Danh sách các mục dịch vụ / đồ ăn phụ trợ được lựa chọn */
     private final List<ChonDichVuDialog.SelectedItem> addons;
+
+    /** Tổng tiền của các dịch vụ / đồ ăn phụ trợ */
     private final double addonTotalCost;
+
+    /** Cờ xác nhận người dùng đồng ý lưu phiếu */
     private boolean confirmed = false;
 
+    /**
+     * Khởi tạo dialog tổng hợp thông tin phiếu đặt lịch.
+     *
+     * @param parent         Cửa sổ cha (JFrame)
+     * @param booking        Đối tượng phiếu đặt lịch {@link DatLich}
+     * @param addons         Danh sách các món/dịch vụ phụ trợ {@link ChonDichVuDialog.SelectedItem}
+     * @param addonTotalCost Tổng chi phí phụ trợ
+     */
     public TongHopThongTinDialog(JFrame parent, DatLich booking,
                                 List<ChonDichVuDialog.SelectedItem> addons,
                                 double addonTotalCost) {
@@ -43,28 +64,34 @@ public class TongHopThongTinDialog extends JDialog {
         this.addons = addons;
         this.addonTotalCost = addonTotalCost;
 
+        // Khởi tạo và thiết lập các phần tử giao diện
         initComponents(parent);
     }
 
+    /**
+     * Khởi tạo cấu trúc các thẻ thông tin (Cards), bảng chi tiết phụ trợ và các nút bấm điều khiển.
+     *
+     * @param parent Cửa sổ cha dùng để căn giữa dialog
+     */
     private void initComponents(JFrame parent) {
         setSize(620, 600);
         setResizable(false);
         if (parent != null) setLocationRelativeTo(parent);
 
-        // Header
+        // Header tiêu đề trang tổng hợp
         JPanel pnlHeader = PageUI.createPageHeader(
                 "BẢNG TỔNG HỢP THÔNG TIN PHIẾU ĐẶT LỊCH",
                 "Vui lòng kiểm tra lại thông tin phiếu đặt trước khi bấm Xác nhận lưu"
         );
         getContentPane().add(pnlHeader, BorderLayout.NORTH);
 
-        // Center Content with ScrollPane
+        // Panel chính sắp xếp theo trục dọc Y-AXIS với ScrollPane
         JPanel pnlMain = new JPanel();
         pnlMain.setLayout(new javax.swing.BoxLayout(pnlMain, javax.swing.BoxLayout.Y_AXIS));
         pnlMain.setBackground(UIConstants.BG);
         pnlMain.setBorder(BorderFactory.createEmptyBorder(12, 16, 12, 16));
 
-        // Card 1: Thông tin Đặt sân & Khách hàng
+        // --- Card 1: Thông tin Đặt sân & Khách hàng ---
         JPanel cardInfo = new JPanel(new GridBagLayout());
         cardInfo.setBackground(Color.WHITE);
         cardInfo.setBorder(BorderFactory.createCompoundBorder(
@@ -98,7 +125,7 @@ public class TongHopThongTinDialog extends JDialog {
         pnlMain.add(cardInfo);
         pnlMain.add(javax.swing.Box.createRigidArea(new Dimension(0, 10)));
 
-        // Card 2: Danh sách Dịch vụ & Đồ ăn kèm theo
+        // --- Card 2: Danh sách Dịch vụ & Đồ ăn kèm theo ---
         JPanel cardAddons = new JPanel(new BorderLayout(0, 6));
         cardAddons.setBackground(Color.WHITE);
         cardAddons.setBorder(BorderFactory.createCompoundBorder(
@@ -137,7 +164,6 @@ public class TongHopThongTinDialog extends JDialog {
             tableAddons.getColumnModel().getColumn(0).setPreferredWidth(40);
             tableAddons.getColumnModel().getColumn(1).setPreferredWidth(210);
             tableAddons.getColumnModel().getColumn(2).setPreferredWidth(85);
-            tableAddons.getColumnModel().getColumn(2).setPreferredWidth(75);
             tableAddons.getColumnModel().getColumn(3).setPreferredWidth(100);
             tableAddons.getColumnModel().getColumn(4).setPreferredWidth(110);
 
@@ -155,7 +181,7 @@ public class TongHopThongTinDialog extends JDialog {
         pnlMain.add(cardAddons);
         pnlMain.add(javax.swing.Box.createRigidArea(new Dimension(0, 10)));
 
-        // Card 3: Tổng tiền thanh toán
+        // --- Card 3: Tổng tiền thanh toán ---
         double courtPrice = booking.getTienSan();
         double totalCost = courtPrice + addonTotalCost;
 
@@ -205,11 +231,12 @@ public class TongHopThongTinDialog extends JDialog {
         spMain.setBorder(null);
         getContentPane().add(spMain, BorderLayout.CENTER);
 
-        // Footer Panel
+        // --- Footer Panel chứa các nút hành động ---
         JPanel pnlFooter = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 12));
         pnlFooter.setBackground(UIConstants.BG);
         pnlFooter.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, UIConstants.BORDER));
 
+        // Nút Hủy quay lại chỉnh sửa
         JButton btnCancel = new JButton(" Hủy / Quay lại sửa");
         btnCancel.setIcon(Utils.IconUtils.getCloseIcon(16));
         Utils.PageUI.styleSecondaryButton(btnCancel);
@@ -219,6 +246,7 @@ public class TongHopThongTinDialog extends JDialog {
             dispose();
         });
 
+        // Nút Xác nhận lưu phiếu
         JButton btnConfirm = new JButton(" XÁC NHẬN LƯU PHIẾU");
         btnConfirm.setIcon(Utils.IconUtils.getCheckIcon(16));
         Utils.PageUI.stylePrimaryButton(btnConfirm);
@@ -234,6 +262,16 @@ public class TongHopThongTinDialog extends JDialog {
         getContentPane().add(pnlFooter, BorderLayout.SOUTH);
     }
 
+    /**
+     * Thêm một dòng thông tin chi tiết vào panel Card bằng GridBagLayout.
+     *
+     * @param card  Panel Card
+     * @param gbc   GridBagConstraints
+     * @param row   Chỉ số hàng
+     * @param label Chuỗi tiêu đề
+     * @param value Giá trị hiển thị
+     * @return Chỉ số hàng tiếp theo
+     */
     private int addDetailRow(JPanel card, GridBagConstraints gbc, int row, String label, String value) {
         gbc.gridx = 0; gbc.gridy = row; gbc.weightx = 0.35;
         JLabel lbl = new JLabel(label);
@@ -248,6 +286,13 @@ public class TongHopThongTinDialog extends JDialog {
         return row + 1;
     }
 
+    /**
+     * Tính toán thời lượng sử dụng sân bóng (tính theo số giờ lẻ float).
+     *
+     * @param start Giờ bắt đầu dạng HH:mm
+     * @param end   Giờ kết thúc dạng HH:mm
+     * @return Số giờ (double)
+     */
     private double calculateHours(String start, String end) {
         try {
             String[] s = start.split(":");
@@ -260,6 +305,11 @@ public class TongHopThongTinDialog extends JDialog {
         }
     }
 
+    /**
+     * Trả về cờ đánh dấu người dùng đã xác nhận lưu phiếu hay chưa.
+     *
+     * @return {@code true} nếu đã xác nhận lưu, {@code false} nếu Hủy
+     */
     public boolean isConfirmed() {
         return confirmed;
     }

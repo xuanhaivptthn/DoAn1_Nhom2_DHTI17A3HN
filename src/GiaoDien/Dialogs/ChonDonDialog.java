@@ -13,19 +13,44 @@ import java.util.List;
 
 /**
  * Dialog chọn phiếu đặt sân để bán dịch vụ đi kèm.
- * Hiển thị bảng thông tin đơn đặt rõ ràng, hỗ trợ tìm kiếm nhanh.
+ * <p>
+ * Hiển thị danh sách các đơn đặt sân bóng dưới dạng bảng rõ ràng,
+ * hỗ trợ tìm kiếm nhanh theo mã đơn, tên khách hàng, số điện thoại hoặc sân bóng.
+ * Cho phép nhấp đúp chuột hoặc bấm nút để lựa chọn phiếu đặt.
+ * </p>
+ *
+ * @author Nhóm 2 - DHTI17A3HN
+ * @version 1.0
  */
 public class ChonDonDialog extends JDialog {
 
+    /** Model quản lý dữ liệu của bảng phiếu đặt sân */
     private DefaultTableModel tableModel;
+
+    /** Bảng hiển thị danh sách phiếu đặt sân */
     private JTable table;
+
+    /** Ô nhập liệu từ khóa tìm kiếm nhanh */
     private JTextField txtSearch;
+
+    /** Nhãn hiển thị số lượng bản ghi đơn đặt sân hiện tại */
     private JLabel lblInfo;
 
+    /** Danh sách toàn bộ phiếu đặt sân nguồn */
     private final List<DatLich> datLichList;
+
+    /** Đơn đặt sân được lựa chọn */
     private DatLich selectedDon;
+
+    /** Cờ xác nhận người dùng đã chọn đơn thành công */
     private boolean confirmed = false;
 
+    /**
+     * Khởi tạo thoại chọn phiếu đặt sân.
+     *
+     * @param parent      Cửa sổ cha (JFrame)
+     * @param datLichList Danh sách các phiếu đặt sân khả dụng
+     */
     public ChonDonDialog(JFrame parent, List<DatLich> datLichList) {
         super(parent, "Chọn phiếu đặt sân để bán dịch vụ", true);
         this.datLichList = datLichList;
@@ -33,6 +58,11 @@ public class ChonDonDialog extends JDialog {
         reloadTable("");
     }
 
+    /**
+     * Khởi tạo giao diện dialog, cấu hình bảng, thanh tìm kiếm và các nút chức năng.
+     *
+     * @param parent Cửa sổ cha
+     */
     private void initComponents(JFrame parent) {
         setSize(820, 520);
         setResizable(false);
@@ -41,19 +71,19 @@ public class ChonDonDialog extends JDialog {
         getContentPane().setBackground(UIConstants.BG);
         getContentPane().setLayout(new BorderLayout());
 
-        // ── HEADER ──────────────────────────────────────────────────────────
+        // ── 1. HEADER ──────────────────────────────────────────────────────────
         JPanel pnlHeader = PageUI.createPageHeader(
                 "Chọn phiếu đặt sân",
                 "Chọn phiếu đặt sân cần bán thêm dịch vụ / đồ ăn đi kèm"
         );
         getContentPane().add(pnlHeader, BorderLayout.NORTH);
 
-        // ── BODY ─────────────────────────────────────────────────────────────
+        // ── 2. BODY ─────────────────────────────────────────────────────────────
         JPanel pnlBody = new JPanel(new BorderLayout(0, 10));
         pnlBody.setOpaque(false);
         pnlBody.setBorder(new EmptyBorder(14, 16, 8, 16));
 
-        // Search bar
+        // Thanh tìm kiếm nhanh
         JPanel pnlSearch = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         pnlSearch.setOpaque(false);
 
@@ -71,7 +101,7 @@ public class ChonDonDialog extends JDialog {
         ));
         pnlSearch.add(txtSearch);
 
-        // Info label count
+        // Nhãn số lượng đơn hiển thị
         lblInfo = new JLabel();
         lblInfo.setFont(UIConstants.FONT_SMALL);
         lblInfo.setForeground(UIConstants.TEXT_SECONDARY);
@@ -80,7 +110,7 @@ public class ChonDonDialog extends JDialog {
 
         pnlBody.add(pnlSearch, BorderLayout.NORTH);
 
-        // Table
+        // Cấu hình Bảng hiển thị đơn đặt sân
         tableModel = new DefaultTableModel(
                 new String[]{"Mã phiếu", "Sân bóng", "Khách hàng", "SĐT", "Ngày đặt", "Khung giờ", "Tổng tiền", "Trạng thái"}, 0) {
             @Override
@@ -100,10 +130,10 @@ public class ChonDonDialog extends JDialog {
         table.getColumnModel().getColumn(6).setPreferredWidth(110);
         table.getColumnModel().getColumn(7).setPreferredWidth(110);
 
-        // Status column custom renderer
+        // Đăng ký renderer tùy chỉnh màu sắc cho cột Trạng thái
         table.getColumnModel().getColumn(7).setCellRenderer(new StatusCellRenderer());
 
-        // Double click to confirm
+        // Bắt sự kiện nhấp đúp chuột để chọn đơn
         table.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
@@ -116,7 +146,7 @@ public class ChonDonDialog extends JDialog {
         scroll.getViewport().setBackground(Color.WHITE);
         pnlBody.add(scroll, BorderLayout.CENTER);
 
-        // Info hint panel
+        // Nhãn hướng dẫn thao tác
         JPanel pnlHint = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 2));
         pnlHint.setOpaque(false);
         JLabel lblHint = new JLabel("💡 Nhấp đúp vào đơn hoặc chọn rồi nhấn \"Chọn phiếu này\"");
@@ -127,7 +157,7 @@ public class ChonDonDialog extends JDialog {
 
         getContentPane().add(pnlBody, BorderLayout.CENTER);
 
-        // ── FOOTER ───────────────────────────────────────────────────────────
+        // ── 3. FOOTER ───────────────────────────────────────────────────────────
         JPanel pnlFooter = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 10));
         pnlFooter.setBackground(UIConstants.BG);
         pnlFooter.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, UIConstants.BORDER));
@@ -151,6 +181,11 @@ public class ChonDonDialog extends JDialog {
         getRootPane().setDefaultButton(btnSelect);
     }
 
+    /**
+     * Tải lại danh sách đơn trên bảng dựa theo từ khóa lọc tìm kiếm.
+     *
+     * @param keyword Từ khóa tìm kiếm nhập từ textfield
+     */
     private void reloadTable(String keyword) {
         tableModel.setRowCount(0);
         int count = 0;
@@ -178,9 +213,14 @@ public class ChonDonDialog extends JDialog {
         lblInfo.setText("Hiển thị " + count + " / " + datLichList.size() + " phiếu");
     }
 
+    /**
+     * Chuyển đổi định dạng ngày yyyy-MM-dd sang dd/MM/yyyy để hiển thị giao diện.
+     *
+     * @param raw Chuỗi ngày gốc yyyy-MM-dd
+     * @return Chuỗi ngày dạng dd/MM/yyyy
+     */
     private String formatDate(String raw) {
         if (raw == null || raw.isBlank()) return "-";
-        // yyyy-MM-dd → dd/MM/yyyy
         try {
             String[] parts = raw.trim().split("-");
             if (parts.length == 3) return parts[2] + "/" + parts[1] + "/" + parts[0];
@@ -188,6 +228,9 @@ public class ChonDonDialog extends JDialog {
         return raw;
     }
 
+    /**
+     * Xử lý xác nhận chọn dòng đang Highlight trên bảng.
+     */
     private void onConfirm() {
         int row = table.getSelectedRow();
         if (row < 0) {
@@ -205,10 +248,23 @@ public class ChonDonDialog extends JDialog {
         dispose();
     }
 
+    /**
+     * Kiểm tra người dùng đã xác nhận thành công hay chưa.
+     *
+     * @return true nếu đã chọn đơn
+     */
     public boolean isConfirmed() { return confirmed; }
+
+    /**
+     * Lấy đối tượng phiếu đặt sân DatLich được chọn.
+     *
+     * @return Đơn DatLich được chọn
+     */
     public DatLich getSelectedDon() { return selectedDon; }
 
-    /** Custom renderer cho cột Trạng thái */
+    /**
+     * Bộ tô màu và định dạng dữ liệu (Renderer) tùy chỉnh cho cột Trạng thái trên bảng.
+     */
     private static class StatusCellRenderer extends DefaultTableCellRenderer {
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,

@@ -24,23 +24,48 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * UC Quản lý kho:
- * Xem · Thêm · Cập nhật · Nhập kho · Xuất kho · Kiểm tra tồn kho hàng hóa (Nước suối, lưới, găng tay,...).
- * Tương thích Apache NetBeans GUI Builder Drag & Drop.
+ * Panel Quản lý kho hàng & Vật tư sân bóng (QuanLyKhoPanel).
+ * <p>
+ * Thực thi Use Case Quản lý kho:
+ * Quản lý danh sách hàng hóa kho, vật tư (Nước suối, lưới bóng, găng tay, bóng thi đấu,...),
+ * thực hiện các thao tác xem chi tiết, thêm mặt hàng mới, nhập kho bổ sung, xuất kho bán hàng
+ * và kiểm tra tồn kho cảnh báo mức tối thiểu.
+ * </p>
+ * 
+ * @author Nhóm 2 - DHTI17A3HN
+ * @version 1.0
  */
 public class QuanLyKhoPanel extends javax.swing.JPanel {
 
+    /**
+     * Model dữ liệu bảng vật tư & hàng hóa trong kho.
+     */
     private DefaultTableModel model;
+
+    /**
+     * Bảng hiển thị danh sách hàng hóa trong kho.
+     */
     private JTable table;
+
+    /**
+     * Nhãn hiển thị số lượng mặt hàng và số mặt hàng sắp hết.
+     */
     private JLabel lblCount;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    /** Panel thân nội dung chính */
     private javax.swing.JPanel pnlBody;
+    /** Panel bao bọc phần header tiêu đề trang */
     private javax.swing.JPanel pnlHeaderWrap;
+    /** Panel hình card chứa bảng kho hàng */
     private javax.swing.JPanel pnlTableCard;
+    /** Panel thanh công cụ chứa các nút bấm nhập kho, xuất kho, kiểm tra tồn */
     private javax.swing.JPanel pnlToolbar;
     // End of variables declaration//GEN-END:variables
 
+    /**
+     * Khởi tạo giao diện Quản lý kho mới.
+     */
     public QuanLyKhoPanel() {
         initComponents();
         customInit();
@@ -48,6 +73,7 @@ public class QuanLyKhoPanel extends javax.swing.JPanel {
 
     /**
      * NetBeans GUI Builder generated code initialization.
+     * Khởi tạo linh kiện giao diện tự động bởi NetBeans.
      */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -77,10 +103,14 @@ public class QuanLyKhoPanel extends javax.swing.JPanel {
         add(pnlBody, java.awt.BorderLayout.CENTER);
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Cấu hình thiết lập giao diện tùy chỉnh và khởi tạo bảng danh sách kho.
+     */
     private void customInit() {
         pnlHeaderWrap.add(PageUI.createPageHeader("Quản lý kho hàng & Vật tư",
                 "Quản lý vật phẩm: Nước suối, lưới bóng, găng tay, bóng thi đấu, trang thiết bị..."), BorderLayout.CENTER);
 
+        // Khởi tạo Model & JTable quản lý kho
         model = new DefaultTableModel(
                 new String[]{"Mã HH", "Tên hàng hóa", "Số lượng", "Đơn giá", "Nhà cung cấp"}, 0) {
             @Override
@@ -91,7 +121,6 @@ public class QuanLyKhoPanel extends javax.swing.JPanel {
         table.getColumnModel().getColumn(0).setPreferredWidth(80);
         table.getColumnModel().getColumn(1).setPreferredWidth(200);
         table.getColumnModel().getColumn(2).setPreferredWidth(90);
-        table.getColumnModel().getColumn(2).setPreferredWidth(80);
         table.getColumnModel().getColumn(3).setPreferredWidth(120);
         table.getColumnModel().getColumn(4).setPreferredWidth(180);
 
@@ -105,11 +134,14 @@ public class QuanLyKhoPanel extends javax.swing.JPanel {
         reload();
     }
 
+    /**
+     * Xây dựng thanh công cụ chứa các nút Nhập kho, Kiểm tra tồn kho và Xuất kho.
+     */
     private void buildToolbar() {
         pnlToolbar.setLayout(new BorderLayout());
         pnlToolbar.setOpaque(false);
 
-        // Bên TRÁI: Nhập kho / Kiểm tra tồn kho
+        // Phía TRÁI: Nhập kho / Kiểm tra tồn kho
         JPanel pnlLeft = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         pnlLeft.setOpaque(false);
 
@@ -126,7 +158,7 @@ public class QuanLyKhoPanel extends javax.swing.JPanel {
         pnlLeft.add(btnNhap);
         pnlLeft.add(btnKiemTra);
 
-        // Bên PHẢI: Xuất kho | Làm mới dữ liệu
+        // Phía PHẢI: Xuất kho
         JPanel pnlRight = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         pnlRight.setOpaque(false);
 
@@ -141,6 +173,9 @@ public class QuanLyKhoPanel extends javax.swing.JPanel {
         pnlToolbar.add(pnlRight, BorderLayout.EAST);
     }
 
+    /**
+     * Xây dựng card chứa bảng danh sách mặt hàng kho.
+     */
     private void buildTableCard() {
         JPanel top = new JPanel(new BorderLayout());
         top.setOpaque(false);
@@ -153,6 +188,9 @@ public class QuanLyKhoPanel extends javax.swing.JPanel {
         pnlTableCard.add(new javax.swing.JScrollPane(table), BorderLayout.CENTER);
     }
 
+    /**
+     * Nạp lại danh sách vật tư kho hàng từ DataStore và tính toán số mặt hàng sắp hết.
+     */
     public void reload() {
         model.setRowCount(0);
         List<DichVu> list = DataStore.get().getKhoItems();
@@ -169,6 +207,11 @@ public class QuanLyKhoPanel extends javax.swing.JPanel {
         lblCount.setText(n + " mặt hàng  |  " + low + " sắp hết hàng");
     }
 
+    /**
+     * Lấy đối tượng mặt hàng DichVu đang được chọn trong bảng kho.
+     * 
+     * @return DichVu hoặc null nếu chưa chọn dòng nào
+     */
     private DichVu selected() {
         int row = table.getSelectedRow();
         if (row < 0) return null;
@@ -183,6 +226,9 @@ public class QuanLyKhoPanel extends javax.swing.JPanel {
         return DataStore.get().getKhoItems().stream().filter(d -> d.getId() == id).findFirst().orElse(null);
     }
 
+    /**
+     * Xem thông tin chi tiết các mặt hàng hoặc mặt hàng kho được chọn.
+     */
     private void onViewInfo() {
         DichVu sel = selected();
         if (sel == null) {
@@ -205,7 +251,10 @@ public class QuanLyKhoPanel extends javax.swing.JPanel {
         JOptionPane.showMessageDialog(this, info, "Thông tin mặt hàng kho", JOptionPane.INFORMATION_MESSAGE);
     }
 
-
+    /**
+     * Xử lý thực hiện xuất kho cho mặt hàng kho được chọn.
+     * Kiểm tra số lượng tồn kho khả dụng trước khi trừ tồn.
+     */
     private void onXuatKho() {
         DichVu sel = selected();
         if (sel == null) {
@@ -226,6 +275,7 @@ public class QuanLyKhoPanel extends javax.swing.JPanel {
             JOptionPane.showMessageDialog(this, "Số lượng không hợp lệ.");
             return;
         }
+        // Kiểm tra tồn kho có đủ số lượng xuất không
         if (sl > sel.getSoLuongTon()) {
             JOptionPane.showMessageDialog(this,
                     "KIỂM TRA TỒN KHO — TỪ CHỐI XUẤT\n"
@@ -244,7 +294,9 @@ public class QuanLyKhoPanel extends javax.swing.JPanel {
                 "Kết quả xuất kho", JOptionPane.INFORMATION_MESSAGE);
     }
 
-
+    /**
+     * Thống kê kiểm tra toàn bộ danh sách kho và cảnh báo các mặt hàng chạm hoặc dưới mức tồn tối thiểu.
+     */
     private void onKiemTraTon() {
         List<DichVu> low = DataStore.get().getKhoItems().stream()
                 .filter(DichVu::isSapHet).collect(Collectors.toList());
@@ -264,6 +316,9 @@ public class QuanLyKhoPanel extends javax.swing.JPanel {
         JOptionPane.showMessageDialog(this, sb.toString(), "Kiểm tra tồn kho", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    /**
+     * Mở tùy chọn nhập kho (Nhập mới mặt hàng chưa có hoặc Nhập thêm số lượng cho mặt hàng có sẵn).
+     */
     private void onNhapKho() {
         String[] options = {"➕ Nhập mới mặt hàng", "📦 Nhập thêm số lượng (Hàng có sẵn)", "Hủy"};
         int choice = JOptionPane.showOptionDialog(
@@ -284,6 +339,9 @@ public class QuanLyKhoPanel extends javax.swing.JPanel {
         }
     }
 
+    /**
+     * Mở thoại tạo mới một mặt hàng vật tư kho chưa có trong danh mục.
+     */
     private void onAddMoi() {
         JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
         KhoFormDialog dialog = new KhoFormDialog(parent, null);
@@ -310,6 +368,9 @@ public class QuanLyKhoPanel extends javax.swing.JPanel {
                 "Kết quả cập nhật kho", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    /**
+     * Mở thoại chọn mặt hàng kho đã có sẵn và cộng thêm số lượng nhập kho.
+     */
     private void onAddDaCo() {
         List<DichVu> list = DataStore.get().getKhoItems();
         if (list.isEmpty()) {

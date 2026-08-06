@@ -24,37 +24,73 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
- * Màn hình đăng nhập phiên làm việc hệ thống.
+ * Màn hình đăng nhập phiên làm việc hệ thống (LoginPanel).
+ * <p>
+ * Cho phép người dùng nhập tên tài khoản, mật khẩu và lựa chọn nguồn kết nối dữ liệu
+ * (CSDL MySQL kết nối XAMPP hoặc Dữ liệu mẫu lưu trữ trên bộ nhớ in-memory DataStore).
+ * </p>
+ * 
+ * @author Nhóm 2 - DHTI17A3HN
+ * @version 1.0
  */
 public class LoginPanel extends javax.swing.JPanel {
 
+    /**
+     * Hàm callback xử lý khi đăng nhập thông tin tài khoản thành công.
+     */
     private Consumer<Void> onLoginSuccess;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    /** Nút thực hiện xác thực đăng nhập */
     private javax.swing.JButton btnLogin;
+    /** ComboBox chọn nguồn dữ liệu kết nối (MySQL hoặc In-Memory DataStore) */
     private javax.swing.JComboBox<String> cboDataSource;
+    /** Nhãn hiển thị thông báo lỗi khi xác thực thất bại */
     private javax.swing.JLabel lblError;
+    /** Nhãn chân trang thông tin hệ thống */
     private javax.swing.JLabel lblFooter;
+    /** Nhãn gợi ý tài khoản đăng nhập demo hệ thống */
     private javax.swing.JLabel lblHint;
+    /** Nhãn chứa biểu tượng quả bóng logo */
     private javax.swing.JLabel lblIcon;
+    /** Nhãn tiêu đề ô nhập mật khẩu */
     private javax.swing.JLabel lblPassLabel;
+    /** Nhãn tiêu đề phụ màn hình đăng nhập */
     private javax.swing.JLabel lblSub;
+    /** Nhãn tiêu đề chính của hệ thống */
     private javax.swing.JLabel lblTitle;
+    /** Nhãn tiêu đề ô nhập tên đăng nhập */
     private javax.swing.JLabel lblUserLabel;
+    /** Panel hình thẻ bo góc chứa form đăng nhập */
     private javax.swing.JPanel pnlCard;
+    /** Panel căn giữa nội dung màn hình */
     private javax.swing.JPanel pnlCenter;
+    /** Panel chứa các trường nhập liệu form đăng nhập */
     private javax.swing.JPanel pnlForm;
+    /** Panel chứa thông tin gợi ý đăng nhập */
     private javax.swing.JPanel pnlHint;
+    /** Panel chứa tiêu đề chính và phụ */
     private javax.swing.JPanel pnlTitles;
+    /** Panel chứa logo và tiêu đề phía trên thẻ */
     private javax.swing.JPanel pnlTop;
+    /** Ô nhập mật khẩu người dùng */
     private javax.swing.JPasswordField txtPass;
+    /** Ô nhập tên đăng nhập người dùng */
     private javax.swing.JTextField txtUser;
     // End of variables declaration//GEN-END:variables
 
+    /**
+     * Khởi tạo màn hình đăng nhập mặc định.
+     */
     public LoginPanel() {
         this(null);
     }
 
+    /**
+     * Khởi tạo màn hình đăng nhập với callback thành công.
+     * 
+     * @param onLoginSuccess Hàm thực thi sau khi đăng nhập tài khoản thành công
+     */
     public LoginPanel(Consumer<Void> onLoginSuccess) {
         this.onLoginSuccess = onLoginSuccess;
         initComponents();
@@ -63,12 +99,14 @@ public class LoginPanel extends javax.swing.JPanel {
 
     /**
      * NetBeans GUI Builder generated code initialization.
+     * Khởi tạo các thành phần giao diện được thiết kế từ giao diện kéo thả NetBeans.
      */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
         pnlCenter = new javax.swing.JPanel();
+        // Tùy biến vẽ khung pnlCard với hình chữ nhật bo tròn góc
         pnlCard = new javax.swing.JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -248,24 +286,40 @@ public class LoginPanel extends javax.swing.JPanel {
         add(lblFooter, java.awt.BorderLayout.SOUTH);
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Cấu hình sự kiện bấm phím Enter cho ô nhập tài khoản và mật khẩu.
+     */
     private void customInit() {
+        // Nhấn Enter ở ô mật khẩu thực hiện đăng nhập
         txtPass.addActionListener(e -> doLogin());
+        // Nhấn Enter ở ô tên đăng nhập chuyển con trỏ sang ô mật khẩu
         txtUser.addActionListener(e -> txtPass.requestFocus());
     }
 
+    /**
+     * Xử lý xác thực thông tin tài khoản đăng nhập khi nhấn nút "Đăng nhập".
+     * Kiểm tra thiết lập kết nối CSDL, gọi TaiKhoanController thực hiện xác thực,
+     * và thông báo lỗi hoặc chuyển màn hình chính.
+     */
     private void doLogin() {
+        // Thiết lập cấu hình nguồn CSDL dựa trên giá trị được chọn trên ComboBox
         boolean useDb = cboDataSource != null && cboDataSource.getSelectedIndex() == 0;
         Utils.DataStore.setUseDatabase(useDb);
 
+        // Gọi controller thực hiện đăng nhập
         Optional<String> error = new Controller.TaiKhoanController().login(txtUser.getText(), new String(txtPass.getPassword()));
         if (error.isPresent()) {
+            // Hiển thị thông báo lỗi bằng HTML nếu xác thực không thành công
             lblError.setText("<html><table width='350' style='color: #dc2626; word-wrap: break-word; table-layout: fixed;'><tr><td><b>[!]</b> " + error.get() + "</td></tr></table></html>");
             pnlCard.revalidate();
             pnlCard.repaint();
             return;
         }
+
+        // Đăng nhập thành công, xóa câu thông báo lỗi
         lblError.setText(" ");
         if (onLoginSuccess != null) {
+            // Gửi thông báo gọi lại để chuyển giao diện sang MainFrame
             onLoginSuccess.accept(null);
         }
     }

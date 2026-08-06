@@ -25,35 +25,63 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
- * Hộp thoại hiển thị và Xuất hóa đơn cho từng đơn đặt sân bóng.
+ * Hộp thoại (JDialog) hiển thị và xuất hóa đơn chi tiết cho đơn đặt sân bóng.
+ * <p>
+ * Dialog hỗ trợ xem trước hóa đơn dưới dạng HTML trình bày chuyên nghiệp,
+ * hỗ trợ tính tổng tiền sân bóng, tiền dịch vụ, tiền hàng kho, tiền đặt cọc và tiền thực thu,
+ * đồng thời cung cấp tính năng xuất hóa đơn ra file CSV (Excel) hoặc HTML.
+ * </p>
  */
 public class HoaDonDialog extends JDialog {
 
+    /** Đối tượng phiếu đặt lịch cần lập và xem hóa đơn */
     private final DatLich datLich;
+
+    /** Phương thức thanh toán (ví dụ: Tiền mặt, Chuyển khoản, Thẻ) */
     private final String phuongThucTT;
 
+    /**
+     * Khởi tạo dialog hóa đơn mặc định với hình thức thanh toán Tiền mặt.
+     *
+     * @param parent  Cửa sổ cha (JFrame)
+     * @param datLich Đối tượng phiếu đặt lịch
+     */
     public HoaDonDialog(JFrame parent, DatLich datLich) {
         this(parent, datLich, "Tiền mặt");
     }
 
+    /**
+     * Khởi tạo dialog hóa đơn với hình thức thanh toán tùy chọn.
+     *
+     * @param parent       Cửa sổ cha (JFrame)
+     * @param datLich      Đối tượng phiếu đặt lịch
+     * @param phuongThucTT Chuỗi hình thức thanh toán
+     */
     public HoaDonDialog(JFrame parent, DatLich datLich, String phuongThucTT) {
         super(parent, "Hóa đơn thanh toán - " + (datLich != null ? datLich.getMaLichDat() : ""), true);
         this.datLich = datLich;
         this.phuongThucTT = phuongThucTT != null ? phuongThucTT : "Tiền mặt";
 
+        // Đồng bộ/Lưu vết hóa đơn thanh toán vào DataStore
         if (datLich != null) {
             Utils.DataStore.get().saveOrUpdateHoaDonForBooking(datLich, this.phuongThucTT);
         }
 
+        // Khởi tạo các thành phần giao diện
         initUI(parent);
     }
 
+    /**
+     * Khởi tạo các thành phần giao diện xem trước hóa đơn và các nút bấm xuất file.
+     *
+     * @param parent Cửa sổ cha để căn giữa vị trí dialog
+     */
     private void initUI(JFrame parent) {
         setSize(520, 620);
         if (parent != null) setLocationRelativeTo(parent);
         setLayout(new BorderLayout());
 
-        // Header
+        // Header trên cùng hiển thị tên hóa đơn
         JPanel pnlHeader = new JPanel(new BorderLayout());
         pnlHeader.setBackground(UIConstants.PRIMARY);
         pnlHeader.setBorder(javax.swing.BorderFactory.createEmptyBorder(14, 20, 14, 20));
@@ -65,7 +93,7 @@ public class HoaDonDialog extends JDialog {
 
         add(pnlHeader, BorderLayout.NORTH);
 
-        // Center HTML Preview
+        // Khung hiển thị nội dung mẫu hóa đơn bằng JTextPane định dạng HTML
         JTextPane txtInvoicePreview = new JTextPane();
         txtInvoicePreview.setContentType("text/html");
         txtInvoicePreview.setEditable(false);
@@ -76,17 +104,20 @@ public class HoaDonDialog extends JDialog {
         sp.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 12, 10, 12));
         add(sp, BorderLayout.CENTER);
 
-        // Footer Buttons
+        // Thanh công cụ nút bấm ở chân dialog
         JPanel pnlFooter = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 10));
         pnlFooter.setBackground(UIConstants.BG);
 
+        // Nút xuất hóa đơn ra file Excel (CSV)
         JButton btnExportExcel = new JButton("Xuất file Excel/CSV");
         btnExportExcel.setFont(UIConstants.FONT_BOLD);
         btnExportExcel.addActionListener(e -> onExportCsv());
 
+        // Nút xuất hóa đơn ra file HTML
         JButton btnExportHtml = new JButton("Xuất file HTML");
         btnExportHtml.addActionListener(e -> onExportHtml());
 
+        // Nút Đóng dialog
         JButton btnClose = new JButton("Đóng");
         btnClose.addActionListener(e -> dispose());
 
@@ -97,6 +128,11 @@ public class HoaDonDialog extends JDialog {
         add(pnlFooter, BorderLayout.SOUTH);
     }
 
+    /**
+     * Sinh mã HTML tổng hợp toàn bộ thông tin chi tiết hóa đơn thanh toán.
+     *
+     * @return Chuỗi mã HTML của hóa đơn
+     */
     private String generateInvoiceHtml() {
         if (datLich == null) return "<html><body><h3>Không có dữ liệu hóa đơn</h3></body></html>";
 
@@ -104,6 +140,7 @@ public class HoaDonDialog extends JDialog {
         String nowStr = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
         String maHd = hd != null ? hd.getMaHoaDon() : "HD-" + datLich.getMaLichDat();
 
+        // Tính toán các khoản thu
         double tienSan = datLich.getTienSan();
         double tienDichVu = datLich.getTongTienDichVuOnly();
         double tienKho = datLich.getTongTienKhoOnly();
@@ -130,6 +167,7 @@ public class HoaDonDialog extends JDialog {
         html.append("<h2>HỆ THỐNG QUẢN LÝ SÂN BÓNG</h2>");
         html.append("<div class='subtitle'>HÓA ĐƠN TỔNG HỢP TIỀN SÂN & DỊCH VỤ</div>");
 
+        // Bảng thông tin hóa đơn và khách hàng
         html.append("<table class='info-table'>")
             .append("<tr><td><b>Mã hóa đơn:</b> ").append(maHd).append("</td><td><b>Thời gian lập:</b> ").append(nowStr).append("</td></tr>")
             .append("<tr><td><b>Khách hàng:</b> ").append(datLich.getTenKhach()).append("</td><td><b>Số điện thoại:</b> ").append(datLich.getSoDienThoaiKhach()).append("</td></tr>")
@@ -138,23 +176,28 @@ public class HoaDonDialog extends JDialog {
             .append("<tr><td><b>Nhân viên lập:</b> ").append(datLich.getMaTaiKhoan() != null ? datLich.getMaTaiKhoan() : "Admin").append("</td><td><b>Trạng thái:</b> <span style='color:green;'><b>Đã thanh toán</b></span></td></tr>")
             .append("</table>");
 
+        // Bảng chi tiết các khoản thu
         html.append("<h4>Chi tiết khoản thu</h4>");
         html.append("<table class='items-table'>")
             .append("<tr><th>Mục thanh toán</th><th style='text-align:right;'>Số tiền (VNĐ)</th></tr>");
 
+        // Tiền thuê sân bóng
         html.append("<tr><td>Tiền thuê sân bóng (").append(datLich.getKhungGio()).append(")</td>")
             .append("<td style='text-align:right;'>").append(String.format("%,.0f VNĐ", tienSan)).append("</td></tr>");
 
+        // Tiền dịch vụ
         if (tienDichVu > 0) {
             html.append("<tr><td>Tiền dịch vụ đi kèm</td><td style='text-align:right;'>")
                 .append(String.format("%,.0f VNĐ", tienDichVu)).append("</td></tr>");
         }
 
+        // Tiền hàng kho / đồ ăn
         if (tienKho > 0) {
             html.append("<tr><td>Tiền sản phẩm kho / đồ ăn</td><td style='text-align:right;'>")
                 .append(String.format("%,.0f VNĐ", tienKho)).append("</td></tr>");
         }
 
+        // Chi tiết danh sách các món dịch vụ đi kèm
         if (dvDetails != null && !dvDetails.isBlank()) {
             String[] lines = dvDetails.split("\n");
             for (String line : lines) {
@@ -164,6 +207,7 @@ public class HoaDonDialog extends JDialog {
             }
         }
 
+        // Tiền cọc trừ bớt
         if (datLich.getDatCoc() > 0) {
             html.append("<tr><td>Tiền cọc đã thanh toán trước</td><td style='text-align:right; color:red;'>-")
                 .append(String.format("%,.0f VNĐ", datLich.getDatCoc())).append("</td></tr>");
@@ -171,6 +215,7 @@ public class HoaDonDialog extends JDialog {
 
         html.append("</table>");
 
+        // Khung tổng số tiền thực thu
         html.append("<div class='total-box'>")
             .append("<div class='total-row'>TỔNG THỰC THU: ").append(String.format("%,.0f VNĐ", tongCong)).append("</div>")
             .append("</div>");
@@ -181,6 +226,9 @@ public class HoaDonDialog extends JDialog {
         return html.toString();
     }
 
+    /**
+     * Xử lý xuất nội dung hóa đơn ra định dạng tập tin Excel (CSV) mã hóa UTF-8 với BOM.
+     */
     private void onExportCsv() {
         if (datLich == null) return;
         Model.HoaDon hd = Utils.DataStore.get().saveOrUpdateHoaDonForBooking(datLich, phuongThucTT);
@@ -201,7 +249,8 @@ public class HoaDonDialog extends JDialog {
             }
 
             try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(saveFile), StandardCharsets.UTF_8)) {
-                writer.write("\uFEFF"); // UTF-8 BOM
+                // Ghi ký tự UTF-8 BOM để Excel đọc đúng tiếng Việt
+                writer.write("\uFEFF");
                 writer.write("HÓA ĐƠN THANH TOÁN SÂN BÓNG\n");
                 writer.write("Mã hóa đơn," + maHd + "\n");
                 writer.write("Mã phiếu đặt," + datLich.getMaLichDat() + "\n");
@@ -240,6 +289,9 @@ public class HoaDonDialog extends JDialog {
         }
     }
 
+    /**
+     * Xử lý xuất hóa đơn ra file HTML riêng độc lập để in hoặc lưu trữ.
+     */
     private void onExportHtml() {
         if (datLich == null) return;
         JFileChooser chooser = new JFileChooser();

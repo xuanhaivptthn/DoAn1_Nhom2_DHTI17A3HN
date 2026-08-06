@@ -29,22 +29,55 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * Dashboard tổng quan — thiết kế đơn giản, sạch sẽ.
- * Stat cards → Ma trận khung giờ → Lịch hôm nay → Hành động nhanh.
+ * Panel Dashboard Tổng quan — Giao diện màn hình chính cung cấp góc nhìn tổng thể hoạt động sân bóng.
+ * <p>
+ * Bố cục tổng quan bao gồm: các thẻ chỉ số KPI (Thẻ thống kê sân bóng, lịch đặt hôm nay, doanh thu đã thu),
+ * Ma trận khung giờ hoạt động trong ngày (Timeline matrix), Bảng danh sách lịch đặt trong ngày và thanh thao tác nhanh.
+ * </p>
+ * 
+ * @author Nhóm 2 - DHTI17A3HN
+ * @version 1.0
  */
 public class DashboardPanel extends JPanel {
 
+    /**
+     * Hàm gọi lại (Callback Consumer) dùng để kích hoạt chuyển đổi trang trên cửa sổ chính MainFrame.
+     */
     private Consumer<String> pageNavigator;
 
-    // Stat card value labels
+    /**
+     * Nhãn hiển thị giá trị số lượng sân (sẵn sàng / đang thuê) trên thẻ KPI.
+     */
     private JLabel lblSanValue;
+
+    /**
+     * Nhãn hiển thị giá trị số lượng lịch đặt hôm nay (chờ duyệt / đã duyệt) trên thẻ KPI.
+     */
     private JLabel lblDatLichValue;
+
+    /**
+     * Nhãn hiển thị giá trị tổng doanh thu đã thu trong ngày trên thẻ KPI.
+     */
     private JLabel lblDoanhThuValue;
 
+    /**
+     * Model dữ liệu bảng danh sách các lịch đặt trong ngày hôm nay.
+     */
     private DefaultTableModel todayUpcomingBookingsModel;
+
+    /**
+     * Model dữ liệu bảng ma trận khung giờ hoạt động hôm nay.
+     */
     private DefaultTableModel todayCalendarModel;
+
+    /**
+     * Bảng hiển thị ma trận khung giờ hoạt động (Timeline Schedule Grid).
+     */
     private JTable todayCalendarTable;
 
+    /**
+     * Danh sách cố định các mốc khung giờ phục vụ trong ngày (từ 06:00 đến 23:00).
+     */
     private static final String[] TIME_SLOTS = {
             "06:00", "07:00", "08:00", "09:00", "10:00", "11:00",
             "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00",
@@ -53,15 +86,28 @@ public class DashboardPanel extends JPanel {
 
     // Keep unused panel fields to not break GEN-BEGIN/END block
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    /** Panel chứa thân nội dung chính */
     private javax.swing.JPanel pnlBody;
+    /** Panel bao bọc phần tiêu đề header */
     private javax.swing.JPanel pnlHeaderWrap;
+    /** Panel chứa các nút bấm thao tác nhanh */
     private javax.swing.JPanel pnlQuickActionsCard;
+    /** Panel phân chia nội dung bố cục */
     private javax.swing.JPanel pnlSplit;
+    /** Panel lưới chứa các thẻ thống kê KPI */
     private javax.swing.JPanel pnlStatsGrid;
     // End of variables declaration//GEN-END:variables
 
+    /**
+     * Khởi tạo DashboardPanel không truyền tham số điều hướng.
+     */
     public DashboardPanel() { this(null); }
 
+    /**
+     * Khởi tạo DashboardPanel với trình điều hướng trang.
+     * 
+     * @param pageNavigator Consumer tiếp nhận key tên trang để điều hướng trên MainFrame
+     */
     public DashboardPanel(Consumer<String> pageNavigator) {
         this.pageNavigator = pageNavigator;
         buildUI();
@@ -78,33 +124,36 @@ public class DashboardPanel extends JPanel {
 
     // ─── BUILD FULL UI ────────────────────────────────────────────────────────
 
+    /**
+     * Xây dựng toàn bộ bố cục và linh kiện UI cho Dashboard Panel.
+     */
     private void buildUI() {
         setBackground(UIConstants.BG);
         setLayout(new BorderLayout());
 
-        // Page header — fixed at top
+        // Tiêu đề trang cố định ở phía bắc (NORTH)
         add(buildHeader(), BorderLayout.NORTH);
 
-        // Body — fills remaining space, no outer scroll
+        // Thân panel chứa dữ liệu chính
         JPanel body = new JPanel(new BorderLayout(0, 0));
         body.setBackground(UIConstants.BG);
         body.setBorder(new EmptyBorder(14, 18, 14, 18));
 
-        // TOP: stat cards row — fixed height
+        // PHẦN TRÊN: Dòng thẻ KPI thống kê tổng quan
         JPanel top = new JPanel(new BorderLayout(0, 10));
         top.setOpaque(false);
         top.add(buildStatsRow(), BorderLayout.CENTER);
         top.add(Box.createVerticalStrut(10), BorderLayout.SOUTH);
         body.add(top, BorderLayout.NORTH);
 
-        // CENTER: calendar + bookings stacked — fills all remaining height
+        // PHẦN GIỮA: Chứa ma trận khung giờ và bảng danh sách lịch đặt được xếp chồng 2 hàng
         JPanel center = new JPanel(new GridLayout(2, 1, 0, 12));
         center.setOpaque(false);
         center.add(buildCalendarCard());
         center.add(buildBookingsCard());
         body.add(center, BorderLayout.CENTER);
 
-        // SOUTH: quick actions — fixed height
+        // PHẦN DƯỚI: Thanh nút bấm thao tác nhanh
         JPanel south = new JPanel(new BorderLayout(0, 0));
         south.setOpaque(false);
         south.setBorder(new EmptyBorder(12, 0, 0, 0));
@@ -113,11 +162,17 @@ public class DashboardPanel extends JPanel {
 
         add(body, BorderLayout.CENTER);
 
+        // Nạp và đồng bộ dữ liệu ban đầu
         refresh();
     }
 
     // ─── HEADER ──────────────────────────────────────────────────────────────
 
+    /**
+     * Xây dựng panel tiêu đề header phía trên của Dashboard.
+     * 
+     * @return JPanel chứa tiêu đề và ngày tháng hiện tại
+     */
     private JPanel buildHeader() {
         JPanel header = new JPanel(new BorderLayout(0, 3));
         header.setBackground(UIConstants.PRIMARY);
@@ -129,6 +184,7 @@ public class DashboardPanel extends JPanel {
         lblTitle.setIcon(Utils.IconUtils.getBallWhiteIcon(24));
         lblTitle.setIconTextGap(10);
 
+        // Hiển thị ngày tháng hiện tại định dạng tiếng Việt
         JLabel lblSub = new JLabel("Hôm nay: " + LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE, dd/MM/yyyy", java.util.Locale.of("vi"))));
         lblSub.setFont(UIConstants.FONT_SMALL);
         lblSub.setForeground(new Color(200, 230, 201));
@@ -140,6 +196,11 @@ public class DashboardPanel extends JPanel {
 
     // ─── STAT CARDS ──────────────────────────────────────────────────────────
 
+    /**
+     * Xây dựng hàng chứa 3 thẻ thống kê chỉ số KPI.
+     * 
+     * @return JPanel chứa 3 thẻ stat card
+     */
     private JPanel buildStatsRow() {
         JPanel row = new JPanel(new GridLayout(1, 3, 12, 0));
         row.setOpaque(false);
@@ -151,6 +212,15 @@ public class DashboardPanel extends JPanel {
         return row;
     }
 
+    /**
+     * Tạo một card giao diện hiển thị chỉ số thống kê đơn lẻ.
+     * 
+     * @param label  Tên chỉ số thống kê
+     * @param value  Giá trị ban đầu
+     * @param icon   Biểu tượng đại diện
+     * @param accent Màu viền nhấn của card
+     * @return JPanel tượng trưng cho 1 thẻ KPI
+     */
     private JPanel buildStatCard(String label, String value, Icon icon, Color accent) {
         JPanel card = new JPanel(new BorderLayout(0, 2));
         card.setBackground(Color.WHITE);
@@ -174,7 +244,7 @@ public class DashboardPanel extends JPanel {
         lblValue.setFont(new Font("Segoe UI", Font.BOLD, 17));
         lblValue.setForeground(UIConstants.TEXT_PRIMARY);
 
-        // Store reference for updates
+        // Lưu biến tham chiếu tới các nhãn giá trị để cập nhật sau khi nạp dữ liệu
         if (label.startsWith("Sân")) lblSanValue = lblValue;
         else if (label.startsWith("Lịch")) lblDatLichValue = lblValue;
         else if (label.startsWith("Doanh")) lblDoanhThuValue = lblValue;
@@ -186,10 +256,15 @@ public class DashboardPanel extends JPanel {
 
     // ─── CALENDAR MATRIX ─────────────────────────────────────────────────────
 
+    /**
+     * Xây dựng card chứa ma trận khung giờ hôm nay và thanh chú thích màu sắc.
+     * 
+     * @return JPanel chứa bảng ma trận khung giờ
+     */
     private JPanel buildCalendarCard() {
         JPanel card = buildCard();
 
-        // Title row
+        // Tiêu đề và nút liên kết xem chi tiết
         JPanel titleRow = new JPanel(new BorderLayout());
         titleRow.setOpaque(false);
         titleRow.setBorder(new EmptyBorder(0, 0, 8, 0));
@@ -211,7 +286,7 @@ public class DashboardPanel extends JPanel {
         titleRow.add(btnGo, BorderLayout.EAST);
         card.add(titleRow, BorderLayout.NORTH);
 
-        // Table
+        // Khởi tạo các cột cho bảng ma trận khung giờ
         List<String> headers = new java.util.ArrayList<>();
         headers.add("Khu vực sân");
         for (String s : TIME_SLOTS) headers.add(s);
@@ -233,6 +308,7 @@ public class DashboardPanel extends JPanel {
             todayCalendarTable.getColumnModel().getColumn(i).setPreferredWidth(66);
         todayCalendarTable.setDefaultRenderer(Object.class, new CalendarCellRenderer());
 
+        // Sự kiện nhấp đúp ô Trống để thực hiện đặt sân nhanh
         todayCalendarTable.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -254,7 +330,7 @@ public class DashboardPanel extends JPanel {
         scroll.getViewport().setBackground(Color.WHITE);
         card.add(scroll, BorderLayout.CENTER);
 
-        // Legend
+        // Thanh chú thích (Legend) đại diện màu sắc trạng thái
         JPanel legend = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 0));
         legend.setOpaque(false);
         legend.setBorder(new EmptyBorder(6, 0, 0, 0));
@@ -271,6 +347,14 @@ public class DashboardPanel extends JPanel {
         return card;
     }
 
+    /**
+     * Tạo chip chú thích trạng thái màu sắc.
+     * 
+     * @param text Tên trạng thái
+     * @param bg   Màu nền
+     * @param fg   Màu chữ
+     * @return JLabel được vẽ bo góc tùy chỉnh
+     */
     private JLabel legendChip(String text, Color bg, Color fg) {
         JLabel lbl = new JLabel("  " + text + "  ") {
             @Override protected void paintComponent(Graphics g) {
@@ -290,6 +374,11 @@ public class DashboardPanel extends JPanel {
 
     // ─── BOOKINGS TABLE ───────────────────────────────────────────────────────
 
+    /**
+     * Xây dựng card chứa bảng danh sách lịch đặt sân trong ngày.
+     * 
+     * @return JPanel chứa JTable danh sách lịch đặt
+     */
     private JPanel buildBookingsCard() {
         JPanel card = buildCard();
 
@@ -331,6 +420,11 @@ public class DashboardPanel extends JPanel {
 
     // ─── QUICK ACTIONS ────────────────────────────────────────────────────────
 
+    /**
+     * Xây dựng card chứa danh sách nút bấm thao tác nhanh công việc thường gặp.
+     * 
+     * @return JPanel chứa các nút bấm hành động
+     */
     private JPanel buildActionsCard() {
         JPanel card = buildCard();
 
@@ -343,11 +437,13 @@ public class DashboardPanel extends JPanel {
         JPanel pnlBtns = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         pnlBtns.setOpaque(false);
 
+        // Các nút bấm thực thi tác vụ trực tiếp
         pnlBtns.add(actionBtn("Thêm lịch đặt", Utils.IconUtils.getAddIcon(15), UIConstants.PRIMARY, e -> onQuickBook()));
         pnlBtns.add(actionBtn("Bán dịch vụ", Utils.IconUtils.getOpenIcon(15), new Color(14, 122, 200), e -> onQuickSell()));
         pnlBtns.add(actionBtn("Kiểm tra sân", Utils.IconUtils.getCheckIcon(15), UIConstants.SUCCESS, e -> onCheckSan()));
         pnlBtns.add(actionBtn("Tạo bảo trì", Utils.IconUtils.getMaintenanceIcon(15), UIConstants.WARNING, e -> onQuickMaint()));
 
+        // Nút tắt chuyển hướng trang nếu được khởi tạo với navigator
         if (pageNavigator != null) {
             pnlBtns.add(Box.createHorizontalStrut(8));
             pnlBtns.add(plainBtn("→ Đặt lịch", e -> pageNavigator.accept("datlich")));
@@ -359,10 +455,13 @@ public class DashboardPanel extends JPanel {
         }
 
         card.add(pnlBtns, BorderLayout.CENTER);
-        pnlQuickActionsCard = card; // keep reference
+        pnlQuickActionsCard = card; // Lưu tham chiếu
         return card;
     }
 
+    /**
+     * Tạo một nút bấm thao tác nhanh chính có màu nền và biểu tượng.
+     */
     private JButton actionBtn(String text, Icon icon, Color bg, java.awt.event.ActionListener action) {
         JButton btn = new JButton(text);
         btn.setIcon(icon);
@@ -377,6 +476,9 @@ public class DashboardPanel extends JPanel {
         return btn;
     }
 
+    /**
+     * Tạo một nút liên kết phẳng không nền (Text-only link button).
+     */
     private JButton plainBtn(String text, java.awt.event.ActionListener action) {
         JButton btn = new JButton(text);
         btn.setFont(UIConstants.FONT_SMALL);
@@ -392,6 +494,9 @@ public class DashboardPanel extends JPanel {
 
     // ─── CARD CONTAINER ──────────────────────────────────────────────────────
 
+    /**
+     * Hàm tiện ích dựng khung card trắng có viền xám mỏng.
+     */
     private JPanel buildCard() {
         JPanel card = new JPanel(new BorderLayout(0, 0));
         card.setBackground(Color.WHITE);
@@ -404,6 +509,9 @@ public class DashboardPanel extends JPanel {
 
     // ─── SIMPLE TABLE CELL RENDERER ──────────────────────────────────────────
 
+    /**
+     * Áp dụng cell renderer định dạng màu sắc dòng và căn chỉnh cho bảng lịch đặt hôm nay.
+     */
     private void applySimpleCellRenderer(JTable table) {
         DefaultTableCellRenderer cr = new DefaultTableCellRenderer() {
             @Override
@@ -412,6 +520,7 @@ public class DashboardPanel extends JPanel {
                 setBorder(new EmptyBorder(0, 8, 0, 8));
                 setFont(UIConstants.FONT_NORMAL);
                 if (!isSelected) {
+                    // Tô màu xen kẽ giữa các dòng
                     c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(250, 251, 252));
                     c.setForeground(UIConstants.TEXT_PRIMARY);
                     String s = value != null ? value.toString() : "";
@@ -420,7 +529,7 @@ public class DashboardPanel extends JPanel {
                     else if (s.contains("Xác nhận") || s.contains("Đang")) setForeground(UIConstants.INFO);
                     else if (s.contains("Hủy")) setForeground(UIConstants.DANGER);
                 }
-                // Align
+                // Căn chỉnh lề theo từng cột
                 if (col == 0 || col == 3 || col == 4) setHorizontalAlignment(CENTER);
                 else if (col == 5) setHorizontalAlignment(RIGHT);
                 else setHorizontalAlignment(LEFT);
@@ -433,12 +542,15 @@ public class DashboardPanel extends JPanel {
 
     // ─── REFRESH DATA ─────────────────────────────────────────────────────────
 
+    /**
+     * Nạp lại toàn bộ dữ liệu thống kê, bảng ma trận khung giờ và danh sách lịch đặt hôm nay từ DataStore.
+     */
     public void refresh() {
         List<KhuVucSan> sans = DataStore.get().getKhuVucs();
         List<DatLich> datLichs = DataStore.get().getDatLichs();
         String todayStr = LocalDate.now().toString();
 
-        // Stat cards
+        // 1. Thống kê dữ liệu thẻ KPI
         long sanReady   = sans.stream().filter(k -> "SanSang".equalsIgnoreCase(k.getTrangThai()) || "HOAT_DONG".equalsIgnoreCase(k.getTrangThai())).count();
         long sanRenting = sans.stream().filter(k -> "DangThue".equalsIgnoreCase(k.getTrangThai()) || "DANG_THUE".equalsIgnoreCase(k.getTrangThai())).count();
         long pending    = datLichs.stream().filter(d -> "ChoXacNhan".equals(d.getTrangThai())).count();
@@ -451,7 +563,7 @@ public class DashboardPanel extends JPanel {
         if (lblDatLichValue != null) lblDatLichValue.setText(pending + " chờ · " + active + " đã duyệt");
         if (lblDoanhThuValue!= null) lblDoanhThuValue.setText(String.format("%,.0f đ", revenue));
 
-        // Today bookings table
+        // 2. Cập nhật bảng danh sách lịch đặt trong ngày
         if (todayUpcomingBookingsModel != null) {
             todayUpcomingBookingsModel.setRowCount(0);
             List<DatLich> todayList = datLichs.stream()
@@ -471,13 +583,14 @@ public class DashboardPanel extends JPanel {
             }
         }
 
-        // Calendar matrix
+        // 3. Cập nhật ma trận khung giờ hoạt động (Timeline matrix)
         if (todayCalendarModel != null) {
             todayCalendarModel.setRowCount(0);
             for (KhuVucSan san : sans) {
                 Object[] row = new Object[TIME_SLOTS.length + 1];
                 row[0] = san.getTenSan();
 
+                // Kiểm tra xem sân có thuộc danh sách bảo trì hay không
                 boolean inMaint = DataStore.get().getBaoTris().stream()
                         .anyMatch(b -> san.getMaSan() != null && san.getMaSan().equals(b.getMaSan())
                                 && !"DaHuy".equalsIgnoreCase(b.getTrangThaiPhieu())
@@ -510,6 +623,12 @@ public class DashboardPanel extends JPanel {
 
     // ─── ACTIONS ──────────────────────────────────────────────────────────────
 
+    /**
+     * Đặt sân nhanh từ ô ma trận được chọn.
+     * 
+     * @param courtIndex    Chỉ số sân bóng tương ứng với hàng trong bảng
+     * @param timeSlotIndex Chỉ số khung giờ tương ứng với cột trong bảng
+     */
     private void onQuickBookSlot(int courtIndex, int timeSlotIndex) {
         List<KhuVucSan> sans = DataStore.get().getKhuVucs();
         if (courtIndex < 0 || courtIndex >= sans.size()) return;
@@ -529,6 +648,9 @@ public class DashboardPanel extends JPanel {
         saveNewBooking(dialog.getResult(), dialog.getSelectedSan());
     }
 
+    /**
+     * Mở thoại tạo lịch đặt mới từ nút bấm thao tác nhanh.
+     */
     private void onQuickBook() {
         JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
         DatLichFormDialog dialog = new DatLichFormDialog(parent, (DatLich) null);
@@ -537,6 +659,12 @@ public class DashboardPanel extends JPanel {
         saveNewBooking(dialog.getResult(), dialog.getSelectedSan());
     }
 
+    /**
+     * Lưu phiếu đặt sân mới được khởi tạo vào DataStore và nạp lại Dashboard.
+     * 
+     * @param form Thông tin phiếu đặt từ hộp thoại
+     * @param san  Đối tượng sân bóng được chọn
+     */
     private void saveNewBooking(DatLich form, KhuVucSan san) {
         if (form == null || san == null) return;
         String ma = Utils.CodeGen.next("DL", DataStore.get().getDatLichs().stream().map(DatLich::getMaLichDat).toList(), 3);
@@ -554,6 +682,9 @@ public class DashboardPanel extends JPanel {
         JOptionPane.showMessageDialog(this, "Đã tạo phiếu " + ma + " (" + san.getTenSan() + " — " + form.getKhungGio() + ") thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    /**
+     * Bán bổ sung dịch vụ / đồ ăn cho phiếu đặt sân đang hoạt động.
+     */
     private void onQuickSell() {
         List<DatLich> activeList = DataStore.get().getDatLichs().stream()
                 .filter(d -> !"DaHuy".equals(d.getTrangThai()) && !"DaThanhToan".equals(d.getTrangThai()))
@@ -588,11 +719,17 @@ public class DashboardPanel extends JPanel {
                 "Thành công", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    /**
+     * Mở hộp thoại kiểm tra tình trạng sử dụng sân hiện tại.
+     */
     private void onCheckSan() {
         JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
         new KiemTraSanDialog(parent).setVisible(true);
     }
 
+    /**
+     * Mở thoại tạo phiếu bảo trì nhanh cho sân bóng.
+     */
     private void onQuickMaint() {
         JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
         BaoTriFormDialog dialog = new BaoTriFormDialog(parent, null);
@@ -614,17 +751,26 @@ public class DashboardPanel extends JPanel {
 
     // ─── HELPERS ─────────────────────────────────────────────────────────────
 
+    /**
+     * Chuyển đổi chuỗi giờ dạng "HH:mm" thành số phút trong ngày.
+     */
     private static int toMinutes(String t) {
         if (t == null || !t.contains(":")) return 0;
         try { String[] p = t.trim().split(":"); return Integer.parseInt(p[0]) * 60 + Integer.parseInt(p[1]); }
         catch (Exception e) { return 0; }
     }
 
+    /**
+     * Lấy chuỗi mốc giờ kết tiếp (cộng 1 giờ) từ chuỗi giờ hiện tại.
+     */
     private static String getNextHour(String t) {
         try { return String.format("%02d:00", Integer.parseInt(t.split(":")[0]) + 1); }
         catch (Exception e) { return t; }
     }
 
+    /**
+     * Kiểm tra xem ngày mục tiêu có nằm trong khoảng ngày bắt đầu và kết thúc hay không.
+     */
     private boolean isDateInRange(String target, String start, String end) {
         if (target == null || start == null || target.isBlank() || start.isBlank()) return false;
         try {
@@ -637,6 +783,10 @@ public class DashboardPanel extends JPanel {
 
     // ─── CALENDAR CELL RENDERER ──────────────────────────────────────────────
 
+    /**
+     * Trình vẽ ô giao diện tùy chỉnh (Cell Renderer) cho bảng ma trận khung giờ.
+     * Cung cấp màu nền tô rõ ràng theo trạng thái: Trống (Xanh lá), Đặt trước (Vàng), Đang đá (Xanh dương), Bảo trì (Xám).
+     */
     private class CalendarCellRenderer extends DefaultTableCellRenderer {
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
@@ -644,6 +794,7 @@ public class DashboardPanel extends JPanel {
             setBorder(new EmptyBorder(0, 4, 0, 4));
             setFont(UIConstants.FONT_NORMAL);
 
+            // Cột 0: Tên sân bóng
             if (column == 0) {
                 setFont(UIConstants.FONT_BOLD);
                 setHorizontalAlignment(LEFT);
@@ -654,12 +805,14 @@ public class DashboardPanel extends JPanel {
             setHorizontalAlignment(CENTER);
             String str = value != null ? value.toString().trim() : "";
 
+            // Hiển thị tooltip hướng dẫn thao tác
             if (c instanceof JComponent jc) {
                 String court = table.getValueAt(row, 0) != null ? table.getValueAt(row, 0).toString() : "";
                 String slot  = column <= TIME_SLOTS.length ? TIME_SLOTS[column - 1] : "";
                 jc.setToolTipText(court + " [" + slot + "]: " + str + " — Nhấp đúp để đặt");
             }
 
+            // Định dạng màu nền theo trạng thái ô
             if (!isSelected) {
                 if      (str.startsWith("Đang đá")) { c.setBackground(new Color(219, 234, 254)); c.setForeground(new Color(37,  99,  235)); }
                 else if (str.startsWith("Đã đặt"))  { c.setBackground(new Color(254, 243, 199)); c.setForeground(new Color(217, 119, 6));   }

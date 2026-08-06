@@ -33,37 +33,75 @@ import java.util.List;
 
 /**
  * Dialog chọn nhanh ngày bằng Bảng chọn lịch cả tháng (Full Month Calendar Picker).
- * Tương thích Apache NetBeans GUI Builder Drag & Drop.
+ * <p>
+ * Cho phép điều hướng theo tháng/năm, chọn nhanh Hôm nay/Ngày mai và hiển thị đánh dấu
+ * những ngày đã có lịch đặt sân. Tương thích với NetBeans GUI Builder.
+ * </p>
+ *
+ * @author Nhóm 2 - DHTI17A3HN
+ * @version 1.0
  */
 public class ChonNgayDialog extends JDialog {
 
+    /** Tháng và năm hiện tại đang được hiển thị trên bộ lịch */
     private YearMonth currentYearMonth;
+
+    /** Ngày đang được lựa chọn */
     private LocalDate selectedDate;
+
+    /** Cờ xác nhận đã hoàn tất chọn ngày */
     private boolean confirmed;
 
+    /** Combobox chọn tháng (Tháng 1 -> Tháng 12) */
     private javax.swing.JComboBox<String> cboMonth;
+
+    /** Combobox chọn năm (2020 -> 2035) */
     private javax.swing.JComboBox<Integer> cboYear;
+
+    /** Nhãn xem trước ngày đã chọn kèm thứ trong tuần */
     private JLabel lblSelectedPreview;
+
+    /** Bảng ma trận ma trận chứa 6 tuần x 7 ngày */
     private JTable tableCalendar;
+
+    /** Model quản lý dữ liệu hiển thị trên bảng lịch tháng */
     private DefaultTableModel modelCalendar;
 
+    /** Mảng 2 chiều 6x7 lưu đối tượng LocalDate tương ứng với từng ô trên ma trận bảng lịch */
     private LocalDate[][] gridDates = new LocalDate[6][7];
 
+    /** Định dạng ngày ISO YYYY-MM-DD */
     private static final DateTimeFormatter FMT_ISO = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+    /** Định dạng ngày hiển thị DD/MM/YYYY */
     private static final DateTimeFormatter FMT_DISPLAY = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    /** Nhãn tiêu đề header chính */
     private javax.swing.JLabel lblHeaderTitle;
+    /** Panel bọc phần giao diện chính */
     private javax.swing.JPanel pnlCenterWrap;
+    /** Panel chứa nút bấm phía dưới */
     private javax.swing.JPanel pnlFooter;
+    /** Panel chứa form thẻ lịch */
     private javax.swing.JPanel pnlFormCard;
+    /** Panel header màu sắc chính ở phía trên */
     private javax.swing.JPanel pnlHeader;
     // End of variables declaration//GEN-END:variables
 
+    /**
+     * Constructor mặc định không đối số, sử dụng ngày hiện tại làm ngày mặc định.
+     */
     public ChonNgayDialog() {
         this(null, LocalDate.now());
     }
 
+    /**
+     * Khởi tạo thoại chọn ngày trên lịch tháng.
+     *
+     * @param parent      Cửa sổ cha (JFrame)
+     * @param currentDate Ngày được chọn ban đầu
+     */
     public ChonNgayDialog(JFrame parent, LocalDate currentDate) {
         super(parent, "Chọn ngày xem lịch - Lịch tháng", true);
         this.selectedDate = currentDate != null ? currentDate : LocalDate.now();
@@ -74,7 +112,7 @@ public class ChonNgayDialog extends JDialog {
     }
 
     /**
-     * NetBeans GUI Builder generated code initialization.
+     * Khởi tạo giao diện đồ họa do NetBeans GUI Builder sinh ra.
      */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -118,6 +156,11 @@ public class ChonNgayDialog extends JDialog {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Tùy chỉnh nâng cao giao diện bộ chọn lịch tháng và gán các sự kiện tương tác.
+     *
+     * @param parent Cửa sổ cha
+     */
     private void customInit(JFrame parent) {
         java.awt.Rectangle maxBounds = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
         int targetWidth = 540;
@@ -128,10 +171,11 @@ public class ChonNgayDialog extends JDialog {
         setSize(targetWidth, targetHeight);
         if (parent != null) setLocationRelativeTo(parent);
 
-        // Top Month Navigator Bar
+        // ── 1. Top Month Navigator Bar (Thanh điều hướng Tháng / Năm) ────────
         JPanel pnlMonthNav = new JPanel(new FlowLayout(FlowLayout.CENTER, 6, 4));
         pnlMonthNav.setOpaque(false);
 
+        // Nút lùi về 1 năm
         JButton btnPrevYear = new javax.swing.JButton();
         btnPrevYear.setIcon(Utils.IconUtils.getFirstIcon(16));
         btnPrevYear.setToolTipText("Năm trước");
@@ -141,6 +185,7 @@ public class ChonNgayDialog extends JDialog {
             updateMonthGrid();
         });
 
+        // Nút lùi về 1 tháng
         JButton btnPrevMonth = new javax.swing.JButton();
         btnPrevMonth.setIcon(Utils.IconUtils.getPrevIcon(16));
         btnPrevMonth.setToolTipText("Tháng trước");
@@ -150,7 +195,7 @@ public class ChonNgayDialog extends JDialog {
             updateMonthGrid();
         });
 
-        // Quick Month ComboBox
+        // Combobox chọn nhanh Tháng
         String[] months = {"Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
                 "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"};
         cboMonth = new javax.swing.JComboBox<>(months);
@@ -158,7 +203,7 @@ public class ChonNgayDialog extends JDialog {
         cboMonth.setBackground(Color.WHITE);
         cboMonth.setPreferredSize(new Dimension(115, 32));
 
-        // Quick Year ComboBox (2020 -> 2035)
+        // Combobox chọn nhanh Năm (2020 -> 2035)
         Integer[] years = new Integer[16];
         for (int i = 0; i < 16; i++) years[i] = 2020 + i;
         cboYear = new javax.swing.JComboBox<>(years);
@@ -182,6 +227,7 @@ public class ChonNgayDialog extends JDialog {
             }
         });
 
+        // Nút tiệm tiến 1 tháng
         JButton btnNextMonth = new javax.swing.JButton();
         btnNextMonth.setIcon(Utils.IconUtils.getNextIcon(16));
         btnNextMonth.setToolTipText("Tháng sau");
@@ -191,6 +237,7 @@ public class ChonNgayDialog extends JDialog {
             updateMonthGrid();
         });
 
+        // Nút tiến sang 1 năm
         JButton btnNextYear = new javax.swing.JButton();
         btnNextYear.setIcon(Utils.IconUtils.getLastIcon(16));
         btnNextYear.setToolTipText("Năm sau");
@@ -207,7 +254,7 @@ public class ChonNgayDialog extends JDialog {
         pnlMonthNav.add(btnNextMonth);
         pnlMonthNav.add(btnNextYear);
 
-        // Quick Presets Bar
+        // ── 2. Quick Presets Bar (Các nút chọn nhanh Hôm nay / Ngày mai) ────
         JPanel pnlPresets = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 4));
         pnlPresets.setOpaque(false);
 
@@ -227,7 +274,7 @@ public class ChonNgayDialog extends JDialog {
 
         pnlFormCard.add(pnlTopWrap, BorderLayout.NORTH);
 
-        // Calendar Month Table Grid
+        // ── 3. Calendar Month Table Grid (Bảng hiển thị ma trận 6x7 các ô ngày) ─
         String[] dayHeaders = {"T2", "T3", "T4", "T5", "T6", "T7", "CN"};
         modelCalendar = new DefaultTableModel(dayHeaders, 6) {
             @Override
@@ -251,6 +298,7 @@ public class ChonNgayDialog extends JDialog {
 
         tableCalendar.setDefaultRenderer(Object.class, new CalendarCellRenderer());
 
+        // Bắt sự kiện người dùng nhấp chọn ô ngày bất kỳ trên bảng
         tableCalendar.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -267,7 +315,7 @@ public class ChonNgayDialog extends JDialog {
         spCalendar.setVerticalScrollBarPolicy(javax.swing.JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         pnlFormCard.add(spCalendar, BorderLayout.CENTER);
 
-        // Bottom Selected Preview Bar
+        // ── 4. Bottom Selected Preview Bar ────────────────────────────────────
         JPanel pnlBottomPreview = new JPanel(new BorderLayout());
         pnlBottomPreview.setOpaque(false);
         pnlBottomPreview.setBorder(BorderFactory.createEmptyBorder(6, 4, 4, 4));
@@ -286,7 +334,7 @@ public class ChonNgayDialog extends JDialog {
 
         pnlFormCard.add(pnlBottomPreview, BorderLayout.SOUTH);
 
-        // Footer buttons
+        // ── 5. Footer Buttons ─────────────────────────────────────────────────
         JButton btnCancel = new javax.swing.JButton("Hủy");
         Utils.PageUI.styleSecondaryButton(btnCancel);
         btnCancel.addActionListener(e -> {
@@ -308,8 +356,13 @@ public class ChonNgayDialog extends JDialog {
         getRootPane().setDefaultButton(btnConfirm);
     }
 
+    /** Flag hỗ trợ tránh việc đệ quy vô tận khi đang cập nhật ma trận ngày */
     private boolean isUpdatingGrid = false;
 
+    /**
+     * Cập nhật và tính toán lại danh sách ngày trên ma trận bảng lịch tháng (gridDates).
+     * Kiểm tra các ngày có phát sinh lịch đặt sân để hiển thị ký hiệu "*".
+     */
     private void updateMonthGrid() {
         if (isUpdatingGrid) return;
         isUpdatingGrid = true;
@@ -318,7 +371,7 @@ public class ChonNgayDialog extends JDialog {
             if (cboYear != null) cboYear.setSelectedItem(currentYearMonth.getYear());
 
             LocalDate firstOfMonth = currentYearMonth.atDay(1);
-            int dayOfWeekVal = firstOfMonth.getDayOfWeek().getValue(); // 1 = Mon, ..., 7 = Sun
+            int dayOfWeekVal = firstOfMonth.getDayOfWeek().getValue(); // 1 = T2, ..., 7 = CN
             LocalDate startDate = firstOfMonth.minusDays(dayOfWeekVal - 1);
 
             List<DatLich> allBookings = DataStore.get().getDatLichs();
@@ -344,6 +397,11 @@ public class ChonNgayDialog extends JDialog {
         }
     }
 
+    /**
+     * Chọn một ngày cụ thể trên lịch và làm mới nhãn hiển thị preview.
+     *
+     * @param date Ngày được chọn
+     */
     private void selectDate(LocalDate date) {
         this.selectedDate = date;
         if (!YearMonth.from(date).equals(currentYearMonth)) {
@@ -355,6 +413,9 @@ public class ChonNgayDialog extends JDialog {
         }
     }
 
+    /**
+     * Cập nhật chuỗi văn bản nhãn xem trước ngày đã chọn bằng tiếng Việt (ví dụ: "Thứ 2 05/08/2026").
+     */
     private void updatePreviewLabel() {
         String dayOfWeekVN = switch (selectedDate.getDayOfWeek()) {
             case MONDAY -> "Thứ 2";
@@ -368,16 +429,26 @@ public class ChonNgayDialog extends JDialog {
         lblSelectedPreview.setText("Đã chọn: " + selectedDate.format(FMT_DISPLAY) + " (" + dayOfWeekVN + ")");
     }
 
+    /**
+     * Kiểm tra người dùng đã nhấn nút Đồng ý hay chưa.
+     *
+     * @return true nếu người dùng hoàn tất chọn ngày
+     */
     public boolean isConfirmed() {
         return confirmed;
     }
 
+    /**
+     * Lấy giá trị ngày được người dùng chọn từ lịch tháng.
+     *
+     * @return Đối tượng LocalDate đại diện cho ngày được chọn
+     */
     public LocalDate getSelectedDate() {
         return selectedDate;
     }
 
     /**
-     * Custom Cell Renderer cho Bảng Lịch Tháng.
+     * Bộ định dạng và tô màu nền (Custom Cell Renderer) cho ma trận các ô ngày của Bảng Lịch Tháng.
      */
     private class CalendarCellRenderer extends DefaultTableCellRenderer {
         @Override
@@ -394,17 +465,17 @@ public class ChonNgayDialog extends JDialog {
             boolean isToday = date.equals(LocalDate.now());
 
             if (isSelectedDate) {
-                c.setBackground(new Color(37, 99, 235)); // Primary Blue
+                c.setBackground(new Color(37, 99, 235)); // Màu xanh Primary mảng nổi bật ngày được chọn
                 c.setForeground(Color.WHITE);
             } else if (isToday) {
-                c.setBackground(new Color(220, 252, 231)); // Light Green
+                c.setBackground(new Color(220, 252, 231)); // Màu xanh lá nhạt nổi bật ngày hôm nay
                 c.setForeground(new Color(22, 163, 74));
             } else if (isCurrentMonth) {
                 c.setBackground(Color.WHITE);
-                c.setForeground(new Color(30, 41, 59)); // Slate Dark
+                c.setForeground(new Color(30, 41, 59)); // Màu chữ sẫm của ngày thuộc tháng hiện tại
             } else {
                 c.setBackground(new Color(245, 245, 245));
-                c.setForeground(new Color(160, 160, 160)); // Muted Gray
+                c.setForeground(new Color(160, 160, 160)); // Màu xám nhạt mờ của các ngày thuộc tháng trước/sau
             }
 
             return c;

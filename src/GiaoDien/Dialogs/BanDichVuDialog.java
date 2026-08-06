@@ -18,36 +18,72 @@ import java.util.Map;
 
 /**
  * Dialog bán dịch vụ / đồ ăn đi kèm cho phiếu đặt sân.
- * Thiết kế lại: hiển thị thông tin đơn rõ ràng + chọn DV/đồ ăn theo dạng bảng như DatLichFormDialog.
+ * <p>
+ * Thiết kế giao diện hiển thị rõ ràng thông tin chi tiết của đơn đặt sân hiện tại,
+ * kết hợp hỗ trợ mở sub-dialog để chọn các gói dịch vụ (trọng tài, huấn luyện viên...)
+ * và mặt hàng đồ ăn / dụng cụ kho hàng đi kèm.
+ * </p>
+ *
+ * @author Nhóm 2 - DHTI17A3HN
+ * @version 1.0
  */
 public class BanDichVuDialog extends JDialog {
 
     // ── State ─────────────────────────────────────────────────────────────────
+    /** Đối tượng phiếu đặt sân được chọn bán dịch vụ */
     private final DatLich datLich;
+
+    /** Trạng thái xác nhận của hộp thoại (true nếu người dùng nhấn nút Xác nhận bán) */
     private boolean confirmed = false;
 
+    /** Map lưu số lượng dịch vụ đã chọn (mã ID dịch vụ -> số lượng chọn) */
     private final Map<Integer, Integer> currentDvMap   = new HashMap<>();
+
+    /** Map lưu số lượng đồ ăn / vật phẩm kho đã chọn (mã ID mặt hàng -> số lượng chọn) */
     private final Map<Integer, Integer> currentDoAnMap = new HashMap<>();
+
+    /** Danh sách các món / dịch vụ được tổng hợp chọn mua */
     private final List<ChonDichVuDialog.SelectedItem> selectedItems = new ArrayList<>();
+
+    /** Tổng số tiền phát sinh thêm do chọn mua dịch vụ / đồ ăn đi kèm */
     private double totalAddonCost = 0;
 
     // ── UI Labels trạng thái ──────────────────────────────────────────────────
+    /** Nhãn hiển thị trạng thái số lượng dịch vụ đã chọn */
     private JLabel lblStatusDichVu;
+
+    /** Nhãn hiển thị trạng thái số lượng đồ ăn / vật phẩm kho đã chọn */
     private JLabel lblStatusDoAn;
+
+    /** Nhãn hiển thị tổng số tiền phát sinh thêm */
     private JLabel lblTongCong;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    /** Nhãn tiêu đề header chính của dialog */
     private javax.swing.JLabel lblHeaderTitle;
+    /** Panel bọc phần nội dung trung tâm */
     private javax.swing.JPanel pnlCenterWrap;
+    /** Panel footer chứa các nút chức năng bên dưới */
     private javax.swing.JPanel pnlFooter;
+    /** Panel thẻ chứa thông tin form mẫu */
     private javax.swing.JPanel pnlFormCard;
+    /** Panel phần header phía trên */
     private javax.swing.JPanel pnlHeader;
     // End of variables declaration//GEN-END:variables
 
+    /**
+     * Constructor mặc định không đối số, phục vụ thiết kế NetBeans GUI Builder.
+     */
     public BanDichVuDialog() {
         this(null, null);
     }
 
+    /**
+     * Khởi tạo dialog bán dịch vụ đi kèm cho một phiếu đặt sân cụ thể.
+     *
+     * @param parent  Cửa sổ cha (JFrame)
+     * @param datLich Đối tượng phiếu đặt sân cần áp dụng bán dịch vụ
+     */
     public BanDichVuDialog(JFrame parent, DatLich datLich) {
         super(parent, "Bán dịch vụ / Đồ ăn đi kèm", true);
         this.datLich = datLich;
@@ -55,6 +91,9 @@ public class BanDichVuDialog extends JDialog {
         customInit(parent);
     }
 
+    /**
+     * Phương thức tự động tạo cấu trúc giao diện từ NetBeans GUI Builder.
+     */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
         pnlHeader     = new javax.swing.JPanel();
@@ -98,6 +137,11 @@ public class BanDichVuDialog extends JDialog {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Tùy chỉnh nâng cao giao diện, nạp dữ liệu phiếu đặt sân và liên kết sự kiện hành động.
+     *
+     * @param parent Cửa sổ cha (JFrame)
+     */
     private void customInit(JFrame parent) {
         setSize(560, 540);
         if (parent != null) setLocationRelativeTo(parent);
@@ -106,7 +150,7 @@ public class BanDichVuDialog extends JDialog {
         if (datLich != null) {
             lblHeaderTitle.setText("Bán dịch vụ đi kèm — " + datLich.getMaLichDat());
 
-            // Subtitle label
+            // Nhãn tiêu đề phụ hiển thị tên phiếu và sân
             JLabel lblSub = new JLabel("Phiếu: " + datLich.getMaLichDat() + " · " + datLich.getTenSan());
             lblSub.setFont(UIConstants.FONT_SMALL);
             lblSub.setForeground(new Color(200, 230, 201));
@@ -120,7 +164,7 @@ public class BanDichVuDialog extends JDialog {
 
         int row = 0;
 
-        // ── THÔNG TIN ĐƠN ────────────────────────────────────────────────────
+        // ── THÔNG TIN ĐƠN ĐẶT SÂN ────────────────────────────────────────────
         if (datLich != null) {
             row = addSectionHeader(pnlFormCard, gbc, row, "📋 Thông tin phiếu đặt sân");
 
@@ -139,7 +183,7 @@ public class BanDichVuDialog extends JDialog {
         // ── THÊM DỊCH VỤ / ĐỒ ĂN ───────────────────────────────────────────
         row = addSectionHeader(pnlFormCard, gbc, row, "🛒 Chọn dịch vụ / đồ ăn đi kèm");
 
-        // Nút Thêm Dịch vụ
+        // Nút bấm mở Dialog chọn Dịch vụ sân bóng
         JButton btnChonDichVu = new JButton("+ Chọn Dịch vụ");
         btnChonDichVu.setFont(UIConstants.FONT_BOLD);
         btnChonDichVu.setPreferredSize(new Dimension(140, 34));
@@ -155,7 +199,7 @@ public class BanDichVuDialog extends JDialog {
         pnlDVRow.add(lblStatusDichVu, BorderLayout.CENTER);
         row = addField(pnlFormCard, gbc, row, "Dịch vụ:", pnlDVRow);
 
-        // Nút Thêm Đồ ăn
+        // Nút bấm mở Dialog chọn Đồ ăn & Vật phẩm kho
         JButton btnChonDoAn = new JButton("+ Chọn Đồ ăn");
         btnChonDoAn.setFont(UIConstants.FONT_BOLD);
         btnChonDoAn.setPreferredSize(new Dimension(140, 34));
@@ -171,7 +215,7 @@ public class BanDichVuDialog extends JDialog {
         pnlDoAnRow.add(lblStatusDoAn, BorderLayout.CENTER);
         row = addField(pnlFormCard, gbc, row, "Đồ ăn / Kho:", pnlDoAnRow);
 
-        // Tổng cộng phát sinh
+        // Tổng số tiền dịch vụ phát sinh thêm
         lblTongCong = new JLabel("0 VNĐ");
         lblTongCong.setFont(UIConstants.FONT_BOLD);
         lblTongCong.setForeground(UIConstants.PRIMARY);
@@ -193,6 +237,7 @@ public class BanDichVuDialog extends JDialog {
         JPanel pnlFooterRight = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 4));
         pnlFooterRight.setOpaque(false);
 
+        // Nút Hủy
         JButton btnCancel = new JButton("Hủy");
         Utils.PageUI.styleSecondaryButton(btnCancel);
         btnCancel.addActionListener(e -> {
@@ -200,6 +245,7 @@ public class BanDichVuDialog extends JDialog {
             dispose();
         });
 
+        // Nút Xác nhận bán
         JButton btnSave = new JButton(" Xác nhận bán");
         btnSave.setIcon(Utils.IconUtils.getCheckIcon(16));
         Utils.PageUI.stylePrimaryButton(btnSave);
@@ -209,11 +255,21 @@ public class BanDichVuDialog extends JDialog {
         pnlFooterRight.add(btnSave);
         pnlFooter.add(pnlFooterRight, BorderLayout.EAST);
 
+        // Nút bấm mặc định khi nhấn Enter
         getRootPane().setDefaultButton(btnSave);
     }
 
     // ── Helper UI builder methods ─────────────────────────────────────────────
 
+    /**
+     * Thêm một tiêu đề phân đoạn (Section Header) trong form layout.
+     *
+     * @param form Panel chứa form
+     * @param gbc  GridBagConstraints
+     * @param row  Dòng hiện tại
+     * @param text Văn bản hiển thị tiêu đề
+     * @return Dòng tiếp theo
+     */
     private int addSectionHeader(JPanel form, GridBagConstraints gbc, int row, String text) {
         gbc.gridx = 0;
         gbc.gridy = row;
@@ -235,6 +291,14 @@ public class BanDichVuDialog extends JDialog {
         return row + 1;
     }
 
+    /**
+     * Thêm một đường phân cách nằm ngang giữa các nhóm trường thông tin.
+     *
+     * @param form Panel form
+     * @param gbc  GridBagConstraints
+     * @param row  Dòng hiện tại
+     * @return Dòng tiếp theo
+     */
     private int addSeparator(JPanel form, GridBagConstraints gbc, int row) {
         gbc.gridx = 0;
         gbc.gridy = row;
@@ -251,6 +315,17 @@ public class BanDichVuDialog extends JDialog {
         return row + 1;
     }
 
+    /**
+     * Thêm một dòng hiển thị thông tin chỉ đọc (Key - Value).
+     *
+     * @param form      Panel form
+     * @param gbc       GridBagConstraints
+     * @param row       Dòng hiện tại
+     * @param label     Tiêu đề thuộc tính
+     * @param value     Giá trị thuộc tính
+     * @param highlight Có làm nổi bật màu sắc thuộc tính không
+     * @return Dòng tiếp theo
+     */
     private int addInfoRow(JPanel form, GridBagConstraints gbc, int row, String label, String value, boolean highlight) {
         gbc.gridx = 0;
         gbc.gridy = row;
@@ -276,6 +351,16 @@ public class BanDichVuDialog extends JDialog {
         return row + 1;
     }
 
+    /**
+     * Thêm một trường nhập liệu hoặc điều khiển vào form.
+     *
+     * @param form  Panel form
+     * @param gbc   GridBagConstraints
+     * @param row   Dòng hiện tại
+     * @param label Tiêu đề trường
+     * @param field Thành phần UI nhập dữ liệu
+     * @return Dòng tiếp theo
+     */
     private int addField(JPanel form, GridBagConstraints gbc, int row, String label, java.awt.Component field) {
         gbc.gridx = 0;
         gbc.gridy = row;
@@ -295,6 +380,12 @@ public class BanDichVuDialog extends JDialog {
 
     // ── Event handlers ────────────────────────────────────────────────────────
 
+    /**
+     * Mở hộp thoại chọn gói dịch vụ (Trọng tài, Huấn luyện viên, Đèn chiếu sáng...)
+     * và cập nhật kết quả chọn vào trạng thái của dialog.
+     *
+     * @param parent Cửa sổ cha
+     */
     private void onOpenDichVuDialog(JFrame parent) {
         ChonDichVuDialog dialog = new ChonDichVuDialog(parent);
         dialog.setInitialQuantities(currentDvMap);
@@ -306,6 +397,12 @@ public class BanDichVuDialog extends JDialog {
         }
     }
 
+    /**
+     * Mở hộp thoại chọn Đồ ăn & Vật phẩm kho (Nước suối, bóng, giày, áo lưới...)
+     * và cập nhật kết quả chọn vào trạng thái dialog.
+     *
+     * @param parent Cửa sổ cha
+     */
     private void onOpenDoAnDialog(JFrame parent) {
         ChonVatPhamKhoDialog dialog = new ChonVatPhamKhoDialog(parent);
         dialog.setInitialQuantities(currentDoAnMap);
@@ -317,11 +414,15 @@ public class BanDichVuDialog extends JDialog {
         }
     }
 
+    /**
+     * Tổng hợp lại danh sách tất cả các mục dịch vụ & đồ ăn đã chọn,
+     * đồng thời tính toán tổng tiền chi phí bổ sung và cập nhật lại giao diện.
+     */
     private void rebuildSelected() {
         selectedItems.clear();
         totalAddonCost = 0;
 
-        // DV từ DichVu list
+        // 1. Duyệt qua các dịch vụ từ DataStore
         for (DichVu dv : DataStore.get().getDichVus()) {
             int qty = currentDvMap.getOrDefault(dv.getId(), 0);
             if (qty > 0) {
@@ -331,7 +432,7 @@ public class BanDichVuDialog extends JDialog {
             }
         }
 
-        // Vật phẩm kho
+        // 2. Duyệt qua các vật phẩm kho hàng
         for (DichVu kho : DataStore.get().getKhoItems()) {
             int qty = currentDoAnMap.getOrDefault(kho.getId(), 0);
             if (qty > 0) {
@@ -341,7 +442,7 @@ public class BanDichVuDialog extends JDialog {
             }
         }
 
-        // Update status labels
+        // 3. Cập nhật các nhãn trạng thái UI
         long dvCount = currentDvMap.values().stream().filter(v -> v > 0).count();
         long doAnCount = currentDoAnMap.values().stream().filter(v -> v > 0).count();
 
@@ -359,6 +460,10 @@ public class BanDichVuDialog extends JDialog {
         }
     }
 
+    /**
+     * Xử lý sự kiện lưu xác nhận bán dịch vụ.
+     * Hiển thị thông báo nếu chưa chọn bất kỳ mục nào.
+     */
     private void onSave() {
         if (selectedItems.isEmpty()) {
             JOptionPane.showMessageDialog(this,
@@ -370,6 +475,12 @@ public class BanDichVuDialog extends JDialog {
         dispose();
     }
 
+    /**
+     * Định dạng chuỗi ngày định dạng yyyy-MM-dd thành dd/MM/yyyy để hiển thị.
+     *
+     * @param raw Chuỗi ngày gốc
+     * @return Chuỗi ngày dạng dd/MM/yyyy
+     */
     private String formatDate(String raw) {
         if (raw == null || raw.isBlank()) return "-";
         try {
@@ -381,18 +492,45 @@ public class BanDichVuDialog extends JDialog {
 
     // ── Public getters ────────────────────────────────────────────────────────
 
+    /**
+     * Kiểm tra dialog có được xác nhận thành công hay không.
+     *
+     * @return true nếu đã chọn và xác nhận bán thành công
+     */
     public boolean isConfirmed() { return confirmed; }
+
+    /**
+     * Lấy danh sách các đối tượng dịch vụ / đồ ăn đi kèm được chọn bán.
+     *
+     * @return Danh sách SelectedItem chứa dịch vụ và số lượng chọn
+     */
     public List<ChonDichVuDialog.SelectedItem> getSelectedItems() { return selectedItems; }
+
+    /**
+     * Lấy tổng chi phí phát sinh bổ sung do bán dịch vụ.
+     *
+     * @return Tổng số tiền phát sinh (VNĐ)
+     */
     public double getTotalAddonCost() { return totalAddonCost; }
 
-    /** @deprecated Dùng getSelectedItems() thay thế */
+    /**
+     * Lấy dịch vụ đầu tiên được chọn trong danh sách.
+     *
+     * @return Đối tượng DichVu hoặc null nếu danh sách rỗng
+     * @deprecated Dùng {@link #getSelectedItems()} để lấy toàn bộ danh sách
+     */
     @Deprecated
     public DichVu getSelectedDichVu() {
         if (!selectedItems.isEmpty()) return selectedItems.get(0).getDichVu();
         return null;
     }
 
-    /** @deprecated Dùng getSelectedItems() thay thế */
+    /**
+     * Lấy số lượng dịch vụ đầu tiên được chọn.
+     *
+     * @return Số lượng chọn hoặc 0 nếu danh sách rỗng
+     * @deprecated Dùng {@link #getSelectedItems()} để lấy toàn bộ danh sách
+     */
     @Deprecated
     public int getSoLuong() {
         if (!selectedItems.isEmpty()) return selectedItems.get(0).getSoLuong();

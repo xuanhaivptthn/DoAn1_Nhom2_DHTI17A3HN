@@ -33,27 +33,60 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Panel giao diện quản lý tài khoản – dùng trong đồ án quản lý sân bóng.
- * Tương thích Apache NetBeans GUI Builder Drag & Drop.
+ * Panel Quản lý tài khoản hệ thống (QuanLyTaiKhoanPanel).
+ * <p>
+ * Phân quyền người dùng &amp; quản lý danh sách tài khoản truy cập ứng dụng cho thuê sân bóng
+ * (Thêm tài khoản mới, sửa vai trò/mật khẩu, xóa tài khoản, khóa hoặc mở khóa tài khoản).
+ * </p>
+ * 
+ * @author Nhóm 2 - DHTI17A3HN
+ * @version 1.0
  */
 public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
 
+    /**
+     * Model bảng hiển thị danh sách tài khoản hệ thống.
+     */
     private TaiKhoanTableModel tableModel;
+
+    /**
+     * Bảng JTable hiển thị thông tin tài khoản người dùng.
+     */
     private JTable table;
+
+    /**
+     * Nhãn hiển thị số lượng tài khoản có trong bảng.
+     */
     private JLabel lblCount;
+
+    /**
+     * Cờ đánh dấu panel đang được nhúng trong khung chính hay độc lập.
+     */
     private boolean embedded;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    /** Panel thân nội dung chứa dữ liệu chính */
     private javax.swing.JPanel pnlBody;
+    /** Panel bao bọc phần header tiêu đề trang */
     private javax.swing.JPanel pnlHeaderWrap;
+    /** Panel hình card chứa bảng dữ liệu tài khoản */
     private javax.swing.JPanel pnlTableCard;
+    /** Panel thanh công cụ chứa các nút bấm thao tác tài khoản */
     private javax.swing.JPanel pnlToolbar;
     // End of variables declaration//GEN-END:variables
 
+    /**
+     * Khởi tạo QuanLyTaiKhoanPanel mặc định.
+     */
     public QuanLyTaiKhoanPanel() {
         this(false);
     }
 
+    /**
+     * Khởi tạo QuanLyTaiKhoanPanel với tùy chọn nhúng.
+     * 
+     * @param embedded Trạng thái nhúng giao diện
+     */
     public QuanLyTaiKhoanPanel(boolean embedded) {
         this.embedded = embedded;
         initComponents();
@@ -62,6 +95,7 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
 
     /**
      * NetBeans GUI Builder generated code initialization.
+     * Khởi tạo các linh kiện giao diện sinh tự động từ NetBeans GUI Builder.
      */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -91,6 +125,9 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
         add(pnlBody, java.awt.BorderLayout.CENTER);
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Cấu hình thiết lập khởi tạo giao diện tùy chỉnh và nạp dữ liệu tài khoản từ DataStore.
+     */
     private void customInit() {
         tableModel = new TaiKhoanTableModel();
         table = createTable();
@@ -101,6 +138,9 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
         applyFilter();
     }
 
+    /**
+     * Dựng cấu trúc giao diện tổng thể (Header, Toolbar và Table Card).
+     */
     private void buildUI() {
         pnlHeaderWrap.removeAll();
         pnlHeaderWrap.add(PageUI.createPageHeader("Quản lý tài khoản hệ thống",
@@ -110,6 +150,9 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
         buildTableCard();
     }
 
+    /**
+     * Xây dựng thanh công cụ chứa các nút thao tác tài khoản (Thêm, Sửa, Xóa, Khóa/Mở).
+     */
     private void buildToolbar() {
         pnlToolbar.removeAll();
         GridBagConstraints gbc = new GridBagConstraints();
@@ -154,6 +197,9 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
         pnlToolbar.add(actions, gbc);
     }
 
+    /**
+     * Xây dựng card chứa bảng danh sách các tài khoản người dùng.
+     */
     private void buildTableCard() {
         pnlTableCard.setBackground(Color.WHITE);
         pnlTableCard.setBorder(BorderFactory.createCompoundBorder(
@@ -178,6 +224,7 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
         scroll.setPreferredSize(new Dimension(0, 360));
         pnlTableCard.add(scroll, BorderLayout.CENTER);
 
+        // Sự kiện nhấp đúp trên dòng để sửa tài khoản
         table.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
@@ -188,6 +235,11 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
         });
     }
 
+    /**
+     * Khởi tạo bảng JTable với TaiKhoanTableModel và căn chỉnh độ rộng cột.
+     * 
+     * @return JTable đã được cấu hình kiểu dáng
+     */
     private JTable createTable() {
         JTable t = new JTable(tableModel);
         t.setName("tableTaiKhoan");
@@ -206,6 +258,9 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
         return t;
     }
 
+    /**
+     * Xử lý mở hộp thoại thêm mới một tài khoản hệ thống.
+     */
     private void onAdd() {
         JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
         TaiKhoanFormDialog dialog = new TaiKhoanFormDialog(
@@ -230,6 +285,9 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
         }
     }
 
+    /**
+     * Xử lý mở hộp thoại chỉnh sửa thông tin tài khoản được chọn trong bảng.
+     */
     private void onEdit() {
         int viewRow = table.getSelectedRow();
         if (viewRow < 0) {
@@ -264,6 +322,9 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
         }
     }
 
+    /**
+     * Lưu thông tin hồ sơ thông tin người dùng (Chủ sân hoặc Nhân viên) gắn với tài khoản.
+     */
     private void saveProfile(TaiKhoan tk, String hoTen, String sdt, String diaChi) {
         if (tk == null || hoTen == null || hoTen.isBlank()) return;
         if (tk.isChuSan() || tk.isAdmin()) {
@@ -273,6 +334,10 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
         }
     }
 
+    /**
+     * Xử lý xóa tài khoản được chọn.
+     * Ràng buộc bảo vệ: Không cho phép xóa tài khoản quản trị viên mặc định ("admin").
+     */
     private void onDelete() {
         int viewRow = table.getSelectedRow();
         if (viewRow < 0) {
@@ -285,6 +350,7 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
         TaiKhoan selected = tableModel.getAt(modelRow);
         if (selected == null) return;
 
+        // Bảo vệ tài khoản admin hệ thống không bị xóa
         if ("admin".equalsIgnoreCase(selected.getTenDangNhap())) {
             JOptionPane.showMessageDialog(this,
                     "Không thể xóa tài khoản quản trị viên mặc định!",
@@ -313,6 +379,10 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
         }
     }
 
+    /**
+     * Xử lý đảo trạng thái Khóa / Mở khóa tài khoản truy cập.
+     * Ràng buộc bảo vệ: Không cho phép khóa tài khoản quản trị viên mặc định ("admin").
+     */
     private void onToggleLock() {
         int viewRow = table.getSelectedRow();
         if (viewRow < 0) {
@@ -325,6 +395,7 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
         TaiKhoan selected = tableModel.getAt(modelRow);
         if (selected == null) return;
 
+        // Bảo vệ không khóa tài khoản admin mặc định
         if ("admin".equalsIgnoreCase(selected.getTenDangNhap())) {
             JOptionPane.showMessageDialog(this,
                     "Không thể khóa tài khoản quản trị viên mặc định!",
@@ -354,16 +425,25 @@ public class QuanLyTaiKhoanPanel extends javax.swing.JPanel {
         }
     }
 
+    /**
+     * Cập nhật nhãn hiển thị số lượng tài khoản trong bảng.
+     */
     private void applyFilter() {
         if (lblCount != null) {
             lblCount.setText(tableModel.getRowCount() + " tài khoản");
         }
     }
 
+    /**
+     * Nạp lại danh sách tài khoản từ DataStore vào table model.
+     */
     private void loadFromStore() {
         tableModel.setData(new ArrayList<>(DataStore.get().getTaiKhoans()));
     }
 
+    /**
+     * Đồng bộ danh sách tài khoản từ table model trở lại DataStore.
+     */
     private void syncStoreFromModel() {
         List<TaiKhoan> store = DataStore.get().getTaiKhoans();
         store.clear();

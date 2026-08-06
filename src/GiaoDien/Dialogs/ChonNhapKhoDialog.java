@@ -32,27 +32,60 @@ import java.util.List;
 
 /**
  * Dialog tìm kiếm chọn nhanh và nhập thêm số lượng cho vật tư/hàng hóa có sẵn trong Kho.
- * Hỗ trợ lọc tìm kiếm tức thì theo Tên, Mã, Nhà cung cấp và nhập số lượng cộng thêm vào tồn kho.
+ * <p>
+ * Hỗ trợ lọc tìm kiếm tức thì theo Tên hàng, Mã hàng, Nhà cung cấp và nhập số lượng cộng thêm vào tồn kho.
+ * Validation số lượng nhập thêm phải là số nguyên dương lớn hơn 0.
+ * </p>
+ *
+ * @author Nhóm 2 - DHTI17A3HN
+ * @version 1.0
  */
 public class ChonNhapKhoDialog extends JDialog {
 
+    /** Ô nhập liệu từ khóa tìm kiếm vật tư kho */
     private JTextField txtSearch;
+
+    /** Bảng hiển thị danh sách các mặt hàng kho hàng */
     private JTable tableKho;
+
+    /** Model điều khiển dữ liệu cho bảng kho */
     private DefaultTableModel modelKho;
+
+    /** Nhãn hiển thị tên và thông tin tồn kho hiện tại của mặt hàng đang chọn */
     private JLabel lblSelectedItem;
+
+    /** Ô nhập số lượng bổ sung cần cộng thêm vào kho */
     private JTextField txtSoLuongNhap;
 
+    /** Danh sách các vật tư kho đã lọc theo từ khóa tìm kiếm */
     private List<DichVu> filteredList = new ArrayList<>();
+
+    /** Đối tượng mặt hàng kho được người dùng chọn */
     private DichVu selectedVatPham;
+
+    /** Số lượng hàng hóa nhập bổ sung vào tồn kho */
     private int soLuongNhap = 0;
+
+    /** Cờ đánh dấu người dùng đã xác nhận nhập kho thành công */
     private boolean confirmed = false;
 
+    /**
+     * Khởi tạo thoại Nhập thêm số lượng vật tư kho hàng.
+     *
+     * @param parent      Cửa sổ cha (JFrame)
+     * @param preSelected Mặt hàng kho chọn sẵn từ trước (nếu có)
+     */
     public ChonNhapKhoDialog(JFrame parent, DichVu preSelected) {
         super(parent, "Nhập thêm số lượng vật tư kho hàng", true);
         this.selectedVatPham = preSelected;
         initComponents(parent);
     }
 
+    /**
+     * Khởi tạo và thiết lập vị trí các thành phần giao diện người dùng.
+     *
+     * @param parent Cửa sổ cha
+     */
     private void initComponents(JFrame parent) {
         setSize(760, 530);
         setResizable(false);
@@ -60,19 +93,19 @@ public class ChonNhapKhoDialog extends JDialog {
 
         setLayout(new BorderLayout());
 
-        // Header Panel
+        // ── 1. Header Panel ──────────────────────────────────────────────────
         JPanel pnlHeader = PageUI.createPageHeader(
                 "Nhập thêm số lượng vật tư kho",
                 "Tìm kiếm nhanh mặt hàng kho và nhập số lượng cộng thêm vào tồn kho hiện tại"
         );
         add(pnlHeader, BorderLayout.NORTH);
 
-        // Center Content Panel
+        // ── 2. Center Content Panel ──────────────────────────────────────────
         JPanel pnlCenter = new JPanel(new BorderLayout(0, 10));
         pnlCenter.setBackground(UIConstants.BG);
         pnlCenter.setBorder(BorderFactory.createEmptyBorder(12, 16, 8, 16));
 
-        // 1. Search Bar Panel
+        // Thanh tìm kiếm nhanh
         JPanel pnlSearch = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         pnlSearch.setOpaque(false);
 
@@ -95,7 +128,7 @@ public class ChonNhapKhoDialog extends JDialog {
 
         pnlCenter.add(pnlSearch, BorderLayout.NORTH);
 
-        // 2. Table List Panel
+        // Bảng danh sách vật tư kho hàng
         String[] headers = {"Mã HH", "Tên mặt hàng kho", "Đơn giá", "Tồn kho", "Đơn vị", "Nhà cung cấp"};
         modelKho = new DefaultTableModel(headers, 0) {
             @Override
@@ -110,13 +143,14 @@ public class ChonNhapKhoDialog extends JDialog {
         tableKho.getTableHeader().setFont(UIConstants.FONT_BOLD);
         tableKho.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-        // Alignment
+        // Căn giữa văn bản cho các cột Mã, Tồn kho, Đơn vị
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
         tableKho.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
         tableKho.getColumnModel().getColumn(3).setCellRenderer(centerRenderer);
         tableKho.getColumnModel().getColumn(4).setCellRenderer(centerRenderer);
 
+        // Lắng nghe sự kiện thay đổi dòng chọn trên bảng
         tableKho.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 onRowSelected();
@@ -127,7 +161,7 @@ public class ChonNhapKhoDialog extends JDialog {
         scrollTable.setBorder(BorderFactory.createLineBorder(UIConstants.BORDER));
         pnlCenter.add(scrollTable, BorderLayout.CENTER);
 
-        // 3. Bottom Input Card
+        // Panel thông tin mặt hàng đã chọn & Ô nhập số lượng bổ sung
         JPanel pnlInputCard = new JPanel(new GridBagLayout());
         pnlInputCard.setBackground(Color.WHITE);
         pnlInputCard.setBorder(BorderFactory.createCompoundBorder(
@@ -165,7 +199,7 @@ public class ChonNhapKhoDialog extends JDialog {
 
         add(pnlCenter, BorderLayout.CENTER);
 
-        // Footer Action Panel
+        // ── 3. Footer Action Panel ───────────────────────────────────────────
         JPanel pnlFooter = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 12));
         pnlFooter.setBackground(UIConstants.BG);
 
@@ -190,6 +224,9 @@ public class ChonNhapKhoDialog extends JDialog {
         reloadTable();
     }
 
+    /**
+     * Tải lại danh sách mặt hàng kho trên bảng dựa trên từ khóa tìm kiếm lọc theo Tên, Mã, NCC.
+     */
     private void reloadTable() {
         modelKho.setRowCount(0);
         filteredList.clear();
@@ -236,6 +273,9 @@ public class ChonNhapKhoDialog extends JDialog {
         }
     }
 
+    /**
+     * Cập nhật nhãn mô tả mặt hàng đã chọn khi người dùng nhấn chuột chọn một dòng trên bảng.
+     */
     private void onRowSelected() {
         int r = tableKho.getSelectedRow();
         if (r >= 0 && r < filteredList.size()) {
@@ -246,6 +286,10 @@ public class ChonNhapKhoDialog extends JDialog {
         }
     }
 
+    /**
+     * Xử lý xác nhận nhập thêm số lượng kho.
+     * Kiểm tra số lượng nhập phải > 0 và lưu cờ confirmed.
+     */
     private void onConfirm() {
         if (selectedVatPham == null) {
             JOptionPane.showMessageDialog(this, "Vui lòng chọn 1 mặt hàng trong bảng danh sách.", "Thông báo", JOptionPane.WARNING_MESSAGE);
@@ -266,7 +310,24 @@ public class ChonNhapKhoDialog extends JDialog {
         dispose();
     }
 
+    /**
+     * Kiểm tra trạng thái đã bấm xác nhận nhập kho thành công hay chưa.
+     *
+     * @return true nếu người dùng hoàn tất nhập kho
+     */
     public boolean isConfirmed() { return confirmed; }
+
+    /**
+     * Lấy đối tượng DichVu đại diện cho mặt hàng kho được chọn.
+     *
+     * @return Đối tượng DichVu đại diện mặt hàng kho
+     */
     public DichVu getSelectedVatPham() { return selectedVatPham; }
+
+    /**
+     * Lấy số lượng vật tư kho nhập bổ sung.
+     *
+     * @return Số lượng nhập thêm (> 0)
+     */
     public int getSoLuongNhap() { return soLuongNhap; }
 }

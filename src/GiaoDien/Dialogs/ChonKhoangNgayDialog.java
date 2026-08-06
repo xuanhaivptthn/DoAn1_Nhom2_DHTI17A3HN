@@ -23,18 +23,42 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 /**
- * Dialog chọn Khoảng thời gian cụ thể (Từ ngày ... Đến ngày) cho Báo cáo tài chính.
+ * Dialog chọn Khoảng thời gian cụ thể (Từ ngày ... Đến ngày) cho Báo cáo tài chính và thống kê.
+ * <p>
+ * Hỗ trợ chọn nhanh bằng nút (7 ngày qua, 30 ngày qua, Tháng này) hoặc chọn ngày chi tiết qua ChonNgayDialog.
+ * Tiến hành kiểm tra ràng buộc Từ ngày phải nhỏ hơn hoặc bằng Đến ngày.
+ * </p>
+ *
+ * @author Nhóm 2 - DHTI17A3HN
+ * @version 1.0
  */
 public class ChonKhoangNgayDialog extends JDialog {
 
+    /** Định dạng ngày ISO yyyy-MM-dd */
     private final DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+    /** Ô hiển thị/nhập ngày bắt đầu */
     private JTextField txtFromDate;
+
+    /** Ô hiển thị/nhập ngày kết thúc */
     private JTextField txtToDate;
 
+    /** Giá trị Từ ngày (LocalDate) */
     private LocalDate fromDate;
+
+    /** Giá trị Đến ngày (LocalDate) */
     private LocalDate toDate;
+
+    /** Cờ xác nhận đã bấm nút Đồng ý */
     private boolean confirmed = false;
 
+    /**
+     * Khởi tạo thoại chọn khoảng thời gian.
+     *
+     * @param parent      Cửa sổ cha (JFrame)
+     * @param initialFrom Ngày bắt đầu mặc định (nếu null lấy 7 ngày trước)
+     * @param initialTo   Ngày kết thúc mặc định (nếu null lấy ngày hiện tại)
+     */
     public ChonKhoangNgayDialog(JFrame parent, LocalDate initialFrom, LocalDate initialTo) {
         super(parent, "Chọn Khoảng Thời Gian Báo Cáo", true);
         this.fromDate = initialFrom != null ? initialFrom : LocalDate.now().minusDays(7);
@@ -44,13 +68,18 @@ public class ChonKhoangNgayDialog extends JDialog {
         setLocationRelativeTo(parent);
     }
 
+    /**
+     * Bố trí giao diện người dùng dialog và gắn các bộ lắng nghe sự kiện.
+     */
     private void initComponents() {
         setLayout(new BorderLayout());
 
+        // ── 1. Header Panel ──────────────────────────────────────────────────
         JPanel pnlHeader = PageUI.createPageHeader("Chọn Khoảng Thời Gian Báo Cáo",
                 "Vui lòng chọn Từ ngày đến Đến ngày để tổng hợp báo cáo tài chính");
         add(pnlHeader, BorderLayout.NORTH);
 
+        // ── 2. Card Content Panel ────────────────────────────────────────────
         JPanel pnlCard = new JPanel(new GridBagLayout());
         pnlCard.setBorder(BorderFactory.createEmptyBorder(20, 24, 20, 24));
         pnlCard.setBackground(Color.WHITE);
@@ -59,7 +88,7 @@ public class ChonKhoangNgayDialog extends JDialog {
         gbc.insets = new Insets(8, 8, 8, 8);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // Từ ngày
+        // Trường "Từ ngày"
         gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0.35;
         pnlCard.add(new JLabel("Từ ngày (yyyy-MM-dd) *"), gbc);
 
@@ -70,6 +99,7 @@ public class ChonKhoangNgayDialog extends JDialog {
         gbc.gridx = 1; gbc.gridy = 0; gbc.weightx = 0.65;
         pnlCard.add(txtFromDate, gbc);
 
+        // Nút mở lịch chọn cho Từ ngày
         JButton btnPickFrom = new JButton();
         btnPickFrom.setIcon(Utils.IconUtils.getCalendarIcon(16));
         btnPickFrom.setPreferredSize(new Dimension(45, 34));
@@ -91,7 +121,7 @@ public class ChonKhoangNgayDialog extends JDialog {
             }
         });
 
-        // Đến ngày
+        // Trường "Đến ngày"
         gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 0.35;
         pnlCard.add(new JLabel("Đến ngày (yyyy-MM-dd) *"), gbc);
 
@@ -102,6 +132,7 @@ public class ChonKhoangNgayDialog extends JDialog {
         gbc.gridx = 1; gbc.gridy = 1; gbc.weightx = 0.65;
         pnlCard.add(txtToDate, gbc);
 
+        // Nút mở lịch chọn cho Đến ngày
         JButton btnPickTo = new JButton();
         btnPickTo.setIcon(Utils.IconUtils.getCalendarIcon(16));
         btnPickTo.setPreferredSize(new Dimension(45, 34));
@@ -123,10 +154,11 @@ public class ChonKhoangNgayDialog extends JDialog {
             }
         });
 
-        // Quick Buttons Panel
+        // ── 3. Quick Buttons Panel (Chọn nhanh khoảng thời gian) ────────────
         JPanel pnlQuick = new JPanel(new FlowLayout(FlowLayout.CENTER, 6, 0));
         pnlQuick.setOpaque(false);
 
+        // Chọn nhanh 7 ngày qua
         JButton btn7Days = new JButton("7 ngày qua");
         PageUI.styleSecondaryButton(btn7Days);
         btn7Days.addActionListener(e -> {
@@ -136,6 +168,7 @@ public class ChonKhoangNgayDialog extends JDialog {
             txtToDate.setText(toDate.format(fmt));
         });
 
+        // Chọn nhanh 30 ngày qua
         JButton btn30Days = new JButton("30 ngày qua");
         PageUI.styleSecondaryButton(btn30Days);
         btn30Days.addActionListener(e -> {
@@ -145,6 +178,7 @@ public class ChonKhoangNgayDialog extends JDialog {
             txtToDate.setText(toDate.format(fmt));
         });
 
+        // Chọn nhanh Tháng này
         JButton btnThisMonth = new JButton("Tháng này");
         PageUI.styleSecondaryButton(btnThisMonth);
         btnThisMonth.addActionListener(e -> {
@@ -164,7 +198,7 @@ public class ChonKhoangNgayDialog extends JDialog {
 
         add(pnlCard, BorderLayout.CENTER);
 
-        // Footer buttons
+        // ── 4. Footer Buttons Panel ──────────────────────────────────────────
         JPanel pnlFooter = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
         pnlFooter.setBackground(UIConstants.BG);
 
@@ -186,6 +220,10 @@ public class ChonKhoangNgayDialog extends JDialog {
         getRootPane().setDefaultButton(btnConfirm);
     }
 
+    /**
+     * Xử lý xác nhận dữ liệu khoảng thời gian đã nhập.
+     * Validate định dạng ngày YYYY-MM-DD và kiểm tra logic Từ ngày <= Đến ngày.
+     */
     private void onConfirm() {
         try {
             fromDate = LocalDate.parse(txtFromDate.getText().trim(), fmt);
@@ -206,14 +244,29 @@ public class ChonKhoangNgayDialog extends JDialog {
         dispose();
     }
 
+    /**
+     * Kiểm tra trạng thái đã bấm nút Đồng ý thành công hay chưa.
+     *
+     * @return true nếu người dùng chọn ngày hợp lệ và xác nhận
+     */
     public boolean isConfirmed() {
         return confirmed;
     }
 
+    /**
+     * Lấy giá trị ngày bắt đầu (Từ ngày).
+     *
+     * @return Đối tượng LocalDate đại diện cho Từ ngày
+     */
     public LocalDate getFromDate() {
         return fromDate;
     }
 
+    /**
+     * Lấy giá trị ngày kết thúc (Đến ngày).
+     *
+     * @return Đối tượng LocalDate đại diện cho Đến ngày
+     */
     public LocalDate getToDate() {
         return toDate;
     }
